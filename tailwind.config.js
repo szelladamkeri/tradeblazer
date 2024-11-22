@@ -12,7 +12,7 @@
 module.exports = {
   content: [
     './index.html',
-    //'./src/**/*.{vue,js,ts,jsx,tsx}', // Ensure this matches your project structure
+    './src/**/*.{vue,js,ts,jsx,tsx}', // Ensure this matches your project structure
   ],
   theme: {
     extend: {},
