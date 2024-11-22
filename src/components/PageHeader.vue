@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import HeaderLink from "./HeaderLink.vue"
 //defineProps<{
 //  msg: string
 //}>()
@@ -6,7 +7,11 @@
 
 <template>
   <header>
-    
+    this is our header :D
+    <HeaderLink/>
+    <div class="p-10 bg-blue-500 text-white">
+      Tailwind CSS is working!
+    </div>
   </header>
 </template>
 
