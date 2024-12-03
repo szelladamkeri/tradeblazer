@@ -8,7 +8,9 @@
 
 <template>
   <header>
-    this is our header :D
+    <HeaderLink/>
+    <HeaderLink/>
+    <HeaderLink/>
     <HeaderLink/>
     <div class="p-10 bg-blue-500 text-white">
       Tailwind CSS is working!
