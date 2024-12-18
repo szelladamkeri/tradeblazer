@@ -8,10 +8,33 @@
 
 <template>
   <header>
-    <HeaderLink/>
-    <HeaderLink/>
-    <HeaderLink/>
-    <HeaderLink/>
+    <HeaderLink>
+      <template #icon>
+        zsirke0
+      </template>
+      <template #heading>
+        tartalom
+      </template>
+
+    </HeaderLink>
+    <HeaderLink>
+      <template #icon>
+        zsirke1
+      </template>
+      <template #heading>
+        tartalom
+      </template>
+
+    </HeaderLink>
+    <HeaderLink>
+      <template #icon>
+        zsirke2
+      </template>
+      <template #heading>
+        tartalom
+      </template>
+
+    </HeaderLink>
     <div class="p-10 bg-blue-500 text-white">
       Tailwind CSS is working!
     </div>

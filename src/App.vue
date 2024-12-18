@@ -2,12 +2,13 @@
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 import PageHeader from './components/PageHeader.vue'
+import HomeView from './views/HomeView.vue';
 </script>
 
 <template>
   
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <!-- <header>
+     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
@@ -17,24 +18,25 @@ import PageHeader from './components/PageHeader.vue'
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
-  </header>
+  </header>  -->
 
-  <RouterView />
+  <HomeView class="w-auto mx-10" id="homeView"/>
 
-  <PageHeader />
+  
  
 </template>
 
 <style scoped>
+
 header {
   line-height: 1.5;
   max-height: 100vh;
 }
+#homeView{
+  background-color: rgba(1, 1, 1, 0.7);
+  backdrop-filter: blur(10px);
 
-.logo {
-  
 }
-
 nav {
   width: 100%;
   font-size: 12px;
