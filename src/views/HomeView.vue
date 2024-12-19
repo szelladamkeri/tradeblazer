@@ -4,19 +4,15 @@ import PageHeader from '../components/PageHeader.vue';
 </script>
 
 <template>
-  <main>
-    <!-- <TheWelcome /> -->
-    <PageHeader />
+    <main>
+        <!-- <TheWelcome /> -->
+        <PageHeader />
 
 
 
-  </main>
+    </main>
 </template>
 
 <style>
-#trending{
-
-}
-
-
+#trending {}
 </style>

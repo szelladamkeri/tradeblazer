@@ -6,86 +6,90 @@ import HomeView from './views/HomeView.vue';
 </script>
 
 <template>
-  
-  <!-- <header>
-     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+
+    <!-- <header>
+    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+        <HelloWorld msg="You did it!" />
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+            <nav>
+                <RouterLink to="/">Home</RouterLink>
+                <RouterLink to="/about">About</RouterLink>
+            </nav>
     </div>
   </header>  -->
 
-  <HomeView class="w-auto mx-10" id="homeView"/>
+    <HomeView class="w-auto mx-10" id="homeView" />
 
-  
- 
+    <!-- Lehetne ide egy opcionalis footer ami valami viewen es conditionon all -->
+    <!-- Meg esetleg amit akarunk még de majd meglátjuk mert így egész szegényes az app.vue (nincs sok ötletem/ünk hogy épülnek fel a vue-s appok) -->
+
+
+
 </template>
 
 <style scoped>
-
 header {
-  line-height: 1.5;
-  max-height: 100vh;
+    line-height: 1.5;
+    max-height: 100vh;
 }
-#homeView{
-  background-color: rgba(1, 1, 1, 0.7);
-  backdrop-filter: blur(10px);
+
+#homeView {
+    background-color: rgba(1, 1, 1, 0.7);
+    backdrop-filter: blur(10px);
 
 }
+
 nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 2rem;
 }
 
 nav a.router-link-exact-active {
-  color: var(--color-text);
+    color: var(--color-text);
 }
 
 nav a.router-link-exact-active:hover {
-  background-color: transparent;
+    background-color: transparent;
 }
 
 nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+    display: inline-block;
+    padding: 0 1rem;
+    border-left: 1px solid var(--color-border);
 }
 
 nav a:first-of-type {
-  border: 0;
+    border: 0;
 }
 
 @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+    header {
+        display: flex;
+        place-items: center;
+        padding-right: calc(var(--section-gap) / 2);
+    }
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+    .logo {
+        margin: 0 2rem 0 0;
+    }
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+    header .wrapper {
+        display: flex;
+        place-items: flex-start;
+        flex-wrap: wrap;
+    }
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
+    nav {
+        text-align: left;
+        margin-left: -1rem;
+        font-size: 1rem;
 
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+        padding: 1rem 0;
+        margin-top: 1rem;
+    }
 }
 </style>
