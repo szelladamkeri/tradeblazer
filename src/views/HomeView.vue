@@ -5,8 +5,10 @@ import PageHeader from '../components/PageHeader.vue';
 
 <template>
     <main>
-        <!-- <TheWelcome /> -->
         <PageHeader />
+
+
+        <PageMain />
 
 
 
