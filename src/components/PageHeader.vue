@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import HeaderLink from "./HeaderLink.vue"
 import "../assets/base.css"
-//defineProps<{
-//  msg: string
-//}>()
+defineProps<{
+    linkCount: Number
+}>()
 </script>
 
 <template>
