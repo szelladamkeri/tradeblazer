@@ -20,7 +20,7 @@ import HomeView from './views/HomeView.vue';
     </div>
   </header>  -->
 
-    <HomeView class="w-auto mx-10" id="homeView" />
+    <HomeView class="w-full border-2 my-5" id="ahomeView" />
 
     <!-- Lehetne ide egy opcionalis footer ami valami viewen es conditionon all -->
     <!-- Meg esetleg amit akarunk még de majd meglátjuk mert így egész szegényes az app.vue (nincs sok ötletem/ünk hogy épülnek fel a vue-s appok) -->

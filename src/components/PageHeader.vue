@@ -3,39 +3,21 @@ import HeaderLink from "./HeaderLink.vue"
 import "../assets/base.css"
 defineProps<{
     linkCount: Number
+
 }>()
 </script>
 
 <template>
-    <header>
-        <HeaderLink>
+    <header class="flex w-full">
+        <HeaderLink v-for="i in linkCount">
             <template #icon>
-                zsirke0
+
             </template>
             <template #heading>
-                tartalom
+                zsirke
             </template>
 
         </HeaderLink>
-        <HeaderLink>
-            <template #icon>
-                zsirke1
-            </template>
-            <template #heading>
-                tartalom
-            </template>
-
-        </HeaderLink>
-        <HeaderLink>
-            <template #icon>
-                zsirke2
-            </template>
-            <template #heading>
-                tartalom
-            </template>
-
-        </HeaderLink>
-
     </header>
 </template>
 

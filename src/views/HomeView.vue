@@ -5,25 +5,39 @@ import PageMain from '../components/PageMain.vue';
 </script>
 
 <template>
-    <main class="relative">
-        <PageHeader :link-count="3">
 
-        </PageHeader>
+    <!-- <PageHeader :link-count="3" class="">
+    </PageHeader>
+    <PageMain class="">
+        <div class="w-[75%] ml-[7.2rem] h-[80%] bg-black bg-opacity-70 backdrop-blur-xl 
+                    absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+                    flex items-center justify-center">
+            <div class="">
 
-        <div class="w-[93.6rem] ml-[7.2rem] h-[46rem] bg-black bg-opacity-70 backdrop-blur-xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
-
-        <PageMain>
-            <div class="zsirke">
-                balls
             </div>
-        </PageMain>
+        </div>
+    </PageMain> -->
 
-    </main>
+    <div class=" w-full h-full">
+
+        <PageHeader :link-count="3" class=""></PageHeader>
+        <PageMain></PageMain>
+
+        <!-- <PageMain class="flex-grow bg-black bg-opacity-70 backdrop-blur-xl">
+            <div class="w-full h-full flex items-center justify-center">
+                <div class="text-white">
+                    Content
+                </div>
+            </div>
+        </PageMain> -->
+    </div>
+
 </template>
 
 <style>
 main {
     position: relative;
 }
+
 #trending {}
 </style>
