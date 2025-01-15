@@ -9,6 +9,10 @@ const port = 3000;
 // Enable CORS
 app.use(cors());
 
+// Add middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Read the ini file
 const config = ini.parse(fs.readFileSync('./db/db_config.ini', 'utf-8'));
 
@@ -28,14 +32,58 @@ con.connect(function(err) {
     console.log("Connected to the database!");
 });
 
-// Define API route
-app.get('/api/data', (req, res) => {
-    con.query('SELECT * FROM users', function (err, result) {
-        if (err) {
-            res.status(500).json({ error: 'Database query error' });
-            return;
-        }
-        res.status(200).json(result);
+// Test database connection before query
+const testConnection = () => {
+    return new Promise((resolve, reject) => {
+        con.ping((err) => {
+            if (err) reject(err);
+            resolve();
+        });
+    });
+};
+
+// Updated API route with proper query and validation
+app.get('/api/data', async (req, res) => {
+    try {
+        await testConnection();
+        con.query('SELECT * FROM assets', function (err, result) {
+            if (err) {
+                console.error('Database query error:', err);
+                return res.status(500).json({ 
+                    error: 'Database query error', 
+                    message: err.message 
+                });
+            }
+            
+            if (!result || result.length === 0) {
+                return res.status(404).json({
+                    error: 'No data found',
+                    message: 'The assets table is empty'
+                });
+            }
+
+            res.json(result);
+        });
+    } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(500).json({ 
+            error: 'Database connection error', 
+            message: error.message 
+        });
+    }
+});
+
+// Add a health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date() });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        error: 'Server error', 
+        message: err.message 
     });
 });
 
