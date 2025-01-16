@@ -20,7 +20,7 @@ import HomeView from './views/HomeView.vue';
     </div>
   </header>  -->
 
-    <HomeView class="w-full border-2 my-5" id="ahomeView" />
+    <HomeView id="ahomeView" />
 
     <!-- Lehetne ide egy opcionalis footer ami valami viewen es conditionon all -->
     <!-- Meg esetleg amit akarunk még de majd meglátjuk mert így egész szegényes az app.vue (nincs sok ötletem/ünk hogy épülnek fel a vue-s appok) -->
@@ -35,18 +35,13 @@ header {
     max-height: 100vh;
 }
 
-#homeView {
-    background-color: rgba(1, 1, 1, 0.7);
-    backdrop-filter: blur(10px);
-
-}
-
 nav {
     width: 100%;
     font-size: 12px;
     text-align: center;
     margin-top: 2rem;
 }
+
 
 nav a.router-link-exact-active {
     color: var(--color-text);

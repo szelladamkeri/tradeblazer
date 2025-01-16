@@ -38,22 +38,20 @@ onMounted(() => {
 </script>
 
 <template>
-    <main class="relative">
-        <PageHeader :link-count="3">
-        </PageHeader>
-
-        <div class="w-[93.6rem] ml-[7.2rem] h-[46rem] bg-black bg-opacity-70 backdrop-blur-xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <PageHeader :link-count="3" />
+    <PageMain class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-7xl mx-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl p-8 md:p-12 lg:p-16">
             <div v-if="loading" class="text-white text-center py-8">
                 Loading assets...
             </div>
             <div v-else-if="error" class="text-red-500 text-center py-8">
                 {{ error }}
             </div>
-            <div v-else class="grid grid-cols-3 gap-6 p-8">
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-8">
                 <div v-for="asset in assets" 
-                     :key="asset.id" 
-                     class="bg-white bg-opacity-10 p-4 rounded-lg">
-                    <h3 class="text-white text-xl font-bold">{{ asset.name }}</h3>
+                    :key="asset.id" 
+                    class="bg-white bg-opacity-10 p-4 rounded-lg transform transition-all duration-300 hover:scale-105 hover:bg-opacity-20 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+                    <h3 class="text-white text-lg md:text-xl font-bold">{{ asset.name }}</h3>
                     <div class="mt-2 space-y-2">
                         <span class="text-gray-300 block">{{ asset.symbol }}</span>
                         <span class="text-gray-400 block uppercase text-sm">{{ asset.type }}</span>
@@ -62,18 +60,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-
-        <PageMain>
-            <div class="zsirke">
-                <!-- Remove the users loop since we're now displaying assets -->
-            </div>
-        </PageMain>
-    </main>
+    </PageMain>
 </template>
 
 <style scoped>
-main {
-    position: relative;
-}
-#trending {}
 </style>
