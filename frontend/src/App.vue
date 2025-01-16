@@ -5,8 +5,8 @@ import HomeView from './views/HomeView.vue';
 
 <template>
 
-    <!-- <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  
+    <!-- <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
         <HelloWorld msg="You did it!" />
@@ -15,12 +15,14 @@ import HomeView from './views/HomeView.vue';
                 <RouterLink to="/">Home</RouterLink>
                 <RouterLink to="/about">About</RouterLink>
             </nav>
+    </div> -->
+  
+    <!-- <HomeView id="ahomeView" /> -->
+    <!-- <div class="w-full h-screen flex flex-col justify-center items-center content-center "> -->
+    <div class=" mx-auto w-screen h-screen flex flex-col justify-center items-center content-center ">
+        <component :is="HomeView"></component>
     </div>
-  </header>  -->
-    <HomeView id="ahomeView" />
-
-    <!-- Lehetne ide egy opcionalis footer ami valami viewen es conditionon all -->
-    <!-- Meg esetleg amit akarunk még de majd meglátjuk mert így egész szegényes az app.vue (nincs sok ötletem/ünk hogy épülnek fel a vue-s appok) -->
+  
 
 
 
