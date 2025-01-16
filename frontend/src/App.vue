@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-import PageHeader from './components/PageHeader.vue'
 import HomeView from './views/HomeView.vue';
 </script>
 
@@ -19,7 +17,6 @@ import HomeView from './views/HomeView.vue';
             </nav>
     </div>
   </header>  -->
-
     <HomeView id="ahomeView" />
 
     <!-- Lehetne ide egy opcionalis footer ami valami viewen es conditionon all -->

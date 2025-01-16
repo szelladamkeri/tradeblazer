@@ -1,45 +1,59 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+    import PageHeader from '@/components/PageHeader.vue';
+    import PageMain from '@/components/PageMain.vue';
+    import HeaderLink from '@/components/HeaderLink.vue';
+    import { ref, onMounted } from 'vue';
 
-interface Asset {
-    id: number;
-    name: string;
-    type: 'stock' | 'forex' | 'crypto';
-    symbol: string;
-    price: number;
-}
-
-const assets = ref<Asset[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
-
-const fetchData = async (): Promise<void> => {
-    try {
-        loading.value = true;
-        const response = await fetch('http://localhost:3000/api/data');
-        
-        if (!response.ok) {
-            throw new Error(`Server returned ${response.status}: ${await response.text()}`);
-        }
-        
-        const data = await response.json();
-        assets.value = data;
-    } catch (err) {
-        error.value = `Error fetching data: ${err instanceof Error ? err.message : 'Unknown error'}`;
-        console.error('Fetch error:', err);
-    } finally {
-        loading.value = false;
+    interface Asset {
+        id: number;
+        name: string;
+        type: 'stock' | 'forex' | 'crypto';
+        symbol: string;
+        price: number;
     }
-};
 
-onMounted(() => {
-    fetchData();
-});
+    const assets = ref<Asset[]>([]);
+    const loading = ref(true);
+    const error = ref<string | null>(null);
+
+    const fetchData = async (): Promise<void> => {
+        try {
+            loading.value = true;
+            const response = await fetch('http://localhost:3000/api/data');
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${await response.text()}`);
+            }
+
+            const data = await response.json();
+            assets.value = data;
+        } catch (err) {
+            error.value = `Error fetching data: ${err instanceof Error ? err.message : 'Unknown error'}`;
+            console.error('Fetch error:', err);
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    onMounted(() => {
+        fetchData();
+    });
 </script>
 
 <template>
-    <PageHeader :link-count="3" />
-    <PageMain class="min-h-screen flex items-center justify-center p-4">
+    
+    <PageHeader class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl h-auto">
+        <HeaderLink>
+            <template #icon>
+
+            </template>
+            <template #heading>
+                zsirke
+            </template>
+
+        </HeaderLink>
+    </PageHeader>
+    <PageMain class=" w-full flex items-center justify-center p-4">
         <div class="w-full max-w-7xl mx-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl p-8 md:p-12 lg:p-16">
             <div v-if="loading" class="text-white text-center py-8">
                 Loading assets...
@@ -50,7 +64,8 @@ onMounted(() => {
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-8">
                 <div v-for="asset in assets" 
                     :key="asset.id" 
-                    class="bg-white bg-opacity-10 p-4 rounded-lg transform transition-all duration-300 hover:scale-105 hover:bg-opacity-20 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+                    class="bg-white bg-opacity-10 p-4 rounded-lg transform transition-all duration-300 
+                            hover:scale-105 hover:bg-opacity-20 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
                     <h3 class="text-white text-lg md:text-xl font-bold">{{ asset.name }}</h3>
                     <div class="mt-2 space-y-2">
                         <span class="text-gray-300 block">{{ asset.symbol }}</span>
