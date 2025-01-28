@@ -7,26 +7,35 @@
     interface Asset {
         id: number;
         name: string;
-        type: 'stock' | 'forex' | 'crypto';
+        type: string; //using /api/types
         symbol: string;
         price: number;
     }
 
     const assets = ref<Asset[]>([]);
+    const types = ref<string[]>([]);
     const loading = ref(true);
     const error = ref<string | null>(null);
 
     const fetchData = async (): Promise<void> => {
         try {
             loading.value = true;
-            const response = await fetch('http://localhost:3000/api/data');
+            const [assetsResponse, typesResponse] = await Promise.all([
+                fetch('http://localhost:3000/api/data'),
+                fetch('http://localhost:3000/api/types')
+            ]);
 
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${await response.text()}`);
+            if (!assetsResponse.ok) {
+                throw new Error(`Server returned ${assetsResponse.status}: ${await assetsResponse.text()}`);
+            }
+            if (!typesResponse.ok) {
+                throw new Error(`Server returned ${typesResponse.status}: ${await typesResponse.text()}`);
             }
 
-            const data = await response.json();
-            assets.value = data;
+            const assetsData = await assetsResponse.json();
+            const typesData = await typesResponse.json();
+            assets.value = assetsData;
+            types.value = typesData;
         } catch (err) {
             error.value = `Error fetching data: ${err instanceof Error ? err.message : 'Unknown error'}`;
             console.error('Fetch error:', err);
