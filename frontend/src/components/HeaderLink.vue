@@ -1,14 +1,7 @@
-<script setup lang="ts">
+<script setup>
 
 </script>
-<!--
-<template>
-    <div class="w-auto justify-center w-auto p-1.5">
-        this is a navbar link :D
-    </div>
 
-</template>
--->
 <template>
     <div class="w-auto justify-center p-1.5 item">
         <i>
