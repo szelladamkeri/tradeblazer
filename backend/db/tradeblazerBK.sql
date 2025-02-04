@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 04. 09:46
+-- Létrehozás ideje: 2024. Nov 22. 09:15
 -- Kiszolgáló verziója: 10.4.28-MariaDB
 -- PHP verzió: 8.1.17
 
@@ -32,21 +32,19 @@ CREATE TABLE `assets` (
   `name` varchar(255) NOT NULL,
   `type` enum('stock','forex','crypto') NOT NULL,
   `symbol` varchar(50) NOT NULL,
-  `price` decimal(15,8) NOT NULL,
-  `exchange` varchar(50) NOT NULL
+  `price` decimal(15,8) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `assets`
 --
 
-INSERT INTO `assets` (`id`, `name`, `type`, `symbol`, `price`, `exchange`) VALUES
-(1, 'Bitcoin / U.S. Dollar', 'crypto', 'BTCUSD', 98306.00000000, ''),
-(2, 'Ethereum / U.S. Dollar', 'crypto', 'ETHUSD', 2693.66000000, ''),
-(3, 'Apple Inc', 'stock', 'AAPL', 228.01000000, 'NASDAQ'),
-(4, 'Google', 'stock', 'GOOG', 2800.00000000, 'NASDAQ'),
-(5, 'EUR/USD', 'forex', 'EUR/USD', 1.05000000, ''),
-(6, 'NASDAQ Composite Index', 'stock', 'NASDAQ', 15000.00000000, 'NASDAQ');
+INSERT INTO `assets` (`id`, `name`, `type`, `symbol`, `price`) VALUES
+(1, 'Bitcoin', 'crypto', 'BTC', 35000.00000000),
+(2, 'Ethereum', 'crypto', 'ETH', 2500.00000000),
+(3, 'Apple', 'stock', 'AAPL', 150.00000000),
+(4, 'Google', 'stock', 'GOOG', 2800.00000000),
+(5, 'EUR/USD', 'forex', 'EUR/USD', 1.05000000);
 
 -- --------------------------------------------------------
 
@@ -137,8 +135,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `balance`) VALUES
-(1, 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', '2024-11-22 08:14:38', 0.00),
-(2, 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', '2025-02-04 08:34:40', 0.00);
+(1, 'john_doe', 'john@example.com', 'password123', '2024-11-22 08:14:38', 0.00);
 
 -- --------------------------------------------------------
 
@@ -240,7 +237,7 @@ ALTER TABLE `watchlist`
 -- AUTO_INCREMENT a táblához `assets`
 --
 ALTER TABLE `assets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `orders`
@@ -264,7 +261,7 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT a táblához `user_assets`
