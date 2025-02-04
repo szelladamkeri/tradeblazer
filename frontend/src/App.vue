@@ -4,28 +4,10 @@ import HomeView from './views/HomeView.vue';
 </script>
 
 <template>
-
-  
-    <!-- <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-        <HelloWorld msg="You did it!" />
-
-            <nav>
-                <RouterLink to="/">Home</RouterLink>
-                <RouterLink to="/about">About</RouterLink>
-            </nav>
-    </div> -->
-  
-    <!-- <HomeView id="ahomeView" /> -->
     <!-- <div class="w-full h-screen flex flex-col justify-center items-center content-center "> -->
     <div class=" mx-auto w-screen h-screen flex flex-col justify-center items-center content-center ">
-        <component :is="HomeView"></component>
+        <RouterView />
     </div>
-  
-
-
-
 </template>
 
 <style scoped>
