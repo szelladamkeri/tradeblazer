@@ -70,6 +70,17 @@
 
             </template>
         </HeaderLink>
+        <HeaderLink>
+            <template #icon>
+
+            </template>
+            <template #heading >
+                <router-link to="profile">Profile</router-link>
+
+            </template>
+
+        </HeaderLink>
+        <!-- valami ami kiszedi a routeekbol a navbart erdemlo vieweket es ide berakna automatikusan -->
     </PageHeader>
     <PageMain class="w-full flex h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl p-4 mx-8">
         <div class="w-full max-w-7xl mx-auto p-8 md:p-12 lg:p-16 xl:p-16">

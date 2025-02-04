@@ -1,15 +1,20 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import AboutView from '../views/AboutView.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import AboutView from '../views/AboutView.vue'
+import ProfileView from '../views/ProfileView.vue'
 //import store from '@/main'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            //Lehetne valamilyen propertyje egy viewnek ami megmondana a frontnednek hogy navbart kapjon plusz esetleg egy icon mert a homenak akarunk
             path: '/home',
             name: 'home',
             component: HomeView,
+            meta:{
+                navbar: true,
+            },
         },
         {
             path: '/about',
@@ -19,7 +24,11 @@ const router = createRouter({
         {
             path: '/profile',
             name: 'profile',
-            component: AboutView,
+            component: ProfileView,
+            meta:{
+                navbar: true,
+                requiresAuth: true,
+            },
         },
         {
             path: '/search',
