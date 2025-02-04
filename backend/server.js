@@ -42,7 +42,6 @@ const testConnection = () => {
     });
 };
 
-// Updated API route with proper query and validation
 app.get('/api/data', async (req, res) => {
     try {
         await testConnection();
@@ -73,7 +72,37 @@ app.get('/api/data', async (req, res) => {
     }
 });
 
-// Add a health check endpoint
+app.get('/api/types', async (req, res) => {
+    try {
+        await testConnection();
+        con.query('SELECT DISTINCT type FROM assets', function (err, result) {
+            if (err) {
+                console.error('Database query error:', err);
+                return res.status(500).json({ 
+                    error: 'Database query error', 
+                    message: err.message 
+                });
+            }
+
+            if (!result || result.length === 0) {
+                return res.status(404).json({
+                    error: 'No types found',
+                    message: 'The assets table has no types'
+                });
+            }
+
+            const types = result.map(row => row.type);
+            res.json(types);
+        });
+    } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(500).json({ 
+            error: 'Database connection error', 
+            message: error.message 
+        });
+    }
+});
+
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
