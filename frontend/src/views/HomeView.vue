@@ -42,7 +42,7 @@
 
 <template>
     
-    <PageHeader class="w-full h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl flex items-center justify-around max-w-7xl mx-8">
+    <PageHeader class="w-full flex h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-around max-w-7xl mb-2 p-4 mx-8">
         <HeaderLink>
             <template #icon>
 
@@ -63,8 +63,8 @@
 
         </HeaderLink>
     </PageHeader>
-    <PageMain class=" w-full flex items-center justify-center p-4 mx-8">
-        <div class="w-full max-w-7xl mx-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl p-8 md:p-12 lg:p-16">
+    <PageMain class=" w-full flex h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl p-4 mx-8">
+        <div class="w-full max-w-7xl mx-auto  p-8 md:p-12 lg:p-16">
             <div v-if="loading" class="text-white text-center py-8">
                 Loading assets...
             </div>
