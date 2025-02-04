@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const fs = require('fs');
 const ini = require('ini');
 const app = express();
+const port = 3000;
 
 // Enable CORS
 app.use(cors());
@@ -113,4 +114,8 @@ app.use((err, req, res, next) => {
         error: 'Server error', 
         message: err.message 
     });
+});
+
+app.listen(port, () => {
+    console.log(`Backend server is running on http://localhost:${port}`);
 });
