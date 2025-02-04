@@ -71,7 +71,7 @@
             </template>
         </HeaderLink>
     </PageHeader>
-    <PageMain class="w-full flex h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl p-4 mx-8">
+    <PageMain class="w-full flex h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl p-4 mx-8">
         <div class="w-full max-w-7xl mx-auto p-8 md:p-12 lg:p-16 xl:p-16">
             <div v-if="loading" class="text-white text-center py-8">
                 Loading assets...
