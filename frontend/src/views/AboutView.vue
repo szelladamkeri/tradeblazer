@@ -21,13 +21,22 @@
             <template #heading >
                 <router-link to="about">About</router-link>
             </template>
-
         </HeaderLink>
+        
         <HeaderLink>
             <template #icon>
             </template>
             <template #heading >
                 <router-link to="profile">Profile</router-link>
+            </template>
+
+        </HeaderLink>
+
+        <HeaderLink>
+            <template #icon>
+            </template>
+            <template #heading >
+                <router-link to="login">Login</router-link>
             </template>
 
         </HeaderLink>
