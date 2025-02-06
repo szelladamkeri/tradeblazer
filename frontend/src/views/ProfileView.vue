@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import PageHeader from '@/components/PageHeader.vue';
-    import PageMain from '@/components/PageMain.vue';
-    import HeaderLink from '@/components/HeaderLink.vue';
+    import PageHeader from '@/components/PageHeader.vue'
+    import PageMain from '@/components/PageMain.vue'
+    import HeaderLink from '@/components/HeaderLink.vue'
 
 </script>
 
@@ -25,11 +25,9 @@
         </HeaderLink>
         <HeaderLink>
             <template #icon>
-
             </template>
             <template #heading >
                 <router-link to="profile">Profile</router-link>
-
             </template>
 
         </HeaderLink>
@@ -42,12 +40,12 @@
     </PageMain>
 </template>
 
-<style>
-@media (min-width: 1024px) {
+<style scoped>
+/* @media (min-width: 1024px) {
     .about {
         min-height: 100vh;
         display: flex;
         align-items: center;
     }
-}
+} */
 </style>

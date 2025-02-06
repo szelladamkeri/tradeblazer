@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import PageHeader from '@/components/PageHeader.vue';
-    import PageMain from '@/components/PageMain.vue';
-    import HeaderLink from '@/components/HeaderLink.vue';
+    import PageHeader from '@/components/PageHeader.vue'
+    import PageMain from '@/components/PageMain.vue'
+    import HeaderLink from '@/components/HeaderLink.vue'
     import { ref, onMounted } from 'vue';
 
     interface Asset {
@@ -54,7 +54,6 @@
     <PageHeader class="w-full flex h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-around max-w-7xl p-4 mx-8 mb-2">
         <HeaderLink>
             <template #icon>
-
             </template>
             <template #heading >
                 <router-link to="/">Home</router-link>
@@ -63,20 +62,16 @@
 
         <HeaderLink>
             <template #icon>
-
             </template>
             <template #heading >
                 <router-link to="about">About</router-link>
-
             </template>
         </HeaderLink>
         <HeaderLink>
             <template #icon>
-
             </template>
             <template #heading >
                 <router-link to="profile">Profile</router-link>
-
             </template>
 
         </HeaderLink>
@@ -108,4 +103,5 @@
 </template>
 
 <style scoped>
+
 </style>
