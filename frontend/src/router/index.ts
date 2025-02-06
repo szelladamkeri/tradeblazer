@@ -9,7 +9,7 @@ const router = createRouter({
     routes: [
         {
             //Lehetne valamilyen propertyje egy viewnek ami megmondana a frontnednek hogy navbart kapjon plusz esetleg egy icon mert a homenak akarunk
-            path: '/home',
+            path: '/',
             name: 'home',
             component: HomeView,
             meta:{
