@@ -37,7 +37,11 @@
             assets.value = assetsData;
             types.value = typesData;
         } catch (err) {
-            error.value = `Error fetching data: ${err instanceof Error ? err.message : 'Unknown error'}`;
+            if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+                error.value = 'Error fetching data: Server is not running';
+            } else {
+                error.value = `Error fetching data: ${err instanceof Error ? err.message : 'Unknown error'}`;
+            }
             console.error('Fetch error:', err);
         } finally {
             loading.value = false;
