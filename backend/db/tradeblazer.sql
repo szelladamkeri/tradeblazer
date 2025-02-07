@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 04. 09:46
+-- Létrehozás ideje: 2025. Feb 07. 11:52
 -- Kiszolgáló verziója: 10.4.28-MariaDB
 -- PHP verzió: 8.1.17
 
@@ -20,6 +20,20 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `tradeblazer`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `activity_log`
+--
+
+CREATE TABLE `activity_log` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -47,6 +61,39 @@ INSERT INTO `assets` (`id`, `name`, `type`, `symbol`, `price`, `exchange`) VALUE
 (4, 'Google', 'stock', 'GOOG', 2800.00000000, 'NASDAQ'),
 (5, 'EUR/USD', 'forex', 'EUR/USD', 1.05000000, ''),
 (6, 'NASDAQ Composite Index', 'stock', 'NASDAQ', 15000.00000000, 'NASDAQ');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `credit_cards`
+--
+
+CREATE TABLE `credit_cards` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `card_number` varchar(16) NOT NULL,
+  `card_holder` varchar(100) NOT NULL,
+  `expiry_date` varchar(5) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `earnings_calendar`
+--
+
+CREATE TABLE `earnings_calendar` (
+  `id` int(11) NOT NULL,
+  `company_name` varchar(255) NOT NULL,
+  `symbol` varchar(50) NOT NULL,
+  `earnings_date` date NOT NULL,
+  `earnings_time` enum('before_open','after_close','during_market') NOT NULL,
+  `forecast_eps` decimal(10,2) DEFAULT NULL,
+  `actual_eps` decimal(10,2) DEFAULT NULL,
+  `revenue` decimal(15,2) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -129,16 +176,17 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `balance` decimal(15,2) DEFAULT 0.00
+  `balance` decimal(15,2) DEFAULT 0.00,
+  `avatar` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `balance`) VALUES
-(1, 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', '2024-11-22 08:14:38', 0.00),
-(2, 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', '2025-02-04 08:34:40', 0.00);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `balance`, `avatar`) VALUES
+(1, 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', '2024-11-22 08:14:38', 0.00, NULL),
+(2, 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', '2025-02-04 08:34:40', 0.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -180,9 +228,29 @@ CREATE TABLE `watchlist` (
 --
 
 --
+-- A tábla indexei `activity_log`
+--
+ALTER TABLE `activity_log`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- A tábla indexei `assets`
 --
 ALTER TABLE `assets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `credit_cards`
+--
+ALTER TABLE `credit_cards`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- A tábla indexei `earnings_calendar`
+--
+ALTER TABLE `earnings_calendar`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -237,10 +305,28 @@ ALTER TABLE `watchlist`
 --
 
 --
+-- AUTO_INCREMENT a táblához `activity_log`
+--
+ALTER TABLE `activity_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT a táblához `assets`
 --
 ALTER TABLE `assets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT a táblához `credit_cards`
+--
+ALTER TABLE `credit_cards`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT a táblához `earnings_calendar`
+--
+ALTER TABLE `earnings_calendar`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT a táblához `orders`
@@ -281,6 +367,18 @@ ALTER TABLE `watchlist`
 --
 -- Megkötések a kiírt táblákhoz
 --
+
+--
+-- Megkötések a táblához `activity_log`
+--
+ALTER TABLE `activity_log`
+  ADD CONSTRAINT `activity_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Megkötések a táblához `credit_cards`
+--
+ALTER TABLE `credit_cards`
+  ADD CONSTRAINT `credit_cards_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Megkötések a táblához `orders`
