@@ -107,7 +107,7 @@
             <div v-else class="space-y-4">
                 <!-- Trending Asset Section -->
                 <div v-if="getTrendingAsset()" class="w-full mb-4">
-                    <h2 class="text-white text-xl sm:text-2xl font-bold mb-2 px-1">Trending Now</h2>
+                    <h2 class="text-white text-xl sm:text-2xl font-bold mb-2 px-1">Trending Now on TradeBlazer</h2>
                     <div class="bg-white bg-opacity-20 p-3 rounded-xl transform transition-all duration-300 
                               hover:bg-opacity-30 hover:shadow-2xl cursor-pointer w-full">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
