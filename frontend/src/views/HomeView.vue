@@ -59,8 +59,7 @@
 </script>
 
 <template>
-    <PageHeader class="w-full flex flex-wrap h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl 
-                       items-center justify-center sm:justify-around max-w-7xl p-2 sm:p-4 mx-2 sm:mx-8 mb-2 gap-2">
+    <PageHeader >
         <HeaderLink class="w-[45%] sm:w-auto text-center">
             <template #icon>
             </template>
@@ -91,7 +90,6 @@
             <template #heading >
                 <router-link to="login">Login</router-link>
             </template>
-
         </HeaderLink>
         <!-- valami ami kiszedi a routeekbol a navbart erdemlo vieweket es ide berakna automatikusan -->
     </PageHeader>

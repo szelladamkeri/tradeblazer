@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import AboutView from '../views/AboutView.vue'
-import ProfileView from '../views/ProfileView.vue'
-import LoginView from '../views/LoginView.vue'
+import { default as Home } from '../views/HomeView.vue'
+import { default as About } from '../views/AboutView.vue'
+import { default as Profile } from '../views/ProfileView.vue'
+import { default as Login } from '../views/LoginView.vue'
+import { default as NotFound } from '../views/NotFoundView.vue'
 //import store from '@/main'
 
 const router = createRouter({
@@ -12,35 +13,40 @@ const router = createRouter({
             //Lehetne valamilyen propertyje egy viewnek ami megmondana a frontnednek hogy navbart kapjon plusz esetleg egy icon mert a homenak akarunk
             path: '/',
             name: 'home',
-            component: HomeView,
+            component: Home,
             meta:{
-                navbar: true,
+                //navbar: true,
             },
         },
         {
             path: '/about',
             name: 'about',
-            component: AboutView,
+            component: About,
         },
         {
             path: '/profile',
             name: 'profile',
-            component: ProfileView,
+            component: Profile,
             meta:{
-                navbar: true,
+                //navbar: true,
                 requiresAuth: true,
             },
         },
         {
             path: '/search',
             name: 'search',
-            component: AboutView,
+            component: About,
         },
         {
             path: '/login',
             name: 'login',
-            component: LoginView,
+            component: Login,
         },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'NotFound',
+            component: NotFound
+        }
         /*{
             path: '/register',
             name: 'register',

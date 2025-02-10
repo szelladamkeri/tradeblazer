@@ -8,8 +8,9 @@ defineProps<{
 </script>
 
 <template>
-    <header class="flex w-full">
-        <slot />
+    <!-- <header class="flex w-full"> -->
+    <header class="w-full flex flex-wrap h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center sm:justify-around max-w-7xl p-2 sm:p-4 mx-2 sm:mx-8 mb-2 gap-2">
+        <slot  />
     </header>
 </template>
 

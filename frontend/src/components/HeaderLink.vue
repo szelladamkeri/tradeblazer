@@ -1,7 +1,9 @@
-<script setup>
-
+<script setup lang="ts">
+import "../assets/base.css"
+//defineProps<{
+//  msg: string
+//}>()
 </script>
-
 <template>
     <div class="w-auto justify-center p-1.5 item">
         <i>
@@ -15,4 +17,6 @@
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>

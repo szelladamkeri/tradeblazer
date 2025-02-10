@@ -5,7 +5,7 @@ import HomeView from './views/HomeView.vue';
 
 <template>
     <!-- <div class="w-full h-screen flex flex-col justify-center items-center content-center "> -->
-    <div class=" mx-auto w-screen h-screen flex flex-col justify-center items-center content-center py-12">
+    <div class=" mx-auto w-screen h-screen flex flex-col justify-center items-center content-center py-12 select-none">
         <RouterView />
     </div>
 </template>

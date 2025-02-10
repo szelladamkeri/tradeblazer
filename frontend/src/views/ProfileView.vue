@@ -6,8 +6,8 @@
 </script>
 
 <template>
-    <PageHeader class="w-full flex h-auto bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-around max-w-7xl p-4 mx-8 mb-2">
-        <HeaderLink>
+    <PageHeader>
+        <HeaderLink class="w-[45%] sm:w-auto text-center">
             <template #icon>
             </template>
             <template #heading >
@@ -15,15 +15,14 @@
             </template>
         </HeaderLink>
 
-        <HeaderLink>
+        <HeaderLink class="w-[45%] sm:w-auto text-center">
             <template #icon>
             </template>
             <template #heading >
                 <router-link to="about">About</router-link>
             </template>
-
         </HeaderLink>
-        <HeaderLink>
+        <HeaderLink class="w-[45%] sm:w-auto text-center">
             <template #icon>
             </template>
             <template #heading >
@@ -32,13 +31,12 @@
 
         </HeaderLink>
         
-        <HeaderLink>
+        <HeaderLink class="w-[45%] sm:w-auto text-center">
             <template #icon>
             </template>
             <template #heading >
                 <router-link to="login">Login</router-link>
             </template>
-
         </HeaderLink>
         <!-- valami ami kiszedi a routeekbol a navbart erdemlo vieweket es ide berakna automatikusan -->
     </PageHeader>
