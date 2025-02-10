@@ -95,8 +95,8 @@
         </HeaderLink>
         <!-- valami ami kiszedi a routeekbol a navbart erdemlo vieweket es ide berakna automatikusan -->
     </PageHeader>
-    <PageMain class="w-[95%] sm:w-full max-w-7xl flex flex-col h-full bg-black bg-opacity-70 backdrop-blur-xl 
-                     rounded-xl items-center justify-start mx-auto sm:mx-8 overflow-hidden">
+    <PageMain class="w-full flex flex-col h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl 
+                     items-center justify-start max-w-7xl mx-2 sm:mx-8 overflow-hidden">
         <div class="w-full h-full p-2 sm:p-4 overflow-y-auto">
             <div v-if="loading" class="text-white text-center py-4">
                 Loading assets...
