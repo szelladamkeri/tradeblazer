@@ -3,8 +3,6 @@ const cors = require('cors')
 const mysql = require('mysql')
 const fs = require('fs')
 const ini = require('ini')
-const jwt = require('jsonwebtoken')
-const { verifyToken, JWT_SECRET } = require('./middleware/auth')
 const app = express()
 const port = 3000
 
@@ -15,7 +13,7 @@ app.use(
   cors({
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type'],
     credentials: true,
   })
 )
@@ -115,7 +113,7 @@ app.post('/api/register', async (req, res) => {
 })
 
 //Data on home page
-app.get('/api/data', verifyToken, async (req, res) => {
+app.get('/api/data', async (req, res) => {
   try {
     await testConnection()
     con.query('SELECT * FROM assets', function (err, result) {
@@ -214,20 +212,18 @@ app.post('/api/login', async (req, res) => {
           })
         }
 
-        const user = {
-          id: result[0].id,
-          username: result[0].username,
-          email: result[0].email,
+        const response = {
+          success: true,
+          user: {
+            id: result[0].id,
+            username: result[0].username,
+            email: result[0].email,
+          },
         }
 
-        // Generate JWT token
-        const token = jwt.sign(user, JWT_SECRET, { expiresIn: '24h' })
-
-        res.json({
-          success: true,
-          user,
-          token,
-        })
+        res.setHeader('Content-Type', 'application/json')
+        console.log('Sending response:', response)
+        res.json(response)
       }
     )
   } catch (error) {
@@ -240,7 +236,7 @@ app.post('/api/login', async (req, res) => {
 })
 
 //Profile change endpoint
-app.put('/api/user/update', verifyToken, async (req, res) => {
+app.put('/api/user/update', async (req, res) => {
   console.log('Update request received:', req.body)
   const { id, username, email, currentPassword, newPassword } = req.body
 

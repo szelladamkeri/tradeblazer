@@ -12,8 +12,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- <div class="w-full h-screen flex flex-col justify-center items-center content-center "> -->
   <div
-    class="mx-auto w-screen h-screen flex flex-col justify-center items-center content-center p-4 sm:p-8 lg:p-12"
+    class="mx-auto w-screen h-screen flex flex-col justify-center items-center content-center py-12"
   >
     <RouterView />
   </div>
