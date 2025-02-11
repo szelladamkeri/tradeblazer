@@ -5,6 +5,7 @@ import ProfileView from '../views/ProfileView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import EditProfileView from '../views/EditProfileView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 //import store from '@/main'
 
 const router = createRouter({
@@ -56,7 +57,25 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/404',
+      name: 'not-found',
+      component: NotFoundView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/404',
+    },
   ],
+})
+
+// Navigation guard (404)
+router.beforeEach((to, from, next) => {
+  if (to.matched.length === 0) {
+    next('/404')
+  } else {
+    next()
+  }
 })
 
 export default router

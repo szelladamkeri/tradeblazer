@@ -19,28 +19,22 @@ const handleLogin = async (e: Event) => {
   error.value = null
 
   try {
-    console.log('Attempting login...')
     const response = await fetch('http://localhost:3000/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: email.value,
+        emailOrUsername: email.value, // Make sure this matches the backend parameter name
         password: password.value,
       }),
     })
 
-    // Log response details for debugging
-    console.log('Response status:', response.status)
-
     let data
     try {
       const text = await response.text()
-      console.log('Raw response:', text)
       data = JSON.parse(text)
     } catch (parseError) {
-      console.error('Parse error:', parseError)
       throw new Error('Server returned invalid JSON')
     }
 
@@ -52,7 +46,6 @@ const handleLogin = async (e: Event) => {
     userStore.setUser(data.user)
     router.push('/')
   } catch (err) {
-    console.error('Login error:', err)
     error.value =
       err instanceof Error
         ? err.message
@@ -112,14 +105,16 @@ const handleLogin = async (e: Event) => {
           </div>
 
           <div class="space-y-2">
-            <label for="email" class="block text-gray-200 text-sm font-medium">Email</label>
+            <label for="email" class="block text-gray-200 text-sm font-medium"
+              >Email or Username</label
+            >
             <input
-              type="email"
+              type="text"
               id="email"
               v-model="email"
               required
-              class="w-full p-3 rounded-lg bg-white bg-opacity-10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
-              placeholder="Enter your email"
+              class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+              placeholder="Enter your email or username"
             />
           </div>
 
@@ -130,7 +125,7 @@ const handleLogin = async (e: Event) => {
               id="password"
               v-model="password"
               required
-              class="w-full p-3 rounded-lg bg-white bg-opacity-10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+              class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
               placeholder="Enter your password"
             />
           </div>

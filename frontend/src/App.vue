@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HomeView from './views/HomeView.vue'
-import { useUserStore } from './stores/userStore'
-import { onMounted } from 'vue'
-
-const userStore = useUserStore()
-
-onMounted(() => {
-  userStore.initializeFromStorage()
-})
 </script>
 
 <template>

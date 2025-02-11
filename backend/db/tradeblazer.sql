@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 11. 11:47
+-- Létrehozás ideje: 2025. Feb 11. 14:15
 -- Kiszolgáló verziója: 10.4.28-MariaDB
 -- PHP verzió: 8.1.17
 
@@ -187,7 +187,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `balance`, `avatar`) VALUES
 (1, 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', '2024-11-22 08:14:38', 0.00, NULL),
 (2, 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', '2025-02-04 08:34:40', 0.00, NULL),
-(3, 'teszt', 'teszt@gmail.com', '1234Aa', '2025-02-11 10:36:56', 0.00, NULL);
+(3, 'teszt', 'teszt@gmail.com', '1234Aa', '2025-02-11 10:36:56', 0.00, NULL),
+(4, 'teszt2', 'teszt2@gmail.com', '1234Aa', '2025-02-11 11:01:09', 0.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -351,7 +352,7 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `user_assets`

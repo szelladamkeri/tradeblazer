@@ -178,23 +178,22 @@ app.get('/api/types', async (req, res) => {
 //Login endpoint
 app.post('/api/login', async (req, res) => {
   console.log('Login request received:', req.body)
+  const { emailOrUsername, password } = req.body // Match the parameter name from frontend
 
-  const { email, password } = req.body
-
-  if (!email || !password) {
+  if (!emailOrUsername || !password) {
     console.log('Missing credentials')
     return res.status(400).json({
       error: 'Missing credentials',
-      message: 'Email and password are required',
+      message: 'Username/Email and password are required', // Updated error message
     })
   }
 
   try {
     await testConnection()
     con.query(
-      'SELECT id, username, email FROM users WHERE email = ? AND password = ?',
-      [email, password],
-      function (err, result) {
+      'SELECT id, username, email FROM users WHERE (email = ? OR username = ?) AND password = ?',
+      [emailOrUsername, emailOrUsername, password],
+      (err, result) => {
         if (err) {
           console.error('Login query error:', err)
           return res.status(500).json({
@@ -316,6 +315,47 @@ app.put('/api/user/update', async (req, res) => {
 //Get api health
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() })
+})
+
+// Get trending asset in last 7 days for most trending endpoint
+app.get('/api/trending-asset', async (req, res) => {
+  try {
+    await testConnection()
+    const query = `
+      SELECT a.*, COUNT(t.id) as trade_count
+      FROM assets a
+      LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+      GROUP BY a.id
+      ORDER BY trade_count DESC, a.id ASC
+      LIMIT 1
+    `
+    con.query(query, function (err, result) {
+      if (err) {
+        console.error('Database query error:', err)
+        return res.status(500).json({
+          error: 'Database query error',
+          message: err.message,
+        })
+      }
+
+      if (!result || result.length === 0) {
+        // If no assets found at all, return 404
+        return res.status(404).json({
+          error: 'No assets found',
+          message: 'The assets table is empty',
+        })
+      }
+
+      // Always return the first result, even if it has no trades
+      res.json(result[0])
+    })
+  } catch (error) {
+    console.error('Database connection error:', error)
+    res.status(500).json({
+      error: 'Database connection error',
+      message: error.message,
+    })
+  }
 })
 
 // Error handling middleware

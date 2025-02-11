@@ -16,41 +16,41 @@ export const useUserStore = defineStore('user', {
   state: (): AuthState => ({
     user: null,
     token: null,
-    isAuthenticated: false
+    isAuthenticated: false,
   }),
 
   actions: {
     setUser(userData: User | null, token: string | null = null) {
-      this.user = userData;
-      this.token = token;
-      this.isAuthenticated = !!userData;
-      
-      if (userData && token) {
-        localStorage.setItem('auth', JSON.stringify({ user: userData, token }));
+      this.user = userData
+      this.token = token
+      this.isAuthenticated = !!userData
+
+      if (userData) {
+        localStorage.setItem('user', JSON.stringify({ user: userData }))
       }
     },
 
     logout() {
-      this.user = null;
-      this.token = null;
-      this.isAuthenticated = false;
-      localStorage.removeItem('auth');
+      this.user = null
+      this.token = null
+      this.isAuthenticated = false
+      localStorage.removeItem('user')
     },
 
     getAuthHeader() {
-      return this.token ? { Authorization: `Bearer ${this.token}` } : {};
+      return this.token ? { Authorization: `Bearer ${this.token}` } : {}
     },
 
     initializeFromStorage() {
-      const stored = localStorage.getItem('auth');
+      const stored = localStorage.getItem('user')
       if (stored) {
         try {
-          const { user, token } = JSON.parse(stored);
-          this.setUser(user, token);
+          const data = JSON.parse(stored)
+          this.setUser(data.user)
         } catch (e) {
-          this.logout();
+          this.logout()
         }
       }
-    }
-  }
-});
+    },
+  },
+})
