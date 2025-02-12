@@ -57,7 +57,10 @@ const testConnection = () => {
 // Register endpoint
 app.post('/api/register', async (req, res) => {
   const { username, email, password } = req.body
-  console.log('Register attempt:', { username, email })
+  console.log('Register attempt:', {
+    username,
+    email,
+  })
 
   if (!username || !email || !password) {
     return res.status(400).json({
@@ -314,7 +317,10 @@ app.put('/api/user/update', async (req, res) => {
 
 //Get api health
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() })
+  res.json({
+    status: 'ok',
+    timestamp: new Date(),
+  })
 })
 
 // Get trending asset in last 7 days for most trending endpoint
@@ -322,13 +328,13 @@ app.get('/api/trending-asset', async (req, res) => {
   try {
     await testConnection()
     const query = `
-      SELECT a.*, COUNT(t.id) as trade_count
-      FROM assets a
-      LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-      GROUP BY a.id
-      ORDER BY trade_count DESC, a.id ASC
-      LIMIT 1
-    `
+                        SELECT a.*, COUNT(t.id) as trade_count
+                        FROM assets a
+                        LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                        GROUP BY a.id
+                        ORDER BY trade_count DESC, a.id ASC
+                        LIMIT 1
+                    `
     con.query(query, function (err, result) {
       if (err) {
         console.error('Database query error:', err)
