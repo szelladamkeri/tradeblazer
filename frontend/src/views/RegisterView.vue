@@ -58,11 +58,9 @@ const handleRegister = async (e: Event) => {
 
 <template>
   <PageHeader />
-  <PageMain
-    class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl max-w-7xl mx-auto"
-  >
-    <div class="w-full p-2 sm:p-4 flex items-center justify-center">
-      <div class="max-w-md w-full space-y-8 p-4">
+  <PageMain>
+    <div class="w-full h-[calc(100vh-12rem)] flex items-center justify-center">
+      <div class="max-w-md w-full px-4 py-8 sm:px-6">
         <div class="text-center">
           <h2 class="text-white text-2xl sm:text-3xl font-bold mb-2">Create Your Account</h2>
           <p class="text-gray-400 text-sm sm:text-base">

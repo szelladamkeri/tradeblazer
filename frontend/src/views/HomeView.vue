@@ -78,7 +78,7 @@ onMounted(() => {
   <div class="flex flex-col">
     <PageHeader />
     <PageMain>
-      <div class="w-full p-2 sm:p-4 overflow-y-auto max-h-[70vh] sm:max-h-[80vh]">
+      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <div v-if="loading" class="flex justify-center items-center py-8">
           <LoadingSpinner />
         </div>

@@ -16,6 +16,7 @@ import {
   faChartPie,
   faUserCircle,
   faWallet,
+  faXmark, // Add this line
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -34,6 +35,7 @@ library.add(
   faChartPie,
   faUserCircle,
   faWallet,
+  faXmark, // Add this line
 )
 
 export { FontAwesomeIcon }

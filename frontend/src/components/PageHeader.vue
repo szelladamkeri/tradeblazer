@@ -2,7 +2,7 @@
 import HeaderLink from './HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -20,6 +20,22 @@ const toggleMenu = () => {
 const closeMenu = () => {
   isMenuOpen.value = false
 }
+
+// Add window resize handler
+const updateMenuOnResize = () => {
+  if (window.innerWidth >= 640) {
+    // 640px is Tailwind's 'sm' breakpoint
+    isMenuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', updateMenuOnResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMenuOnResize)
+})
 </script>
 
 <template>
@@ -44,7 +60,9 @@ const closeMenu = () => {
         <nav class="hidden sm:flex items-center space-x-4">
           <HeaderLink>
             <template #icon>
-              <font-awesome-icon icon="chart-line" class="mr-2" />
+              <router-link to="/" class="text-gray-300 hover:text-green-400">
+                <font-awesome-icon icon="chart-line" class="mr-2" />
+              </router-link>
             </template>
             <template #heading>
               <router-link to="/" class="text-gray-300 hover:text-green-400">Dashboard</router-link>
@@ -53,7 +71,9 @@ const closeMenu = () => {
 
           <HeaderLink>
             <template #icon>
-              <font-awesome-icon icon="chart-pie" class="mr-2" />
+              <router-link to="/markets" class="text-gray-300 hover:text-green-400">
+                <font-awesome-icon icon="chart-pie" class="mr-2" />
+              </router-link>
             </template>
             <template #heading>
               <router-link to="/markets" class="text-gray-300 hover:text-green-400"
@@ -65,7 +85,9 @@ const closeMenu = () => {
           <template v-if="userStore.isAuthenticated">
             <HeaderLink>
               <template #icon>
-                <font-awesome-icon icon="wallet" class="mr-2" />
+                <router-link to="/portfolio" class="text-gray-300 hover:text-green-400">
+                  <font-awesome-icon icon="wallet" class="mr-2" />
+                </router-link>
               </template>
               <template #heading>
                 <router-link to="/portfolio" class="text-gray-300 hover:text-green-400"
@@ -76,7 +98,9 @@ const closeMenu = () => {
 
             <HeaderLink>
               <template #icon>
-                <font-awesome-icon icon="user-circle" class="mr-2" />
+                <router-link to="/profile" class="text-gray-300 hover:text-green-400">
+                  <font-awesome-icon icon="user-circle" class="mr-2" />
+                </router-link>
               </template>
               <template #heading>
                 <router-link to="/profile" class="text-gray-300 hover:text-green-400"
@@ -87,7 +111,9 @@ const closeMenu = () => {
 
             <HeaderLink>
               <template #icon>
-                <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                <router-link to="/logout" class="text-gray-300 hover:text-green-400">
+                  <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                </router-link>
               </template>
               <template #heading>
                 <button @click="handleSignOut" class="text-red-400 hover:text-red-300">
@@ -100,7 +126,9 @@ const closeMenu = () => {
           <template v-else>
             <HeaderLink>
               <template #icon>
-                <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                <router-link to="/login" class="text-gray-300 hover:text-green-400">
+                  <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                </router-link>
               </template>
               <template #heading>
                 <router-link to="/login" class="text-gray-300 hover:text-green-400"
@@ -116,91 +144,82 @@ const closeMenu = () => {
     <!-- Mobile Navigation -->
     <div
       v-if="isMenuOpen"
-      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl mt-2 p-4 shadow-lg"
+      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl mt-2 mobile-navigation"
     >
-      <HeaderLink @click="closeMenu">
-        <template #icon>
-          <font-awesome-icon icon="chart-line" class="mr-2" />
-        </template>
-        <template #heading>
-          <router-link to="/" class="text-gray-300 hover:text-green-400 block w-full">
-            Dashboard
-          </router-link>
-        </template>
-      </HeaderLink>
-
-      <HeaderLink @click="closeMenu">
-        <template #icon>
-          <font-awesome-icon icon="chart-pie" class="mr-2" />
-        </template>
-        <template #heading>
-          <router-link to="/markets" class="text-gray-300 hover:text-green-400 block w-full">
-            Markets
-          </router-link>
-        </template>
-      </HeaderLink>
-
-      <HeaderLink @click="closeMenu">
-        <template #icon>
-          <font-awesome-icon icon="info" class="mr-2" />
-        </template>
-        <template #heading>
-          <router-link to="/about" class="text-gray-300 hover:text-green-400 block w-full">
-            About
-          </router-link>
-        </template>
-      </HeaderLink>
-
-      <template v-if="userStore.isAuthenticated">
+      <div class="p-4 space-y-2">
         <HeaderLink @click="closeMenu">
           <template #icon>
-            <font-awesome-icon icon="wallet" class="mr-2" />
+            <font-awesome-icon icon="chart-line" class="mr-2" />
           </template>
           <template #heading>
-            <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 block w-full">
-              Portfolio
+            <router-link to="/" class="text-gray-300 hover:text-green-400 block w-full">
+              Dashboard
             </router-link>
           </template>
         </HeaderLink>
 
         <HeaderLink @click="closeMenu">
           <template #icon>
-            <font-awesome-icon icon="user-circle" class="mr-2" />
+            <font-awesome-icon icon="chart-pie" class="mr-2" />
           </template>
           <template #heading>
-            <router-link to="/profile" class="text-gray-300 hover:text-green-400 block w-full">
-              Profile
+            <router-link to="/markets" class="text-gray-300 hover:text-green-400 block w-full">
+              Markets
             </router-link>
           </template>
         </HeaderLink>
 
-        <HeaderLink @click="closeMenu">
-          <template #icon>
-            <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-          </template>
-          <template #heading>
-            <button
-              @click="handleSignOut"
-              class="text-red-400 hover:text-red-300 block w-full text-left"
-            >
-              Logout
-            </button>
-          </template>
-        </HeaderLink>
-      </template>
+        <template v-if="userStore.isAuthenticated">
+          <HeaderLink @click="closeMenu">
+            <template #icon>
+              <font-awesome-icon icon="wallet" class="mr-2" />
+            </template>
+            <template #heading>
+              <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 block w-full">
+                Portfolio
+              </router-link>
+            </template>
+          </HeaderLink>
 
-      <template v-else>
-        <HeaderLink @click="closeMenu">
-          <template #icon>
-            <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-          </template>
-          <template #heading>
-            <router-link to="/login" class="text-gray-300 hover:text-green-400 block w-full">
-              Login
-            </router-link>
-          </template>
-        </HeaderLink>
-      </template>
+          <HeaderLink @click="closeMenu">
+            <template #icon>
+              <font-awesome-icon icon="user-circle" class="mr-2" />
+            </template>
+            <template #heading>
+              <router-link to="/profile" class="text-gray-300 hover:text-green-400 block w-full">
+                Profile
+              </router-link>
+            </template>
+          </HeaderLink>
+
+          <HeaderLink @click="closeMenu">
+            <template #icon>
+              <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+            </template>
+            <template #heading>
+              <button
+                @click="handleSignOut"
+                class="text-red-400 hover:text-red-300 block w-full text-left"
+              >
+                Logout
+              </button>
+            </template>
+          </HeaderLink>
+        </template>
+
+        <template v-else>
+          <HeaderLink @click="closeMenu">
+            <template #icon>
+              <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+            </template>
+            <template #heading>
+              <router-link to="/login" class="text-gray-300 hover:text-green-400 block w-full">
+                Login
+              </router-link>
+            </template>
+          </HeaderLink>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -233,10 +252,22 @@ h3 {
   @apply text-green-400;
 }
 
-/* Add consistent blur effect */
-header,
-.mobile-menu {
+/* Add proper backdrop filter */
+header {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
+}
+
+.mobile-navigation {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+
+/* Match PageMain blur effect */
+header,
+div[class*='bg-black'] {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 </style>
