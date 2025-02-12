@@ -6,7 +6,7 @@ import PageMain from '@/components/PageMain.vue'
 <template>
   <PageHeader />
   <PageMain
-    class="w-full flex flex-col h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl mx-auto overflow-hidden"
+    class="w-full flex flex-col bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl mx-auto overflow-hidden"
   >
     <div class="text-center space-y-4">
       <h1 class="text-4xl sm:text-6xl font-bold text-white">404</h1>

@@ -3,6 +3,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import HeaderLink from '@/components/HeaderLink.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import FadeIn from '@/components/FadeIn.vue'
 import { ref, onMounted } from 'vue'
 
 interface Asset {
@@ -63,7 +64,7 @@ const getTrendingAsset = () => {
   return trendingAsset.value
 }
 
-// Add a new function for price formatting
+// Price formatting
 const formatPrice = (price: number): string => {
   return price % 1 === 0 ? price.toString() : price.toFixed(2)
 }
@@ -74,85 +75,86 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageHeader
-    class="w-full flex flex-wrap h-16 bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center sm:justify-around max-w-7xl p-2 sm:p-4 mx-2 sm:mx-8 mb-2 gap-2"
-  >
-    <!-- existing HeaderLinks -->
-  </PageHeader>
-
-  <PageMain
-    class="w-full flex flex-col h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-start max-w-7xl mx-2 sm:mx-8 overflow-hidden"
-  >
-    <div class="w-full h-full p-2 sm:p-4 overflow-y-auto">
-      <div v-if="loading" class="flex justify-center items-center py-8">
-        <LoadingSpinner />
-      </div>
-      <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
-        {{ error }}
-      </div>
-      <div v-else class="space-y-6">
-        <!-- Trending Asset Section with pulse effect on last 7 days-->
-        <div v-if="getTrendingAsset()" class="w-full">
-          <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
-            <font-awesome-icon icon="fire" class="text-orange-500 mr-2" />
-            Trending Now on TradeBlazer
-            <span class="text-gray-400 animate-pulse-slow">(last 7 days)</span>
-          </h2>
-          <div
-            class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer"
-          >
-            <div
-              class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-            >
-              <div>
-                <h3 class="text-white text-2xl sm:text-3xl font-bold">
-                  {{ getTrendingAsset()?.name }}
-                </h3>
-                <span class="text-gray-300 text-lg sm:text-xl mt-1 block">
-                  {{ getTrendingAsset()?.symbol }}
-                </span>
-                <span class="text-gray-400 uppercase text-base mt-1 block">
-                  {{ getTrendingAsset()?.type }}
-                </span>
-              </div>
-              <div class="text-left sm:text-right">
-                <span class="text-green-400 text-2xl sm:text-3xl font-bold block">
-                  ${{ formatPrice(getTrendingAsset()?.price || 0) }}
-                </span>
+  <div class="flex flex-col">
+    <PageHeader />
+    <PageMain>
+      <div class="w-full p-2 sm:p-4 overflow-y-auto max-h-[70vh] sm:max-h-[80vh]">
+        <div v-if="loading" class="flex justify-center items-center py-8">
+          <LoadingSpinner />
+        </div>
+        <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
+          {{ error }}
+        </div>
+        <div v-else class="space-y-6">
+          <FadeIn>
+            <div v-if="getTrendingAsset()" class="w-full">
+              <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
+                <font-awesome-icon icon="fire" class="text-orange-500 mr-2" />
+                Trending Now on TradeBlazer
+                <span class="text-gray-400 animate-pulse-slow">(last 7 days)</span>
+              </h2>
+              <div
+                class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer"
+              >
+                <div
+                  class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                >
+                  <div>
+                    <h3 class="text-white text-2xl sm:text-3xl font-bold">
+                      {{ getTrendingAsset()?.name }}
+                    </h3>
+                    <span class="text-gray-300 text-lg sm:text-xl mt-1 block">
+                      {{ getTrendingAsset()?.symbol }}
+                    </span>
+                    <span class="text-gray-400 uppercase text-base mt-1 block">
+                      {{ getTrendingAsset()?.type }}
+                    </span>
+                  </div>
+                  <div class="text-left sm:text-right">
+                    <span class="text-green-400 text-2xl sm:text-3xl font-bold block">
+                      ${{ formatPrice(getTrendingAsset()?.price || 0) }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </FadeIn>
 
-        <!-- Regular Assets Grid -->
-        <div class="w-full">
-          <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
-            <font-awesome-icon icon="coins" class="text-yellow-500 mr-2" />
-            All Assets
-          </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div
-              v-for="asset in assets"
-              :key="asset.id"
-              class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer"
-            >
-              <div class="flex items-center">
-                <font-awesome-icon icon="chart-line" class="text-green-400 mr-2" />
-                <h3 class="text-white text-lg sm:text-xl font-bold">{{ asset.name }}</h3>
-              </div>
-              <div class="mt-2 space-y-1">
-                <span class="text-gray-300 block">{{ asset.symbol }}</span>
-                <span class="text-gray-400 uppercase block text-sm">{{ asset.type }}</span>
-                <span class="text-green-400 text-lg font-bold block">
-                  ${{ formatPrice(asset.price) }}
-                </span>
+          <FadeIn>
+            <div class="w-full">
+              <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
+                <font-awesome-icon icon="coins" class="text-yellow-500 mr-2" />
+                All Assets
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+                <div
+                  v-for="asset in assets"
+                  :key="asset.id"
+                  class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer flex flex-col"
+                >
+                  <div class="flex items-center mb-2">
+                    <font-awesome-icon icon="chart-line" class="text-green-400 mr-2" />
+                    <h3 class="text-white text-lg sm:text-xl font-bold truncate">
+                      {{ asset.name }}
+                    </h3>
+                  </div>
+                  <div class="flex flex-col justify-between flex-grow">
+                    <div>
+                      <span class="text-gray-300 block truncate">{{ asset.symbol }}</span>
+                      <span class="text-gray-400 uppercase block text-sm">{{ asset.type }}</span>
+                    </div>
+                    <span class="text-green-400 text-lg font-bold mt-2">
+                      ${{ formatPrice(asset.price) }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </div>
-    </div>
-  </PageMain>
+    </PageMain>
+  </div>
 </template>
 
 <style scoped>
@@ -172,5 +174,11 @@ onMounted(() => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Add smooth scrolling */
+.overflow-y-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 </style>

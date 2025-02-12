@@ -13,6 +13,9 @@ import {
   faCoins,
   faBars,
   faTimes,
+  faChartPie,
+  faUserCircle,
+  faWallet,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -28,6 +31,9 @@ library.add(
   faCoins,
   faBars,
   faTimes,
+  faChartPie,
+  faUserCircle,
+  faWallet,
 )
 
 export { FontAwesomeIcon }

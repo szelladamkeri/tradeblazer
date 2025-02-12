@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
-import HeaderLink from '@/components/HeaderLink.vue' // Add this import
+import HeaderLink from '@/components/HeaderLink.vue'
 
 const router = useRouter()
 const username = ref('')
@@ -57,42 +57,11 @@ const handleRegister = async (e: Event) => {
 </script>
 
 <template>
-  <PageHeader
-    class="w-full flex flex-wrap h-16 bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center sm:justify-around max-w-7xl p-2 sm:p-4 mx-2 sm:mx-8 mb-2 gap-2"
-  >
-    <HeaderLink class="w-[45%] sm:w-auto text-center">
-      <template #icon></template>
-      <template #heading>
-        <router-link to="/">Home</router-link>
-      </template>
-    </HeaderLink>
-
-    <HeaderLink class="w-[45%] sm:w-auto text-center">
-      <template #icon></template>
-      <template #heading>
-        <router-link to="/about">About</router-link>
-      </template>
-    </HeaderLink>
-
-    <HeaderLink class="w-[45%] sm:w-auto text-center">
-      <template #icon></template>
-      <template #heading>
-        <router-link to="/profile">Profile</router-link>
-      </template>
-    </HeaderLink>
-
-    <HeaderLink class="w-[45%] sm:w-auto text-center">
-      <template #icon></template>
-      <template #heading>
-        <router-link to="/login">Login</router-link>
-      </template>
-    </HeaderLink>
-  </PageHeader>
-
+  <PageHeader />
   <PageMain
-    class="w-full flex flex-col h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center max-w-7xl mx-2 sm:mx-8 overflow-hidden"
+    class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl max-w-7xl mx-auto"
   >
-    <div class="w-full h-full p-2 sm:p-4 flex items-center justify-center">
+    <div class="w-full p-2 sm:p-4 flex items-center justify-center">
       <div class="max-w-md w-full space-y-8 p-4">
         <div class="text-center">
           <h2 class="text-white text-2xl sm:text-3xl font-bold mb-2">Create Your Account</h2>

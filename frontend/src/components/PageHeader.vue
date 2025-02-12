@@ -23,91 +23,120 @@ const closeMenu = () => {
 </script>
 
 <template>
-  <header
-    class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl p-2 sm:p-4 mx-auto mb-2"
-  >
-    <div class="flex items-center justify-between">
-      <!-- Logo or Brand -->
-      <div class="text-white font-bold text-xl">TradeBlazer</div>
+  <div class="w-full max-w-7xl mx-auto mb-4">
+    <header class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl">
+      <div class="flex items-center justify-between p-4">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <font-awesome-icon icon="chart-line" class="text-green-400 text-2xl mr-2" />
+          <span class="text-white font-bold text-xl">TradeBlazer</span>
+        </div>
 
-      <!-- Mobile menu button -->
-      <button
-        @click="toggleMenu"
-        class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
-      >
-        <font-awesome-icon :icon="isMenuOpen ? 'times' : 'bars'" />
-      </button>
+        <!-- Mobile menu button -->
+        <button
+          @click="toggleMenu"
+          class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
+        >
+          <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-xl" />
+        </button>
 
-      <!-- Desktop Navigation -->
-      <nav class="hidden sm:flex items-center space-x-4">
-        <HeaderLink>
-          <template #icon>
-            <font-awesome-icon icon="home" class="mr-2" />
-          </template>
-          <template #heading>
-            <router-link to="/">Home</router-link>
-          </template>
-        </HeaderLink>
-
-        <HeaderLink>
-          <template #icon>
-            <font-awesome-icon icon="info" class="mr-2" />
-          </template>
-          <template #heading>
-            <router-link to="/about">About</router-link>
-          </template>
-        </HeaderLink>
-
-        <template v-if="userStore.isAuthenticated">
+        <!-- Desktop Navigation -->
+        <nav class="hidden sm:flex items-center space-x-4">
           <HeaderLink>
             <template #icon>
-              <font-awesome-icon icon="user" class="mr-2" />
+              <font-awesome-icon icon="chart-line" class="mr-2" />
             </template>
             <template #heading>
-              <router-link to="/profile">Profile</router-link>
+              <router-link to="/" class="text-gray-300 hover:text-green-400">Dashboard</router-link>
             </template>
           </HeaderLink>
 
           <HeaderLink>
             <template #icon>
-              <font-awesome-icon icon="sign-out-alt" class="mr-2" />
+              <font-awesome-icon icon="chart-pie" class="mr-2" />
             </template>
             <template #heading>
-              <button
-                @click="handleSignOut"
-                class="text-red-400 hover:text-red-300 transition-colors"
+              <router-link to="/markets" class="text-gray-300 hover:text-green-400"
+                >Markets</router-link
               >
-                Sign Out
-              </button>
             </template>
           </HeaderLink>
-        </template>
 
-        <template v-else>
-          <HeaderLink>
-            <template #icon>
-              <font-awesome-icon icon="sign-in-alt" class="mr-2" />
-            </template>
-            <template #heading>
-              <router-link to="/login">Login</router-link>
-            </template>
-          </HeaderLink>
-        </template>
-      </nav>
-    </div>
+          <template v-if="userStore.isAuthenticated">
+            <HeaderLink>
+              <template #icon>
+                <font-awesome-icon icon="wallet" class="mr-2" />
+              </template>
+              <template #heading>
+                <router-link to="/portfolio" class="text-gray-300 hover:text-green-400"
+                  >Portfolio</router-link
+                >
+              </template>
+            </HeaderLink>
+
+            <HeaderLink>
+              <template #icon>
+                <font-awesome-icon icon="user-circle" class="mr-2" />
+              </template>
+              <template #heading>
+                <router-link to="/profile" class="text-gray-300 hover:text-green-400"
+                  >Profile</router-link
+                >
+              </template>
+            </HeaderLink>
+
+            <HeaderLink>
+              <template #icon>
+                <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+              </template>
+              <template #heading>
+                <button @click="handleSignOut" class="text-red-400 hover:text-red-300">
+                  Logout
+                </button>
+              </template>
+            </HeaderLink>
+          </template>
+
+          <template v-else>
+            <HeaderLink>
+              <template #icon>
+                <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+              </template>
+              <template #heading>
+                <router-link to="/login" class="text-gray-300 hover:text-green-400"
+                  >Login</router-link
+                >
+              </template>
+            </HeaderLink>
+          </template>
+        </nav>
+      </div>
+    </header>
 
     <!-- Mobile Navigation -->
-    <nav
-      v-show="isMenuOpen"
-      class="sm:hidden mt-4 space-y-2 transition-all duration-300"
-      :class="{ 'opacity-100 translate-y-0': isMenuOpen, 'opacity-0 -translate-y-4': !isMenuOpen }"
+    <div
+      v-if="isMenuOpen"
+      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl mt-2 p-4 shadow-lg"
     >
       <HeaderLink @click="closeMenu">
         <template #icon>
-          <font-awesome-icon icon="home" class="mr-2" />
+          <font-awesome-icon icon="chart-line" class="mr-2" />
         </template>
         <template #heading>
-          <router-link to="/">Home</router-link>
+          <router-link to="/" class="text-gray-300 hover:text-green-400 block w-full">
+            Dashboard
+          </router-link>
+        </template>
+      </HeaderLink>
+
+      <HeaderLink @click="closeMenu">
+        <template #icon>
+          <font-awesome-icon icon="chart-pie" class="mr-2" />
+        </template>
+        <template #heading>
+          <router-link to="/markets" class="text-gray-300 hover:text-green-400 block w-full">
+            Markets
+          </router-link>
         </template>
       </HeaderLink>
 
@@ -116,30 +145,45 @@ const closeMenu = () => {
           <font-awesome-icon icon="info" class="mr-2" />
         </template>
         <template #heading>
-          <router-link to="/about">About</router-link>
+          <router-link to="/about" class="text-gray-300 hover:text-green-400 block w-full">
+            About
+          </router-link>
         </template>
       </HeaderLink>
 
       <template v-if="userStore.isAuthenticated">
         <HeaderLink @click="closeMenu">
           <template #icon>
-            <font-awesome-icon icon="user" class="mr-2" />
+            <font-awesome-icon icon="wallet" class="mr-2" />
           </template>
           <template #heading>
-            <router-link to="/profile">Profile</router-link>
+            <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 block w-full">
+              Portfolio
+            </router-link>
           </template>
         </HeaderLink>
 
         <HeaderLink @click="closeMenu">
           <template #icon>
-            <font-awesome-icon icon="sign-out-alt" class="mr-2" />
+            <font-awesome-icon icon="user-circle" class="mr-2" />
+          </template>
+          <template #heading>
+            <router-link to="/profile" class="text-gray-300 hover:text-green-400 block w-full">
+              Profile
+            </router-link>
+          </template>
+        </HeaderLink>
+
+        <HeaderLink @click="closeMenu">
+          <template #icon>
+            <font-awesome-icon icon="right-from-bracket" class="mr-2" />
           </template>
           <template #heading>
             <button
               @click="handleSignOut"
-              class="text-red-400 hover:text-red-300 transition-colors"
+              class="text-red-400 hover:text-red-300 block w-full text-left"
             >
-              Sign Out
+              Logout
             </button>
           </template>
         </HeaderLink>
@@ -148,15 +192,17 @@ const closeMenu = () => {
       <template v-else>
         <HeaderLink @click="closeMenu">
           <template #icon>
-            <font-awesome-icon icon="sign-in-alt" class="mr-2" />
+            <font-awesome-icon icon="right-to-bracket" class="mr-2" />
           </template>
           <template #heading>
-            <router-link to="/login">Login</router-link>
+            <router-link to="/login" class="text-gray-300 hover:text-green-400 block w-full">
+              Login
+            </router-link>
           </template>
         </HeaderLink>
       </template>
-    </nav>
-  </header>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -181,5 +227,16 @@ h3 {
   .greetings h3 {
     text-align: left;
   }
+}
+
+.router-link-active {
+  @apply text-green-400;
+}
+
+/* Add consistent blur effect */
+header,
+.mobile-menu {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
 }
 </style>

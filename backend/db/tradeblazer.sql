@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 11. 14:15
+-- Létrehozás ideje: 2025. Feb 12. 11:49
 -- Kiszolgáló verziója: 10.4.28-MariaDB
 -- PHP verzió: 8.1.17
 
@@ -175,6 +175,7 @@ CREATE TABLE `users` (
   `username` varchar(100) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `type` char(1) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `balance` decimal(15,2) DEFAULT 0.00,
   `avatar` varchar(200) DEFAULT NULL
@@ -184,11 +185,11 @@ CREATE TABLE `users` (
 -- A tábla adatainak kiíratása `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `balance`, `avatar`) VALUES
-(1, 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', '2024-11-22 08:14:38', 0.00, NULL),
-(2, 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', '2025-02-04 08:34:40', 0.00, NULL),
-(3, 'teszt', 'teszt@gmail.com', '1234Aa', '2025-02-11 10:36:56', 0.00, NULL),
-(4, 'teszt2', 'teszt2@gmail.com', '1234Aa', '2025-02-11 11:01:09', 0.00, NULL);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `type`, `created_at`, `balance`, `avatar`) VALUES
+(1, 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', 'A', '2024-11-22 08:14:38', 0.00, NULL),
+(2, 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', 'A', '2025-02-04 08:34:40', 0.00, NULL),
+(3, 'teszt', 'teszt@gmail.com', '1234Aa', 'U', '2025-02-11 10:36:56', 0.00, NULL),
+(4, 'teszt2', 'teszt2@gmail.com', '1234Aa', 'U', '2025-02-11 11:01:09', 0.00, NULL);
 
 -- --------------------------------------------------------
 
