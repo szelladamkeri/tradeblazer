@@ -6,19 +6,15 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import EditProfileView from '../views/EditProfileView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
-//import store from '@/main'
+import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      //Lehetne valamilyen propertyje egy viewnek ami megmondana a frontnednek hogy navbart kapjon plusz esetleg egy icon mert a homenak akarunk
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: {
-        navbar: true,
-      },
     },
     {
       path: '/about',
@@ -30,7 +26,6 @@ const router = createRouter({
       name: 'profile',
       component: ProfileView,
       meta: {
-        navbar: true,
         requiresAuth: true,
       },
     },
@@ -75,8 +70,17 @@ const router = createRouter({
   ],
 })
 
-// Navigation guard (404)
+// Add navigation guard
 router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
+  if (to.matched.some((record) => record.meta.requiresAdmin)) {
+    if (!userStore.isAdmin) {
+      next({ path: '/' })
+      return
+    }
+  }
+
   if (to.matched.length === 0) {
     next('/404')
   } else {
