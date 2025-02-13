@@ -5,6 +5,9 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import EditUserModal from '@/components/EditUserModal.vue'
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface User {
   id: number
@@ -81,6 +84,58 @@ const handleSaveUser = async (updatedUser: User) => {
     showEditModal.value = false
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to update user'
+  }
+}
+
+const handleUserDelete = async (userId: number) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/admin/users/${userId}`, {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) throw new Error('Failed to delete user')
+
+    // If deleting own account, logout
+    if (userId === userStore.user?.id) {
+      userStore.logout()
+      router.push('/login')
+      return
+    }
+
+    // Otherwise just refresh the users list
+    await fetchUsers()
+  } catch (err) {
+    console.error('Delete error:', err)
+  }
+}
+
+const handleUserUpdate = async (user: any) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/admin/users/${user.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+    })
+
+    if (!response.ok) throw new Error('Failed to update user')
+
+    // If updating own account and role changed from admin
+    if (user.id === userStore.user?.id && user.role !== 'A') {
+      // Update the user store with new role
+      userStore.setUser({
+        ...userStore.user!,
+        type: user.role,
+      })
+      // Redirect to home page
+      router.push('/')
+      return
+    }
+
+    await fetchUsers()
+  } catch (err) {
+    console.error('Update error:', err)
   }
 }
 

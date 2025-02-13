@@ -3,6 +3,9 @@ defineProps<{
   show: boolean
   title: string
   message: string
+  confirmText?: string
+  confirmButtonClass?: string
+  type?: 'delete' | 'update' // Add type prop
 }>()
 
 defineEmits(['confirm', 'cancel'])
@@ -16,11 +19,15 @@ defineEmits(['confirm', 'cancel'])
       </div>
 
       <div
-        class="bg-black/90 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full backdrop-blur-xl border border-red-500/20"
+        class="bg-black/90 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full backdrop-blur-xl"
+        :class="[type === 'delete' ? 'border border-red-500/20' : 'border border-green-500/20']"
       >
         <div class="p-6">
           <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <font-awesome-icon icon="triangle-exclamation" class="text-red-400" />
+            <font-awesome-icon
+              icon="triangle-exclamation"
+              :class="[type === 'delete' ? 'text-red-400' : 'text-green-400']"
+            />
             {{ title }}
           </h3>
           <p class="text-gray-300 mb-6">{{ message }}</p>
@@ -28,15 +35,18 @@ defineEmits(['confirm', 'cancel'])
           <div class="flex justify-end space-x-3">
             <button
               @click="$emit('cancel')"
-              class="px-4 py-2 bg-black/50 border border-gray-600 text-white rounded-lg hover:bg-black/70 transition-colors"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
               Cancel
             </button>
             <button
               @click="$emit('confirm')"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              :class="[
+                'px-4 py-2 text-white rounded-lg transition-colors',
+                confirmButtonClass || 'bg-red-600 hover:bg-red-700',
+              ]"
             >
-              Delete Account
+              {{ confirmText || 'Confirm' }}
             </button>
           </div>
         </div>

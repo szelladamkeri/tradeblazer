@@ -7,6 +7,7 @@ interface User {
   avatar: string | undefined
   type: string
   created_at: string
+  displayName?: string
 }
 
 interface AuthState {

@@ -2,7 +2,7 @@
 import HeaderLink from './HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -29,18 +29,66 @@ const updateMenuOnResize = () => {
   }
 }
 
-onMounted(() => {
+// Add new ref for avatar
+const avatarAvailable = ref(false)
+
+const checkAvatar = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/api/checkfile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        purpose: 'avatarCheck',
+        username: userStore.user?.username,
+      }),
+    })
+
+    const data = await response.json()
+    avatarAvailable.value = data.hasAvatar
+  } catch (error) {
+    console.error('Error checking avatar:', error)
+  }
+}
+
+// Add dropdown state
+const showDropdown = ref(false)
+const dropdownRef = ref<HTMLDivElement | null>(null)
+
+// Close dropdown when clicking outside
+const closeDropdownOnClickOutside = (event: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    showProfileDropdown.value = false
+  }
+}
+
+const showProfileDropdown = ref(false)
+
+// Add computed property for first letter
+const firstLetter = computed(() => {
+  return userStore.user?.username.charAt(0).toUpperCase() || '?'
+})
+
+onMounted(async () => {
+  if (userStore.isAuthenticated) {
+    await checkAvatar()
+  }
   window.addEventListener('resize', updateMenuOnResize)
+  document.addEventListener('click', closeDropdownOnClickOutside)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateMenuOnResize)
+  document.removeEventListener('click', closeDropdownOnClickOutside)
 })
 </script>
 
 <template>
   <div class="w-full max-w-7xl mx-auto mb-2">
-    <header class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl">
+    <header
+      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl relative z-[100]"
+    >
       <!-- Main navbar container -->
       <div class="px-4 py-3">
         <div class="flex items-center justify-between">
@@ -56,7 +104,7 @@ onUnmounted(() => {
             class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
             aria-label="Toggle menu"
           >
-            <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-xl" />
+            <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-2xl" />
           </button>
 
           <!-- Desktop Navigation -->
@@ -96,18 +144,6 @@ onUnmounted(() => {
                 </template>
               </HeaderLink>
 
-              <HeaderLink>
-                <template #icon>
-                  <router-link
-                    to="/profile"
-                    class="text-gray-300 hover:text-green-400 flex items-center"
-                  >
-                    <font-awesome-icon icon="user-circle" class="mr-2" />
-                    <span>Profile</span>
-                  </router-link>
-                </template>
-              </HeaderLink>
-
               <HeaderLink v-if="userStore.isAdmin">
                 <template #icon>
                   <router-link
@@ -117,21 +153,6 @@ onUnmounted(() => {
                     <font-awesome-icon icon="shield" class="mr-2" />
                     <span>Admin</span>
                   </router-link>
-                </template>
-              </HeaderLink>
-
-              <HeaderLink>
-                <template #icon>
-                  <button
-                    @click="handleSignOut"
-                    class="text-red-400 hover:text-red-300 flex items-center group"
-                  >
-                    <font-awesome-icon
-                      icon="right-from-bracket"
-                      class="mr-2 group-hover:text-red-300"
-                    />
-                    <span class="group-hover:text-red-300">Logout</span>
-                  </button>
                 </template>
               </HeaderLink>
             </template>
@@ -150,6 +171,60 @@ onUnmounted(() => {
               </HeaderLink>
             </template>
           </nav>
+
+          <!-- User Profile Section -->
+          <div
+            v-if="userStore.isAuthenticated"
+            class="relative flex items-center"
+            ref="dropdownRef"
+          >
+            <!-- Username on the left -->
+            <div class="hidden sm:block">
+              <span class="text-gray-300 mr-3">{{
+                userStore.user?.displayName || userStore.user?.username
+              }}</span>
+            </div>
+
+            <!-- Avatar button and dropdown container -->
+            <div class="relative">
+              <button
+                @click="showProfileDropdown = !showProfileDropdown"
+                class="w-8 h-8 rounded-full overflow-hidden bg-white/10 hover:ring-2 hover:ring-green-400/50 transition-all"
+              >
+                <img
+                  v-if="avatarAvailable"
+                  :src="'/src/assets/avatars/' + userStore.user?.username + '.jpg'"
+                  class="w-full h-full object-cover"
+                  alt="Profile"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
+                  <span class="text-white text-lg font-semibold">{{ firstLetter }}</span>
+                </div>
+              </button>
+
+              <!-- Profile Dropdown -->
+              <div
+                v-show="showProfileDropdown"
+                class="absolute right-0 top-full mt-2 w-48 py-2 bg-black/90 rounded-lg shadow-lg border border-white/10 z-[101]"
+              >
+                <router-link
+                  to="/profile"
+                  class="block px-4 py-2 text-gray-300 hover:bg-white/5 transition-colors"
+                  @click="showProfileDropdown = false"
+                >
+                  <font-awesome-icon icon="user-circle" class="mr-2" />
+                  Profile
+                </router-link>
+                <button
+                  @click="handleSignOut"
+                  class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/5 transition-colors"
+                >
+                  <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -217,18 +292,6 @@ onUnmounted(() => {
                   <font-awesome-icon icon="shield" class="mr-2" />
                   <span>Admin</span>
                 </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <button
-                  @click="handleSignOut"
-                  class="flex items-center p-2 w-full rounded text-red-400 hover:bg-white/5 transition-colors text-left"
-                >
-                  <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-                  <span>Logout</span>
-                </button>
               </template>
             </HeaderLink>
           </template>
@@ -324,8 +387,7 @@ nav::-webkit-scrollbar {
 }
 
 /* Match PageMain blur effect */
-header,
-div[class*='bg-black'] {
+header {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
   background-color: rgba(0, 0, 0, 0.7);
@@ -347,5 +409,26 @@ nav {
 :deep(.header-link) {
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+/* Add z-index for dropdown */
+.z-50 {
+  z-index: 50;
+}
+
+/* Update z-index classes */
+.z-\[100\] {
+  z-index: 100;
+}
+
+.z-\[101\] {
+  z-index: 101;
+}
+
+/* Add background color for .bg-black */
+.bg-black {
+  background-color: #000000;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 </style>
