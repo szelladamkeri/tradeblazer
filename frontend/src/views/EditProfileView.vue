@@ -23,7 +23,6 @@ onMounted(() => {
   if (userStore.user) {
     username.value = userStore.user.username
     email.value = userStore.user.email
-    avatar.value = userStore.user.avatar
   }
 })
 
@@ -49,7 +48,6 @@ const handleSubmit = async (e: Event) => {
         email: email.value,
         currentPassword: currentPassword.value,
         newPassword: newPassword.value || undefined,
-        avatar: avatar.value || undefined,
       }),
     })
 
@@ -68,10 +66,6 @@ const handleSubmit = async (e: Event) => {
   } finally {
     loading.value = false
   }
-}
-
-function onChangeFileUpload() {
-  this.file = ref(['file']).value
 }
 </script>
 
