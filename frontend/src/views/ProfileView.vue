@@ -57,10 +57,17 @@ const formatDate = (dateString: string) => {
           <div class="text-center">
             <div
               class="w-24 h-24 mx-auto bg-green-600 rounded-full flex items-center justify-center mb-4"
+              v-if="!userStore.user.avatar"
             >
-              <span class="text-3xl font-bold text-white">{{
-                userStore.user.username[0].toUpperCase()
-              }}</span>
+              <span class="text-3xl font-bold text-white">
+                {{ userStore.user.username[0].toUpperCase() }}
+              </span>
+            </div>
+            <div
+              class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4"
+              v-if="true"
+            >
+              <img src=".\src\assets\avatars\images.jpg" alt="" />
             </div>
             <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
               {{ userStore.user.username }}
