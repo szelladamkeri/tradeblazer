@@ -18,6 +18,14 @@ import {
   faWallet,
   faXmark,
   faShield,
+  faUsers,
+  faUserTag,
+  faEnvelope,
+  faTrash,
+  faHashtag,
+  faWrench,
+  faUserPen,
+  faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -38,6 +46,14 @@ library.add(
   faWallet,
   faXmark,
   faShield,
+  faUsers,
+  faUserTag,
+  faEnvelope,
+  faTrash,
+  faHashtag,
+  faWrench,
+  faUserPen,
+  faTriangleExclamation,
 )
 
 export { FontAwesomeIcon }

@@ -61,57 +61,59 @@ const handleLogin = async (e: Event) => {
   <PageMain>
     <div class="w-full h-[calc(100vh-12rem)] flex items-center justify-center">
       <div class="max-w-md w-full px-4 py-8 sm:px-6">
-        <div class="text-center">
-          <h2 class="text-white text-2xl sm:text-3xl font-bold mb-2">Login to TradeBlazer</h2>
-          <p class="text-gray-400 text-sm sm:text-base">Access your portfolio and start trading</p>
+        <div class="space-y-8">
+          <div class="text-center">
+            <h2 class="text-white text-2xl sm:text-3xl font-bold mb-2">Login to TradeBlazer</h2>
+            <p class="text-gray-400">Enter your credentials to access your account</p>
+          </div>
+
+          <form @submit="handleLogin" class="space-y-6">
+            <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg mb-4">
+              {{ error }}
+            </div>
+
+            <div class="space-y-2">
+              <label for="email" class="block text-gray-200 text-sm font-medium"
+                >Email or Username</label
+              >
+              <input
+                type="text"
+                id="email"
+                v-model="email"
+                required
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                placeholder="Enter your email or username"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label for="password" class="block text-gray-200 text-sm font-medium">Password</label>
+              <input
+                type="password"
+                id="password"
+                v-model="password"
+                required
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                placeholder="Enter your password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              :disabled="loading"
+              class="w-full p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200"
+            >
+              {{ loading ? 'Logging in...' : 'Login' }}
+            </button>
+
+            <div class="text-center text-gray-400">
+              <span>Don't have an account? </span>
+              <router-link to="/register" class="text-green-500 hover:text-green-400"
+                >Register</router-link
+              >
+            </div>
+          </form>
         </div>
-
-        <form @submit="handleLogin" class="space-y-6">
-          <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg mb-4">
-            {{ error }}
-          </div>
-
-          <div class="space-y-2">
-            <label for="email" class="block text-gray-200 text-sm font-medium"
-              >Email or Username</label
-            >
-            <input
-              type="text"
-              id="email"
-              v-model="email"
-              required
-              class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
-              placeholder="Enter your email or username"
-            />
-          </div>
-
-          <div class="space-y-2">
-            <label for="password" class="block text-gray-200 text-sm font-medium">Password</label>
-            <input
-              type="password"
-              id="password"
-              v-model="password"
-              required
-              class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            :disabled="loading"
-            class="w-full p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200"
-          >
-            {{ loading ? 'Logging in...' : 'Login' }}
-          </button>
-
-          <div class="text-center text-gray-400">
-            <span>Don't have an account? </span>
-            <router-link to="/register" class="text-green-500 hover:text-green-400"
-              >Register</router-link
-            >
-          </div>
-        </form>
       </div>
     </div>
   </PageMain>

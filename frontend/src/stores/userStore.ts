@@ -21,7 +21,10 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
-    isAdmin: (state) => state.user?.type === 'A',
+    isAdmin: (state) => {
+      console.log('User type:', state.user?.type) // Add this for debugging
+      return state.user?.type === 'A'
+    },
   },
 
   actions: {

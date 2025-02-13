@@ -39,7 +39,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full max-w-7xl mx-auto mb-4">
+  <div class="w-full max-w-7xl mx-auto mb-2">
     <header class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl">
       <div class="flex items-center justify-between p-4">
         <!-- Logo -->
@@ -60,64 +60,73 @@ onUnmounted(() => {
         <nav class="hidden sm:flex items-center space-x-4">
           <HeaderLink>
             <template #icon>
-              <router-link to="/" class="text-gray-300 hover:text-green-400">
+              <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
                 <font-awesome-icon icon="chart-line" class="mr-2" />
+                <span>Dashboard</span>
               </router-link>
-            </template>
-            <template #heading>
-              <router-link to="/" class="text-gray-300 hover:text-green-400">Dashboard</router-link>
             </template>
           </HeaderLink>
 
           <HeaderLink>
             <template #icon>
-              <router-link to="/markets" class="text-gray-300 hover:text-green-400">
-                <font-awesome-icon icon="chart-pie" class="mr-2" />
-              </router-link>
-            </template>
-            <template #heading>
-              <router-link to="/markets" class="text-gray-300 hover:text-green-400"
-                >Markets</router-link
+              <router-link
+                to="/markets"
+                class="text-gray-300 hover:text-green-400 flex items-center"
               >
+                <font-awesome-icon icon="chart-pie" class="mr-2" />
+                <span>Markets</span>
+              </router-link>
             </template>
           </HeaderLink>
 
           <template v-if="userStore.isAuthenticated">
             <HeaderLink>
               <template #icon>
-                <router-link to="/portfolio" class="text-gray-300 hover:text-green-400">
+                <router-link
+                  to="/portfolio"
+                  class="text-gray-300 hover:text-green-400 flex items-center"
+                >
                   <font-awesome-icon icon="wallet" class="mr-2" />
+                  <span>Portfolio</span>
                 </router-link>
-              </template>
-              <template #heading>
-                <router-link to="/portfolio" class="text-gray-300 hover:text-green-400"
-                  >Portfolio</router-link
-                >
               </template>
             </HeaderLink>
 
             <HeaderLink>
               <template #icon>
-                <router-link to="/profile" class="text-gray-300 hover:text-green-400">
+                <router-link
+                  to="/profile"
+                  class="text-gray-300 hover:text-green-400 flex items-center"
+                >
                   <font-awesome-icon icon="user-circle" class="mr-2" />
+                  <span>Profile</span>
                 </router-link>
               </template>
-              <template #heading>
-                <router-link to="/profile" class="text-gray-300 hover:text-green-400"
-                  >Profile</router-link
+            </HeaderLink>
+
+            <HeaderLink v-if="userStore.isAdmin">
+              <template #icon>
+                <router-link
+                  to="/admin"
+                  class="text-gray-300 hover:text-green-400 flex items-center"
                 >
+                  <font-awesome-icon icon="shield" class="mr-2" />
+                  <span>Admin</span>
+                </router-link>
               </template>
             </HeaderLink>
 
             <HeaderLink>
               <template #icon>
-                <router-link to="/logout" class="text-gray-300 hover:text-green-400">
-                  <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-                </router-link>
-              </template>
-              <template #heading>
-                <button @click="handleSignOut" class="text-red-400 hover:text-red-300">
-                  Logout
+                <button
+                  @click="handleSignOut"
+                  class="text-red-400 hover:text-red-300 flex items-center group"
+                >
+                  <font-awesome-icon
+                    icon="right-from-bracket"
+                    class="mr-2 group-hover:text-red-300"
+                  />
+                  <span class="group-hover:text-red-300">Logout</span>
                 </button>
               </template>
             </HeaderLink>
@@ -126,14 +135,13 @@ onUnmounted(() => {
           <template v-else>
             <HeaderLink>
               <template #icon>
-                <router-link to="/login" class="text-gray-300 hover:text-green-400">
-                  <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-                </router-link>
-              </template>
-              <template #heading>
-                <router-link to="/login" class="text-gray-300 hover:text-green-400"
-                  >Login</router-link
+                <router-link
+                  to="/login"
+                  class="text-gray-300 hover:text-green-400 flex items-center"
                 >
+                  <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                  <span>Login</span>
+                </router-link>
               </template>
             </HeaderLink>
           </template>
@@ -192,16 +200,25 @@ onUnmounted(() => {
             </template>
           </HeaderLink>
 
-          <HeaderLink @click="closeMenu">
+          <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
             <template #icon>
-              <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+              <font-awesome-icon icon="shield" class="mr-2" />
             </template>
             <template #heading>
+              <router-link to="/admin" class="text-gray-300 hover:text-green-400 block w-full">
+                Admin
+              </router-link>
+            </template>
+          </HeaderLink>
+
+          <HeaderLink @click="closeMenu">
+            <template #icon>
               <button
                 @click="handleSignOut"
-                class="text-red-400 hover:text-red-300 block w-full text-left"
+                class="text-red-400 hover:text-red-300 flex items-center w-full text-left"
               >
-                Logout
+                <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                <span>Logout</span>
               </button>
             </template>
           </HeaderLink>

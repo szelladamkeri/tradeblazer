@@ -12,7 +12,7 @@ const port = 3000
 app.use(
   cors({
     origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
   })
@@ -201,7 +201,7 @@ app.post(
 
     await testConnection()
     con.query(
-      'SELECT id, username, email, type FROM users WHERE (email = ? OR username = ?) AND password = ?',
+      'SELECT id, username, email, type, created_at FROM users WHERE (email = ? OR username = ?) AND password = ?',
       [emailOrUsername, emailOrUsername, password],
       (err, result) => {
         if (err) {
@@ -228,6 +228,7 @@ app.post(
             username: result[0].username,
             email: result[0].email,
             type: result[0].type,
+            created_at: result[0].created_at,
           },
         }
 
@@ -359,7 +360,7 @@ app.get(
   '/api/admin/users',
   asyncHandler(async (req, res) => {
     await testConnection()
-    con.query('SELECT id, username, email, type as role FROM users', (err, result) => {
+    con.query('SELECT id, username, email, type as role, created_at FROM users', (err, result) => {
       if (err) {
         console.error('Database query error:', err)
         return res.status(500).json({
@@ -369,6 +370,84 @@ app.get(
       }
 
       res.json(result)
+    })
+  })
+)
+
+app.delete(
+  '/api/admin/users/:id',
+  asyncHandler(async (req, res) => {
+    const userId = req.params.id
+    await testConnection()
+
+    con.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+      if (err) {
+        console.error('Delete user error:', err)
+        return res.status(500).json({
+          error: 'Database error',
+          message: 'Failed to delete user',
+        })
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          error: 'Not found',
+          message: 'User not found',
+        })
+      }
+
+      res.json({ success: true })
+    })
+  })
+)
+
+app.put(
+  '/api/admin/users/:id',
+  asyncHandler(async (req, res) => {
+    const userId = req.params.id
+    const { username, email, role } = req.body
+
+    await testConnection()
+
+    // Simple update without restrictions
+    con.query(
+      'UPDATE users SET username = ?, email = ?, type = ? WHERE id = ?',
+      [username, email, role, userId],
+      (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            error: 'Database error',
+            message: 'Failed to update user',
+          })
+        }
+
+        res.json({
+          success: true,
+          user: { id: userId, username, email, role },
+        })
+      }
+    )
+  })
+)
+
+// Add user deletion endpoint
+app.delete(
+  '/api/user/:id',
+  asyncHandler(async (req, res) => {
+    const userId = req.params.id
+    await testConnection()
+
+    // Delete user data
+    con.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+      if (err) {
+        console.error('Delete user error:', err)
+        return res.status(500).json({
+          error: 'Database error',
+          message: 'Failed to delete account',
+        })
+      }
+
+      res.json({ success: true })
     })
   })
 )

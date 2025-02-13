@@ -3,9 +3,10 @@ import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import HeaderLink from '@/components/HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import FadeIn from '@/components/FadeIn.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -15,6 +16,36 @@ onMounted(() => {
     router.push('/login')
   }
 })
+
+const showDeleteConfirm = ref(false)
+
+const initiateDelete = () => {
+  showDeleteConfirm.value = true
+}
+
+const handleDeleteConfirm = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/user/${userStore.user?.id}`, {
+      method: 'DELETE',
+    })
+    if (!response.ok) throw new Error('Failed to delete account')
+
+    userStore.logout()
+    router.push('/register')
+  } catch (err) {
+    console.error('Delete account error:', err)
+  } finally {
+    showDeleteConfirm.value = false
+  }
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
 </script>
 
 <template>
@@ -44,7 +75,7 @@ onMounted(() => {
             </div>
             <div class="bg-white/10 p-4 rounded-xl">
               <h3 class="text-white text-lg font-semibold mb-2">Member Since</h3>
-              <p class="text-gray-300">{{ new Date().toLocaleDateString() }}</p>
+              <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
             </div>
           </div>
 
@@ -55,11 +86,24 @@ onMounted(() => {
             >
               Edit Profile
             </button>
+            <button
+              @click="initiateDelete"
+              class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Delete Account
+            </button>
           </div>
         </div>
       </div>
     </FadeIn>
   </PageMain>
+  <ConfirmDialog
+    :show="showDeleteConfirm"
+    title="Delete Account"
+    message="Are you sure you want to delete your account? This action cannot be undone and you will lose all your data."
+    @confirm="handleDeleteConfirm"
+    @cancel="showDeleteConfirm = false"
+  />
 </template>
 
 <style scoped>

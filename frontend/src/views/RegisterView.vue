@@ -80,7 +80,7 @@ const handleRegister = async (e: Event) => {
                 v-model="username"
                 type="text"
                 required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
               />
             </div>
 
@@ -90,7 +90,7 @@ const handleRegister = async (e: Event) => {
                 v-model="email"
                 type="email"
                 required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
               />
             </div>
 
@@ -100,7 +100,7 @@ const handleRegister = async (e: Event) => {
                 v-model="password"
                 type="password"
                 required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
               />
             </div>
 
@@ -110,7 +110,7 @@ const handleRegister = async (e: Event) => {
                 v-model="confirmPassword"
                 type="password"
                 required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
               />
             </div>
           </div>
