@@ -14,6 +14,7 @@ const email = ref('')
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
+const avatar = ref(new Blob())
 
 onMounted(() => {
     if (!userStore.isAuthenticated) {
@@ -23,7 +24,6 @@ onMounted(() => {
     if (userStore.user) {
         username.value = userStore.user.username
         email.value = userStore.user.email
-        avatar.value = userStore.user.avatar
     }
 })
 
@@ -65,8 +65,29 @@ const handleSubmit = async (e: Event) => {
     }
 }
 
-function onChangeFileUpload() {
-    this.file = ref(["file"]).value;
+function onChangeFileUpload(event: Event) {
+    //if you read this you gotta do this such that it circumvents the v-model but still applies the image to the avatar ref object
+    //and the image is uploaded
+    //if in case its not good rewrite it well
+    const reader = new FileReader();
+    let baseString
+    reader.onloadend = function () {
+        baseString = String(reader.result);
+        const img = new Image();
+
+        img.src = baseString;
+        console.log(img.height);
+
+    };
+
+    reader.readAsDataURL(event.currentTarget?.files[0]);
+
+
+    return
+    console.log(new Image())
+    return;
+    avatar.value = event.currentTarget?.files[0] || undefined;
+    console.log(avatar.value);
 }
 </script>
 
@@ -123,11 +144,9 @@ function onChangeFileUpload() {
                             <label class="block text-gray-200 text-sm font-medium">Avatar (max 2MB .jpg or .jpeg
                                 only)</label>
 
-                            <!-- <input v-model="avatar" type="file" accept="image/*" v-on:change="onChangeFileUpload"
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" /> -->
-                            <SingleFileUpload v-model="avatar">
+                            <input type="file" accept="image/*" v-on:change="onChangeFileUpload"
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
 
-                            </SingleFileUpload>
                         </div>
                     </div>
 

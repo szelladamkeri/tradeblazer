@@ -3,18 +3,41 @@ import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import HeaderLink from '@/components/HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import FadeIn from '@/components/FadeIn.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 
-onMounted(() => {
+onMounted(async () => {
     if (!userStore.isAuthenticated) {
         router.push('/login')
+    } else {
+        avatarAvailable.value = await avatarExists();
     }
 })
+const avatarAvailable = ref(false);
+
+const avatarExists = async (): Promise<boolean> => {
+    try {
+        const response = await fetch('http://localhost:3000/api/checkfile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                purpose: 'avatarCheck',
+                username: userStore.user?.username,
+            }),
+        })
+
+        const data = await response.json()
+        return data.hasAvatar
+    } catch (error) {
+        return false
+    }
+}
 </script>
 
 <template>
@@ -25,13 +48,15 @@ onMounted(() => {
                 <div v-if="userStore.user" class="space-y-8">
                     <div class="text-center">
                         <div class="w-24 h-24 mx-auto bg-green-600 rounded-full flex items-center justify-center mb-4"
-                            v-if="!userStore.user.avatar">
+                            v-if="!avatarAvailable">
                             <span class="text-3xl font-bold text-white">
                                 {{ userStore.user.username[0].toUpperCase() }}
                             </span>
                         </div>
-                        <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4" v-if="true">
-                            <img src=".\src\assets\avatars\images.jpg" alt="">
+                        <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4"
+                            v-if="avatarAvailable">
+                            <img :src="'/src/assets/avatars/' + userStore.user.username + '.jpg'" alt=""
+                                class="rounded-full">
                         </div>
                         <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
                             {{ userStore.user.username }}

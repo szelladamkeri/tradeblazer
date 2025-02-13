@@ -4,7 +4,6 @@ interface User {
   id: number
   username: string
   email: string
-  avatar: string | undefined
   type: string // Add this field
 }
 

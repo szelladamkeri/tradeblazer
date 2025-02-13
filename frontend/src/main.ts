@@ -4,14 +4,11 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useUserStore } from './stores/userStore'
-
-import SingleFileUpload from '@canopassoftware/vue-file-upload'
 import { FontAwesomeIcon } from './plugins/font-awesome'
 
 const app = createApp(App)
 const pinia = createPinia()
 
-app.component('SingleFileUpload', SingleFileUpload)
 app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.use(pinia)

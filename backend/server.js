@@ -358,13 +358,13 @@ app.get(
     asyncHandler(async (req, res) => {
         await testConnection()
         const query = `
-    SELECT a.*, COUNT(t.id) as trade_count
-    FROM assets a
-    LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-    GROUP BY a.id
-    ORDER BY trade_count DESC, a.id ASC
-    LIMIT 1
-  `
+                        SELECT a.*, COUNT(t.id) as trade_count
+                        FROM assets a
+                        LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                        GROUP BY a.id
+                        ORDER BY trade_count DESC, a.id ASC
+                        LIMIT 1
+                      `
         con.query(query, function (err, result) {
             if (err) {
                 console.error('Database query error:', err)
@@ -404,6 +404,28 @@ app.get(
         })
     })
 )
+
+app.post('/api/checkfile', async (req, res) => {
+    const purpose = req.body.purpose;
+    console.log(purpose)
+    if (purpose === "avatarCheck") {
+        res.json({
+            success: true,
+            hasAvatar: fs.existsSync('../frontend/src/assets/avatars/' + req.body.username + '.jpg'),
+        });
+    } else {
+        res.status(400).json({ success: false, message: "Invalid purpose" });
+    }
+
+    res.json({
+        success: true,
+        hasAvatar: false,
+    });
+    /*
+
+    
+    */
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
