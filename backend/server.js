@@ -228,11 +228,11 @@ app.post(
     try {
       await testConnection()
       con.query(
-        'SELECT id, username, email, type, created_at FROM users WHERE (email = ? OR username = ?) AND password = ?',
-        [emailOrUsername, emailOrUsername, password],
+        `SELECT id, username, email, type, created_at FROM users WHERE email = ? OR username = ? LIMIT 1`,
+        [emailOrUsername, emailOrUsername],
         (err, result) => {
           if (err) {
-            console.error('Login query error:', err)
+            console.error('Login query error usercheck:', err)
             return res.status(500).json({
               error: 'Database error',
               message: 'Internal server error',
@@ -242,25 +242,50 @@ app.post(
           if (!result || result.length === 0) {
             return res.status(401).json({
               error: 'Authentication failed',
-              message: 'Invalid credentials',
+              message: 'Invalid email or username',
             })
           }
-
+          console.log('getting to the second query')
           const user = result[0]
+          con.query(
+            `SELECT id FROM users WHERE (email = ? OR username = ?) AND password = ? LIMIT 1`,
+            [emailOrUsername, emailOrUsername, password],
+            (err, result) => {
+              if (err) {
+                //check for errors
+                console.error('Login query error password check:', err)
+                return res.status(500).json({
+                  error: 'Database error',
+                  message: 'Internal server error',
+                })
+              }
 
-          // Send the response with user data including created_at
-          const response = {
-            success: true,
-            user: {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              type: user.type,
-              created_at: user.created_at,
-            },
-          }
+              if (!result || result.length === 0) {
+                //if empty or null
+                return res.status(401).json({
+                  error: 'Authentication failed',
+                  message: 'Invalid password',
+                })
+              }
 
-          res.json(response)
+              console.log('Login successful', user)
+
+              const response = {
+                success: true,
+                user: {
+                  id: user.id,
+                  username: user.username,
+                  email: user.email,
+                  type: user.type,
+                  created_at: user.created_at,
+                },
+              }
+
+              res.setHeader('Content-Type', 'application/json')
+              console.log('Sending response:', response)
+              res.json(response)
+            }
+          )
         }
       )
     } catch (error) {
@@ -272,6 +297,7 @@ app.post(
     }
   })
 )
+
 //Profile change endpoint
 app.put('/api/user/update', upload.single('avatar'), async (req, res) => {
   console.log('Update request received:', req.body)
