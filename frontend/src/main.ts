@@ -4,7 +4,6 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useUserStore } from './stores/userStore'
-
 import { FontAwesomeIcon } from './plugins/font-awesome'
 
 const app = createApp(App)

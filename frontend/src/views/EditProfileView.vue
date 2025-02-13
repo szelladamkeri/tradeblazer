@@ -14,164 +14,166 @@ const email = ref('')
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
+const avatar = ref(new Blob())
 
 onMounted(() => {
-  if (!userStore.isAuthenticated) {
-    router.push('/login')
-    return
-  }
-  if (userStore.user) {
-    username.value = userStore.user.username
-    email.value = userStore.user.email
-  }
+    if (!userStore.isAuthenticated) {
+        router.push('/login')
+        return
+    }
+    if (userStore.user) {
+        username.value = userStore.user.username
+        email.value = userStore.user.email
+    }
 })
 
 const handleSubmit = async (e: Event) => {
-  e.preventDefault()
+    e.preventDefault()
 
-  if (!confirm('Are you sure you want to save these changes?')) {
-    return
-  }
-
-  loading.value = true
-  error.value = null
-
-  try {
-    const response = await fetch('http://localhost:3000/api/user/update', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: userStore.user?.id,
-        username: username.value,
-        email: email.value,
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value || undefined,
-      }),
-    })
-
-    console.log('Response:', response.status)
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to update profile')
+    if (!confirm('Are you sure you want to save these changes?')) {
+        return
     }
 
+    loading.value = true
+    error.value = null
+
+    try {
+        const response = await fetch('http://localhost:3000/api/user/update', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: userStore.user?.id,
+                username: username.value,
+                email: email.value,
+                currentPassword: currentPassword.value,
+                newPassword: newPassword.value || undefined,
+            }),
+        })
+
+        console.log('Response:', response.status)
+        const data = await response.json()
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to update profile')
+        }
+
+    } catch (err) {
+        console.error('Update error:', err)
+        error.value = err instanceof Error ? err.message : 'Failed to update profile'
+    } finally {
+        loading.value = false
+    }
+}
+
+function onChangeFileUpload(event: Event) {
+    //if you read this you gotta do this such that it circumvents the v-model but still applies the image to the avatar ref object
+    //and the image is uploaded
+    //if in case its not good rewrite it well
+    const reader = new FileReader();
+    let baseString
+    reader.onloadend = function () {
+        baseString = String(reader.result);
+        const img = new Image();
+
+        img.src = baseString;
+        console.log(img.height);
+
+    };
+
+    reader.readAsDataURL(event.currentTarget?.files[0]);
+
+
+    return
+    console.log(new Image())
+    return;
+    avatar.value = event.currentTarget?.files[0] || undefined;
+    console.log(avatar.value);
     userStore.setUser(data.user)
     router.push('/profile')
-  } catch (err) {
-    console.error('Update error:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to update profile'
-  } finally {
-    loading.value = false
-  }
+
 }
 </script>
 
 <template>
-  <PageHeader />
-  <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
-    <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
-      <div class="space-y-8">
-        <div class="text-center sm:text-left">
-          <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Edit Profile</h2>
-          <p class="text-gray-400">Update your account information</p>
+    <PageHeader />
+    <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
+        <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
+            <div class="space-y-8">
+                <div class="text-center sm:text-left">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Edit Profile</h2>
+                    <p class="text-gray-400">Update your account information</p>
+                </div>
+
+                <form @submit="handleSubmit" class="space-y-6">
+                    <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
+                        {{ error }}
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <label class="block text-gray-200 text-sm font-medium">Username</label>
+                            <input v-model="username" type="text" required
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-gray-200 text-sm font-medium">Email</label>
+                            <input v-model="email" type="email" required
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-gray-200 text-sm font-medium">Current Password</label>
+                            <input v-model="currentPassword" type="password" required
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-gray-200 text-sm font-medium">New Password (optional)</label>
+                            <input v-model="newPassword" type="password"
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
+                        </div>
+
+                        <div v-if="newPassword && newPassword.length > 0" class="space-y-2">
+                            <label class="block text-gray-200 text-sm font-medium">Confirm New Password</label>
+                            <input v-model="confirmPassword" type="password" required
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 justify-end">
+                        <button type="button" @click="router.push('/profile')"
+                            class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" :disabled="loading"
+                            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            {{ loading ? 'Saving...' : 'Save Changes' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <form @submit="handleSubmit" class="space-y-6">
-          <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
-            {{ error }}
-          </div>
-
-          <div class="space-y-4">
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Username</label>
-              <input
-                v-model="username"
-                type="text"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Email</label>
-              <input
-                v-model="email"
-                type="email"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Current Password</label>
-              <input
-                v-model="currentPassword"
-                type="password"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">New Password (optional)</label>
-              <input
-                v-model="newPassword"
-                type="password"
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-
-            <div v-if="newPassword && newPassword.length > 0" class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Confirm New Password</label>
-              <input
-                v-model="confirmPassword"
-                type="password"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-          </div>
-
-          <div class="flex gap-4 justify-end">
-            <button
-              type="button"
-              @click="router.push('/profile')"
-              class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              {{ loading ? 'Saving...' : 'Save Changes' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </PageMain>
+    </PageMain>
 </template>
 
 <style scoped>
 ::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
 }
 </style>

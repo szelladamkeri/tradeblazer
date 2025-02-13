@@ -11,123 +11,137 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 const userStore = useUserStore()
 const router = useRouter()
 
-onMounted(() => {
-  if (!userStore.isAuthenticated) {
-    router.push('/login')
-  }
+onMounted(async () => {
+    if (!userStore.isAuthenticated) {
+        router.push('/login')
+    } else {
+        avatarAvailable.value = await avatarExists();
+    }
 })
+const avatarAvailable = ref(false);
 
+const avatarExists = async (): Promise<boolean> => {
+    try {
+        const response = await fetch('http://localhost:3000/api/checkfile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                purpose: 'avatarCheck',
+                username: userStore.user?.username,
+            }),
+        })
+
+        const data = await response.json()
+        return data.hasAvatar
+    } catch (error) {
+        return false
+    }
+}
 const showDeleteConfirm = ref(false)
 
 const initiateDelete = () => {
-  showDeleteConfirm.value = true
+    showDeleteConfirm.value = true
 }
 
 const handleDeleteConfirm = async () => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/user/${userStore.user?.id}`, {
-      method: 'DELETE',
-    })
-    if (!response.ok) throw new Error('Failed to delete account')
+    try {
+        const response = await fetch(`http://localhost:3000/api/user/${userStore.user?.id}`, {
+            method: 'DELETE',
+        })
+        if (!response.ok) throw new Error('Failed to delete account')
 
-    userStore.logout()
-    router.push('/register')
-  } catch (err) {
-    console.error('Delete account error:', err)
-  } finally {
-    showDeleteConfirm.value = false
-  }
+        userStore.logout()
+        router.push('/register')
+    } catch (err) {
+        console.error('Delete account error:', err)
+    } finally {
+        showDeleteConfirm.value = false
+    }
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    })
 }
 </script>
 
 <template>
-  <PageHeader />
-  <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
-    <FadeIn>
-      <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
-        <div v-if="userStore.user" class="space-y-8">
-          <div class="text-center">
-            <div
-              class="w-24 h-24 mx-auto bg-green-600 rounded-full flex items-center justify-center mb-4"
-              v-if="!userStore.user.avatar"
-            >
-              <span class="text-3xl font-bold text-white">
-                {{ userStore.user.username[0].toUpperCase() }}
-              </span>
-            </div>
-            <div
-              class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4"
-              v-if="true"
-            >
-              <img src=".\src\assets\avatars\images.jpg" alt="" />
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
-              {{ userStore.user.username }}
-            </h2>
-            <p class="text-gray-400">{{ userStore.user.email }}</p>
-          </div>
+    <PageHeader />
+    <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
+        <FadeIn>
+            <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
+                <div v-if="userStore.user" class="space-y-8">
+                    <div class="text-center">
+                        <div class="w-24 h-24 mx-auto bg-green-600 rounded-full flex items-center justify-center mb-4"
+                            v-if="!avatarAvailable">
+                            <span class="text-3xl font-bold text-white">
+                                {{ userStore.user.username[0].toUpperCase() }}
+                            </span>
+                        </div>
+                        <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4"
+                            v-if="avatarAvailable">
+                            <img :src="'/src/assets/avatars/' + userStore.user.username + '.jpg'" alt=""
+                                class="rounded-full">
+                        </div>
+                        <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4" v-if="true">
+                            <img src=".\src\assets\avatars\images.jpg" alt="" />
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
+                            {{ userStore.user.username }}
+                        </h2>
+                        <p class="text-gray-400">{{ userStore.user.email }}</p>
+                    </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="bg-white/10 p-4 rounded-xl">
-              <h3 class="text-white text-lg font-semibold mb-2">Account Status</h3>
-              <p class="text-green-400">Active</p>
-            </div>
-            <div class="bg-white/10 p-4 rounded-xl">
-              <h3 class="text-white text-lg font-semibold mb-2">Member Since</h3>
-              <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
-            </div>
-          </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white/10 p-4 rounded-xl">
+                            <h3 class="text-white text-lg font-semibold mb-2">Account Status</h3>
+                            <p class="text-green-400">Active</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-xl">
+                            <h3 class="text-white text-lg font-semibold mb-2">Member Since</h3>
+                            <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
+                        </div>
+                    </div>
 
-          <div class="flex gap-4 justify-center">
-            <button
-              @click="router.push('/edit-profile')"
-              class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Edit Profile
-            </button>
-            <button
-              @click="initiateDelete"
-              class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Delete Account
-            </button>
-          </div>
-        </div>
-      </div>
-    </FadeIn>
-  </PageMain>
-  <ConfirmDialog
-    :show="showDeleteConfirm"
-    title="Delete Account"
-    message="Are you sure you want to delete your account? This action cannot be undone and you will lose all your data."
-    @confirm="handleDeleteConfirm"
-    @cancel="showDeleteConfirm = false"
-  />
+                    <div class="flex gap-4 justify-center">
+                        <button @click="router.push('/edit-profile')"
+                            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            Edit Profile
+                        </button>
+                        <button @click="initiateDelete"
+                            class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </FadeIn>
+    </PageMain>
+    <ConfirmDialog :show="showDeleteConfirm" title="Delete Account"
+        message="Are you sure you want to delete your account? This action cannot be undone and you will lose all your data."
+        @confirm="handleDeleteConfirm" @cancel="showDeleteConfirm = false" />
 </template>
 
 <style scoped>
 ::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
 }
 </style>
