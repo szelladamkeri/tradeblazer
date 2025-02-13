@@ -197,12 +197,15 @@ app.post('/api/login', async (req, res) => {
     // probably more selects
     try {
         await testConnection()
+
+        const query1 = 'SELECT username';
         con.query(
-            'SELECT id, username, email FROM users WHERE (email = ? OR username = ?) AND password = ?',
-            [emailOrUsername, emailOrUsername, password],
+            `SELECT id, username, email, avatar FROM users WHERE email = ? OR username = ? LIMIT 1`,
+            [emailOrUsername, emailOrUsername],
             (err, result) => {
-                if (err) {
-                    console.error('Login query error:', err)
+
+                if (err) { //check for errors
+                    console.error('Login query error usercheck:', err)
                     return res.status(500).json({
                         error: 'Database error',
                         message: 'Internal server error',
@@ -211,25 +214,51 @@ app.post('/api/login', async (req, res) => {
 
                 console.log('Query result:', result)
 
-                if (!result || result.length === 0) {
+                if (!result || result.length === 0) { //if empty or null
                     return res.status(401).json({
                         error: 'Authentication failed',
-                        message: 'Invalid email or password',
+                        message: 'Invalid email or username',
                     })
                 }
 
-                const response = {
-                    success: true,
-                    user: {
-                        id: result[0].id,
-                        username: result[0].username,
-                        email: result[0].email,
-                    },
-                }
+                const user = result[0];
+                con.query(
+                    `SELECT id FROM users WHERE (email = ? OR username = ?) AND password = ? LIMIT 1`,
+                    [emailOrUsername, emailOrUsername, password],
+                    (err, result) => {
 
-                res.setHeader('Content-Type', 'application/json')
-                console.log('Sending response:', response)
-                res.json(response)
+                        if (err) { //check for errors
+                            console.error('Login query error password check:', err)
+                            return res.status(500).json({
+                                error: 'Database error',
+                                message: 'Internal server error',
+                            })
+                        }
+
+                        if (!result || result.length === 0) { //if empty or null
+                            return res.status(401).json({
+                                error: 'Authentication failed',
+                                message: 'Invalid password',
+                            })
+                        }
+
+                        console.log("Login successful", user);
+
+                        const response = {
+                            success: true,
+                            user: {
+                                id: user.id,
+                                username: user.username,
+                                email: user.email,
+                                avatar: user.avatar
+                            },
+                        }
+
+                        res.setHeader('Content-Type', 'application/json')
+                        console.log('Sending response:', response)
+                        res.json(response)
+                    }
+                );
             }
         )
     } catch (error) {
@@ -245,6 +274,7 @@ app.post('/api/login', async (req, res) => {
 app.put('/api/user/update', async (req, res) => {
     // TODO: Do the same as register, make sure the user knows whats wrong
     // and you cant override stuff, or change username
+    // also avatar
     console.log('Update request received:', req.body)
     const { id, username, email, currentPassword, newPassword } = req.body
 

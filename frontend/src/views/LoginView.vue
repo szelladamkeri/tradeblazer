@@ -72,44 +72,27 @@ const handleLogin = async (e: Event) => {
           </div>
 
           <div class="space-y-2">
-            <label for="email" class="block text-gray-200 text-sm font-medium"
-              >Email or Username</label
-            >
-            <input
-              type="text"
-              id="email"
-              v-model="email"
-              required
+            <label for="email" class="block text-gray-200 text-sm font-medium">Email or Username</label>
+            <input type="text" id="email" v-model="email" required
               class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
-              placeholder="Enter your email or username"
-            />
+              placeholder="Enter your email or username" />
           </div>
 
           <div class="space-y-2">
             <label for="password" class="block text-gray-200 text-sm font-medium">Password</label>
-            <input
-              type="password"
-              id="password"
-              v-model="password"
-              required
+            <input type="password" id="password" v-model="password" required
               class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
-              placeholder="Enter your password"
-            />
+              placeholder="Enter your password" />
           </div>
 
-          <button
-            type="submit"
-            :disabled="loading"
-            class="w-full p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200"
-          >
+          <button type="submit" :disabled="loading"
+            class="w-full p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200">
             {{ loading ? 'Logging in...' : 'Login' }}
           </button>
 
           <div class="text-center text-gray-400">
             <span>Don't have an account? </span>
-            <router-link to="/register" class="text-green-500 hover:text-green-400"
-              >Register</router-link
-            >
+            <router-link to="/register" class="text-green-500 hover:text-green-400">Register</router-link>
           </div>
         </form>
       </div>
