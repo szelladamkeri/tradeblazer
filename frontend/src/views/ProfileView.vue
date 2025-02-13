@@ -88,9 +88,6 @@ const formatDate = (dateString: string) => {
                             <img :src="'/src/assets/avatars/' + userStore.user.username + '.jpg'" alt=""
                                 class="rounded-full">
                         </div>
-                        <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4" v-if="true">
-                            <img src=".\src\assets\avatars\images.jpg" alt="" />
-                        </div>
                         <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
                             {{ userStore.user.username }}
                         </h2>
