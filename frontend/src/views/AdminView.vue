@@ -35,8 +35,18 @@ onMounted(fetchUsers)
     <div class="w-full p-6">
       <h1 class="text-2xl font-bold text-white mb-6">Admin Dashboard</h1>
 
-      <div v-if="loading" class="text-white">Loading...</div>
-      <div v-else-if="error" class="text-red-400">{{ error }}</div>
+      <div v-if="loading" class="flex justify-center items-center py-8">
+        <LoadingSpinner />
+      </div>
+
+      <div v-else-if="error" class="text-red-400 text-center py-8">
+        <div
+          class="bg-black/40 backdrop-blur-xl backdrop-saturate-150 rounded-xl p-6 border border-red-500/20"
+        >
+          <span class="text-xl font-medium">{{ error }}</span>
+        </div>
+      </div>
+
       <div v-else class="space-y-6">
         <div class="bg-black/40 rounded-xl p-6">
           <h2 class="text-xl text-white mb-4">User Management</h2>
@@ -70,3 +80,24 @@ onMounted(fetchUsers)
     </div>
   </PageMain>
 </template>
+
+<style scoped>
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.bg-black\/40 {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+</style>

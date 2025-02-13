@@ -4,6 +4,7 @@ interface User {
   id: number
   username: string
   email: string
+  type: string // Add this field
 }
 
 interface AuthState {
@@ -18,6 +19,10 @@ export const useUserStore = defineStore('user', {
     token: null,
     isAuthenticated: false,
   }),
+
+  getters: {
+    isAdmin: (state) => state.user?.type === 'A',
+  },
 
   actions: {
     setUser(userData: User | null, token: string | null = null) {
