@@ -4,7 +4,9 @@ interface User {
   id: number
   username: string
   email: string
-  type: string // Add this field
+  avatar: string | undefined
+  type: string
+  created_at: string
 }
 
 interface AuthState {
@@ -21,7 +23,10 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
-    isAdmin: (state) => state.user?.type === 'A',
+    isAdmin: (state) => {
+      console.log('User type:', state.user?.type) // Add this for debugging
+      return state.user?.type === 'A'
+    },
   },
 
   actions: {

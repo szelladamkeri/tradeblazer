@@ -12,7 +12,7 @@ const port = 3000
 app.use(
     cors({
         origin: 'http://localhost:5173',
-        methods: ['GET', 'POST', 'PUT'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type'],
         credentials: true,
     })
@@ -203,7 +203,7 @@ app.post(
         try {
             await testConnection()
             con.query(
-                'SELECT id, username, email, type FROM users WHERE (email = ? OR username = ?) AND password = ?',
+                'SELECT id, username, email, type, created_at FROM users WHERE (email = ? OR username = ?) AND password = ?',
                 [emailOrUsername, emailOrUsername, password],
                 (err, result) => {
                     if (err) {
@@ -214,51 +214,28 @@ app.post(
                         })
                     }
 
-                    if (!result || result.length === 0) { //if empty or null
+                    if (!result || result.length === 0) {
                         return res.status(401).json({
                             error: 'Authentication failed',
-                            message: 'Invalid email or username',
+                            message: 'Invalid credentials',
                         })
                     }
 
-                    const user = result[0];
-                    con.query(
-                        `SELECT id FROM users WHERE (email = ? OR username = ?) AND password = ? LIMIT 1`,
-                        [emailOrUsername, emailOrUsername, password],
-                        (err, result) => {
+                    const user = result[0]
 
-                            if (err) { //check for errors
-                                console.error('Login query error password check:', err)
-                                return res.status(500).json({
-                                    error: 'Database error',
-                                    message: 'Internal server error',
-                                })
-                            }
+                    // Send the response with user data including created_at
+                    const response = {
+                        success: true,
+                        user: {
+                            id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            type: user.type,
+                            created_at: user.created_at,
+                        },
+                    }
 
-                            if (!result || result.length === 0) { //if empty or null
-                                return res.status(401).json({
-                                    error: 'Authentication failed',
-                                    message: 'Invalid password',
-                                })
-                            }
-
-                            console.log("Login successful", user);
-
-                            const response = {
-                                success: true,
-                                user: {
-                                    id: user.id,
-                                    username: user.username,
-                                    email: user.email,
-                                    avatar: user.avatar
-                                },
-                            }
-
-                            res.setHeader('Content-Type', 'application/json')
-                            console.log('Sending response:', response)
-                            res.json(response)
-                        }
-                    );
+                    res.json(response)
                 }
             )
         } catch (error) {
@@ -310,9 +287,7 @@ app.put('/api/user/update', async (req, res) => {
             const updateQuery = newPassword
                 ? 'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?'
                 : 'UPDATE users SET username = ?, email = ? WHERE id = ?'
-            const updateParams = newPassword
-                ? [username, email, newPassword, id]
-                : [username, email, id]
+            const updateParams = newPassword ? [username, email, newPassword, id] : [username, email, id]
 
             con.query(updateQuery, updateParams, (updateErr, updateResult) => {
                 if (updateErr) {
@@ -343,7 +318,6 @@ app.put('/api/user/update', async (req, res) => {
     )
 })
 
-
 // Get api health
 app.get('/api/health', (req, res) => {
     res.json({
@@ -358,13 +332,13 @@ app.get(
     asyncHandler(async (req, res) => {
         await testConnection()
         const query = `
-                        SELECT a.*, COUNT(t.id) as trade_count
-                        FROM assets a
-                        LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                        GROUP BY a.id
-                        ORDER BY trade_count DESC, a.id ASC
-                        LIMIT 1
-                      `
+    SELECT a.*, COUNT(t.id) as trade_count
+    FROM assets a
+    LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    GROUP BY a.id
+    ORDER BY trade_count DESC, a.id ASC
+    LIMIT 1
+  `
         con.query(query, function (err, result) {
             if (err) {
                 console.error('Database query error:', err)
@@ -391,7 +365,7 @@ app.get(
     '/api/admin/users',
     asyncHandler(async (req, res) => {
         await testConnection()
-        con.query('SELECT id, username, email, type as role FROM users', (err, result) => {
+        con.query('SELECT id, username, email, type as role, created_at FROM users', (err, result) => {
             if (err) {
                 console.error('Database query error:', err)
                 return res.status(500).json({
@@ -401,6 +375,84 @@ app.get(
             }
 
             res.json(result)
+        })
+    })
+)
+
+app.delete(
+    '/api/admin/users/:id',
+    asyncHandler(async (req, res) => {
+        const userId = req.params.id
+        await testConnection()
+
+        con.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+            if (err) {
+                console.error('Delete user error:', err)
+                return res.status(500).json({
+                    error: 'Database error',
+                    message: 'Failed to delete user',
+                })
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    error: 'Not found',
+                    message: 'User not found',
+                })
+            }
+
+            res.json({ success: true })
+        })
+    })
+)
+
+app.put(
+    '/api/admin/users/:id',
+    asyncHandler(async (req, res) => {
+        const userId = req.params.id
+        const { username, email, role } = req.body
+
+        await testConnection()
+
+        // Simple update without restrictions
+        con.query(
+            'UPDATE users SET username = ?, email = ?, type = ? WHERE id = ?',
+            [username, email, role, userId],
+            (err, result) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: 'Database error',
+                        message: 'Failed to update user',
+                    })
+                }
+
+                res.json({
+                    success: true,
+                    user: { id: userId, username, email, role },
+                })
+            }
+        )
+    })
+)
+
+// Add user deletion endpoint
+app.delete(
+    '/api/user/:id',
+    asyncHandler(async (req, res) => {
+        const userId = req.params.id
+        await testConnection()
+
+        // Delete user data
+        con.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+            if (err) {
+                console.error('Delete user error:', err)
+                return res.status(500).json({
+                    error: 'Database error',
+                    message: 'Failed to delete account',
+                })
+            }
+
+            res.json({ success: true })
         })
     })
 )

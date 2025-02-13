@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/userStore'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import FadeIn from '@/components/FadeIn.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -38,6 +39,35 @@ const avatarExists = async (): Promise<boolean> => {
         return false
     }
 }
+const showDeleteConfirm = ref(false)
+
+const initiateDelete = () => {
+    showDeleteConfirm.value = true
+}
+
+const handleDeleteConfirm = async () => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/user/${userStore.user?.id}`, {
+            method: 'DELETE',
+        })
+        if (!response.ok) throw new Error('Failed to delete account')
+
+        userStore.logout()
+        router.push('/register')
+    } catch (err) {
+        console.error('Delete account error:', err)
+    } finally {
+        showDeleteConfirm.value = false
+    }
+}
+
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    })
+}
 </script>
 
 <template>
@@ -58,6 +88,9 @@ const avatarExists = async (): Promise<boolean> => {
                             <img :src="'/src/assets/avatars/' + userStore.user.username + '.jpg'" alt=""
                                 class="rounded-full">
                         </div>
+                        <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4" v-if="true">
+                            <img src=".\src\assets\avatars\images.jpg" alt="" />
+                        </div>
                         <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
                             {{ userStore.user.username }}
                         </h2>
@@ -71,7 +104,7 @@ const avatarExists = async (): Promise<boolean> => {
                         </div>
                         <div class="bg-white/10 p-4 rounded-xl">
                             <h3 class="text-white text-lg font-semibold mb-2">Member Since</h3>
-                            <p class="text-gray-300">{{ new Date().toLocaleDateString() }}</p>
+                            <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
                         </div>
                     </div>
 
@@ -80,11 +113,18 @@ const avatarExists = async (): Promise<boolean> => {
                             class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                             Edit Profile
                         </button>
+                        <button @click="initiateDelete"
+                            class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Delete Account
+                        </button>
                     </div>
                 </div>
             </div>
         </FadeIn>
     </PageMain>
+    <ConfirmDialog :show="showDeleteConfirm" title="Delete Account"
+        message="Are you sure you want to delete your account? This action cannot be undone and you will lose all your data."
+        @confirm="handleDeleteConfirm" @cancel="showDeleteConfirm = false" />
 </template>
 
 <style scoped>

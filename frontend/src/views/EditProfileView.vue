@@ -29,6 +29,11 @@ onMounted(() => {
 
 const handleSubmit = async (e: Event) => {
     e.preventDefault()
+
+    if (!confirm('Are you sure you want to save these changes?')) {
+        return
+    }
+
     loading.value = true
     error.value = null
 
@@ -44,7 +49,6 @@ const handleSubmit = async (e: Event) => {
                 email: email.value,
                 currentPassword: currentPassword.value,
                 newPassword: newPassword.value || undefined,
-                avatar: avatar.value || undefined
             }),
         })
 
@@ -55,8 +59,6 @@ const handleSubmit = async (e: Event) => {
             throw new Error(data.message || 'Failed to update profile')
         }
 
-        userStore.setUser(data.user)
-        router.push('/profile')
     } catch (err) {
         console.error('Update error:', err)
         error.value = err instanceof Error ? err.message : 'Failed to update profile'
@@ -88,15 +90,15 @@ function onChangeFileUpload(event: Event) {
     return;
     avatar.value = event.currentTarget?.files[0] || undefined;
     console.log(avatar.value);
+    userStore.setUser(data.user)
+    router.push('/profile')
+
 }
 </script>
 
 <template>
-    <PageHeader
-        class="w-full flex flex-wrap h-16 bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-center sm:justify-around max-w-7xl p-2 sm:p-4 mx-2 sm:mx-8 mb-2 gap-2" />
-
-    <PageMain
-        class="w-full flex flex-col h-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl items-center justify-start max-w-7xl mx-2 sm:mx-8 overflow-hidden">
+    <PageHeader />
+    <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
         <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
             <div class="space-y-8">
                 <div class="text-center sm:text-left">
@@ -113,40 +115,31 @@ function onChangeFileUpload(event: Event) {
                         <div class="space-y-2">
                             <label class="block text-gray-200 text-sm font-medium">Username</label>
                             <input v-model="username" type="text" required
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-gray-200 text-sm font-medium">Email</label>
                             <input v-model="email" type="email" required
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-gray-200 text-sm font-medium">Current Password</label>
                             <input v-model="currentPassword" type="password" required
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-gray-200 text-sm font-medium">New Password (optional)</label>
                             <input v-model="newPassword" type="password"
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
                         </div>
 
                         <div v-if="newPassword && newPassword.length > 0" class="space-y-2">
                             <label class="block text-gray-200 text-sm font-medium">Confirm New Password</label>
                             <input v-model="confirmPassword" type="password" required
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="block text-gray-200 text-sm font-medium">Avatar (max 2MB .jpg or .jpeg
-                                only)</label>
-
-                            <input type="file" accept="image/*" v-on:change="onChangeFileUpload"
-                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" />
-
+                                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20" />
                         </div>
                     </div>
 
