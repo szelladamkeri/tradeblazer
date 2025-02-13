@@ -41,37 +41,141 @@ onUnmounted(() => {
 <template>
   <div class="w-full max-w-7xl mx-auto mb-2">
     <header class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl">
-      <div class="flex items-center justify-between p-4">
-        <!-- Logo -->
-        <div class="flex items-center">
-          <font-awesome-icon icon="chart-line" class="text-green-400 text-2xl mr-2" />
-          <span class="text-white font-bold text-xl">TradeBlazer</span>
+      <!-- Main navbar container -->
+      <div class="px-4 py-3">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center shrink-0">
+            <font-awesome-icon icon="chart-line" class="text-green-400 text-2xl mr-2" />
+            <span class="text-white font-bold text-xl">TradeBlazer</span>
+          </div>
+
+          <!-- Mobile menu button -->
+          <button
+            @click="toggleMenu"
+            class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
+            aria-label="Toggle menu"
+          >
+            <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-xl" />
+          </button>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden sm:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto">
+            <!-- Changed space-x-4 to space-x-2 for tighter spacing -->
+            <HeaderLink>
+              <template #icon>
+                <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
+                  <font-awesome-icon icon="chart-line" class="mr-2" />
+                  <span>Dashboard</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <HeaderLink>
+              <template #icon>
+                <router-link
+                  to="/markets"
+                  class="text-gray-300 hover:text-green-400 flex items-center"
+                >
+                  <font-awesome-icon icon="chart-pie" class="mr-2" />
+                  <span>Markets</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <template v-if="userStore.isAuthenticated">
+              <HeaderLink>
+                <template #icon>
+                  <router-link
+                    to="/portfolio"
+                    class="text-gray-300 hover:text-green-400 flex items-center"
+                  >
+                    <font-awesome-icon icon="wallet" class="mr-2" />
+                    <span>Portfolio</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink>
+                <template #icon>
+                  <router-link
+                    to="/profile"
+                    class="text-gray-300 hover:text-green-400 flex items-center"
+                  >
+                    <font-awesome-icon icon="user-circle" class="mr-2" />
+                    <span>Profile</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink v-if="userStore.isAdmin">
+                <template #icon>
+                  <router-link
+                    to="/admin"
+                    class="text-gray-300 hover:text-green-400 flex items-center"
+                  >
+                    <font-awesome-icon icon="shield" class="mr-2" />
+                    <span>Admin</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink>
+                <template #icon>
+                  <button
+                    @click="handleSignOut"
+                    class="text-red-400 hover:text-red-300 flex items-center group"
+                  >
+                    <font-awesome-icon
+                      icon="right-from-bracket"
+                      class="mr-2 group-hover:text-red-300"
+                    />
+                    <span class="group-hover:text-red-300">Logout</span>
+                  </button>
+                </template>
+              </HeaderLink>
+            </template>
+
+            <template v-else>
+              <HeaderLink>
+                <template #icon>
+                  <router-link
+                    to="/login"
+                    class="text-gray-300 hover:text-green-400 flex items-center"
+                  >
+                    <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                    <span>Login</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+            </template>
+          </nav>
         </div>
+      </div>
 
-        <!-- Mobile menu button -->
-        <button
-          @click="toggleMenu"
-          class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
-        >
-          <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-xl" />
-        </button>
-
-        <!-- Desktop Navigation -->
-        <nav class="hidden sm:flex items-center space-x-4">
-          <HeaderLink>
+      <!-- Mobile Navigation -->
+      <div
+        v-show="isMenuOpen"
+        class="sm:hidden border-t border-white/10 overflow-hidden transition-all duration-200 ease-in-out"
+      >
+        <nav class="px-4 py-2 space-y-2">
+          <HeaderLink @click="closeMenu">
             <template #icon>
-              <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
+              <router-link
+                to="/"
+                class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
+              >
                 <font-awesome-icon icon="chart-line" class="mr-2" />
                 <span>Dashboard</span>
               </router-link>
             </template>
           </HeaderLink>
 
-          <HeaderLink>
+          <HeaderLink @click="closeMenu">
             <template #icon>
               <router-link
                 to="/markets"
-                class="text-gray-300 hover:text-green-400 flex items-center"
+                class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
               >
                 <font-awesome-icon icon="chart-pie" class="mr-2" />
                 <span>Markets</span>
@@ -80,11 +184,11 @@ onUnmounted(() => {
           </HeaderLink>
 
           <template v-if="userStore.isAuthenticated">
-            <HeaderLink>
+            <HeaderLink @click="closeMenu">
               <template #icon>
                 <router-link
                   to="/portfolio"
-                  class="text-gray-300 hover:text-green-400 flex items-center"
+                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
                 >
                   <font-awesome-icon icon="wallet" class="mr-2" />
                   <span>Portfolio</span>
@@ -92,11 +196,11 @@ onUnmounted(() => {
               </template>
             </HeaderLink>
 
-            <HeaderLink>
+            <HeaderLink @click="closeMenu">
               <template #icon>
                 <router-link
                   to="/profile"
-                  class="text-gray-300 hover:text-green-400 flex items-center"
+                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
                 >
                   <font-awesome-icon icon="user-circle" class="mr-2" />
                   <span>Profile</span>
@@ -104,11 +208,11 @@ onUnmounted(() => {
               </template>
             </HeaderLink>
 
-            <HeaderLink v-if="userStore.isAdmin">
+            <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
               <template #icon>
                 <router-link
                   to="/admin"
-                  class="text-gray-300 hover:text-green-400 flex items-center"
+                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
                 >
                   <font-awesome-icon icon="shield" class="mr-2" />
                   <span>Admin</span>
@@ -116,28 +220,25 @@ onUnmounted(() => {
               </template>
             </HeaderLink>
 
-            <HeaderLink>
+            <HeaderLink @click="closeMenu">
               <template #icon>
                 <button
                   @click="handleSignOut"
-                  class="text-red-400 hover:text-red-300 flex items-center group"
+                  class="flex items-center p-2 w-full rounded text-red-400 hover:bg-white/5 transition-colors text-left"
                 >
-                  <font-awesome-icon
-                    icon="right-from-bracket"
-                    class="mr-2 group-hover:text-red-300"
-                  />
-                  <span class="group-hover:text-red-300">Logout</span>
+                  <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                  <span>Logout</span>
                 </button>
               </template>
             </HeaderLink>
           </template>
 
           <template v-else>
-            <HeaderLink>
+            <HeaderLink @click="closeMenu">
               <template #icon>
                 <router-link
                   to="/login"
-                  class="text-gray-300 hover:text-green-400 flex items-center"
+                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
                 >
                   <font-awesome-icon icon="right-to-bracket" class="mr-2" />
                   <span>Login</span>
@@ -148,96 +249,6 @@ onUnmounted(() => {
         </nav>
       </div>
     </header>
-
-    <!-- Mobile Navigation -->
-    <div
-      v-if="isMenuOpen"
-      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl mt-2 mobile-navigation"
-    >
-      <div class="p-4 space-y-2">
-        <HeaderLink @click="closeMenu">
-          <template #icon>
-            <font-awesome-icon icon="chart-line" class="mr-2" />
-          </template>
-          <template #heading>
-            <router-link to="/" class="text-gray-300 hover:text-green-400 block w-full">
-              Dashboard
-            </router-link>
-          </template>
-        </HeaderLink>
-
-        <HeaderLink @click="closeMenu">
-          <template #icon>
-            <font-awesome-icon icon="chart-pie" class="mr-2" />
-          </template>
-          <template #heading>
-            <router-link to="/markets" class="text-gray-300 hover:text-green-400 block w-full">
-              Markets
-            </router-link>
-          </template>
-        </HeaderLink>
-
-        <template v-if="userStore.isAuthenticated">
-          <HeaderLink @click="closeMenu">
-            <template #icon>
-              <font-awesome-icon icon="wallet" class="mr-2" />
-            </template>
-            <template #heading>
-              <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 block w-full">
-                Portfolio
-              </router-link>
-            </template>
-          </HeaderLink>
-
-          <HeaderLink @click="closeMenu">
-            <template #icon>
-              <font-awesome-icon icon="user-circle" class="mr-2" />
-            </template>
-            <template #heading>
-              <router-link to="/profile" class="text-gray-300 hover:text-green-400 block w-full">
-                Profile
-              </router-link>
-            </template>
-          </HeaderLink>
-
-          <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
-            <template #icon>
-              <font-awesome-icon icon="shield" class="mr-2" />
-            </template>
-            <template #heading>
-              <router-link to="/admin" class="text-gray-300 hover:text-green-400 block w-full">
-                Admin
-              </router-link>
-            </template>
-          </HeaderLink>
-
-          <HeaderLink @click="closeMenu">
-            <template #icon>
-              <button
-                @click="handleSignOut"
-                class="text-red-400 hover:text-red-300 flex items-center w-full text-left"
-              >
-                <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-                <span>Logout</span>
-              </button>
-            </template>
-          </HeaderLink>
-        </template>
-
-        <template v-else>
-          <HeaderLink @click="closeMenu">
-            <template #icon>
-              <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-            </template>
-            <template #heading>
-              <router-link to="/login" class="text-gray-300 hover:text-green-400 block w-full">
-                Login
-              </router-link>
-            </template>
-          </HeaderLink>
-        </template>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -266,18 +277,50 @@ h3 {
 }
 
 .router-link-active {
-  @apply text-green-400;
+  @apply text-green-400 bg-white/5;
 }
 
 /* Add proper backdrop filter */
 header {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
+  min-width: min-content;
+  width: 100%;
 }
 
-.mobile-navigation {
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
+nav {
+  flex-shrink: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+nav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Adjust breakpoint for mobile menu */
+@media (max-width: 1024px) {
+  .sm\:hidden {
+    display: block;
+  }
+  .sm\:flex {
+    display: none;
+  }
+}
+
+@media (min-width: 1025px) {
+  .sm\:hidden {
+    display: none;
+  }
+  .sm\:flex {
+    display: flex;
+  }
+}
+
+/* Keep nav items from shrinking */
+:deep(.header-link) {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 /* Match PageMain blur effect */
@@ -286,5 +329,23 @@ div[class*='bg-black'] {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Ensure nav items don't shrink */
+nav {
+  flex-shrink: 0;
+}
+
+/* Make nav links more compact on smaller screens */
+@media (max-width: 768px) {
+  nav {
+    font-size: 0.875rem;
+  }
+}
+
+/* Ensure HeaderLink components don't shrink */
+:deep(.header-link) {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 </style>
