@@ -203,8 +203,8 @@ app.post(
         try {
             await testConnection()
             con.query(
-                `SELECT id, username, email, type, created_ad FROM users WHERE email = ? OR username = ? LIMIT 1`,
-                [emailOrUsername, password],
+                `SELECT id, username, email, type, created_at FROM users WHERE email = ? OR username = ? LIMIT 1`,
+                [emailOrUsername, emailOrUsername],
                 (err, result) => {
 
                     if (err) {
@@ -221,7 +221,7 @@ app.post(
                             message: 'Invalid email or username',
                         })
                     }
-
+                    console.log("getting to the second query")
                     const user = result[0]
                     con.query(
                         `SELECT id FROM users WHERE (email = ? OR username = ?) AND password = ? LIMIT 1`,
@@ -244,22 +244,21 @@ app.post(
 
                             console.log("Login successful", user);
 
+                            const response = {
+                                success: true,
+                                user: {
+                                    id: user.id,
+                                    username: user.username,
+                                    email: user.email,
+                                    type: user.type,
+                                    created_at: user.created_at,
+                                },
+                            }
 
-
+                            res.setHeader('Content-Type', 'application/json')
+                            console.log('Sending response:', response)
+                            res.json(response)
                         })
-
-                    const response = {
-                        success: true,
-                        user: {
-                            id: user.id,
-                            username: user.username,
-                            email: user.email,
-                            type: user.type,
-                            created_at: user.created_at,
-                        },
-                    }
-
-                    res.json(response)
                 }
             )
         } catch (error) {
