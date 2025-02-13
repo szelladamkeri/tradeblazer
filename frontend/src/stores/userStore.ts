@@ -5,7 +5,8 @@ interface User {
   username: string
   email: string
   avatar: string | undefined
-  type: string // Add this field
+  type: string
+  created_at: string
 }
 
 interface AuthState {
