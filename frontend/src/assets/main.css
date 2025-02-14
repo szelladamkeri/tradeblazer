@@ -1,35 +1,64 @@
 @import './base.css';
 
 #app {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    font-weight: normal;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
 }
 
 a,
 .green {
-    text-decoration: none;
-    color: hsla(160, 100%, 37%, 1);
-    transition: 0.4s;
-    padding: 3px;
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.2s ease;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  ring: 1px;
+  ring-color: rgba(34, 197, 94, 0.2);
 }
 
 @media (hover: hover) {
-    a:hover {
-        background-color: hsla(160, 100%, 37%, 0.2);
-    }
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
 }
 
 @media (min-width: 1024px) {
-    body {
-        display: flex;
-        place-items: center;
-    }
+  body {
+    display: flex;
+    place-items: center;
+  }
 
-    #app {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        padding: 0 2rem;
-    }
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
 }

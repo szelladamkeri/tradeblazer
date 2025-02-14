@@ -486,6 +486,56 @@ app.put(
   })
 )
 
+// Admin avatar upload endpoint
+app.put('/api/admin/users/:id/avatar', upload.single('avatar'), async (req, res) => {
+  const userId = req.params.id
+  const username = req.body.username
+
+  if (!username) {
+    return res.status(400).json({
+      error: 'Missing username',
+      message: 'Username is required for avatar upload',
+    })
+  }
+
+  try {
+    if (req.file) {
+      res.json({
+        success: true,
+        message: 'Avatar updated successfully',
+      })
+    } else {
+      res.status(400).json({
+        error: 'Upload failed',
+        message: 'No file was uploaded',
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: 'Server error',
+      message: error.message,
+    })
+  }
+})
+
+// Add DELETE endpoint for avatar
+app.delete('/api/admin/users/:id/avatar', async (req, res) => {
+  const username = req.query.username
+  const avatarPath = '../frontend/src/assets/avatars/' + username + '.jpg'
+
+  try {
+    if (fs.existsSync(avatarPath)) {
+      fs.unlinkSync(avatarPath)
+    }
+    res.json({ success: true })
+  } catch (error) {
+    res.status(500).json({
+      error: 'Server error',
+      message: error.message,
+    })
+  }
+})
+
 // Add user deletion endpoint
 app.delete(
   '/api/user/:id',

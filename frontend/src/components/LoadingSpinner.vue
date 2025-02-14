@@ -1,12 +1,22 @@
 <template>
-  <div class="flex items-center justify-center">
-    <div class="relative">
-      <div
-        class="animate-spin-slow rounded-full h-16 w-16 border-t-4 border-b-4 border-primary-400"
-      ></div>
-      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div class="h-12 w-12 rounded-full bg-secondary-100/30 animate-pulse-slow"></div>
-      </div>
-    </div>
+  <div class="flex items-center justify-center animate-fade-in">
+    <div
+      class="w-8 h-8 border-2 border-green-400/20 border-t-green-400 rounded-full animate-spin"
+    ></div>
   </div>
 </template>
+
+<style scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+</style>

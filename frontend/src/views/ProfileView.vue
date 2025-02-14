@@ -11,16 +11,9 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 const userStore = useUserStore()
 const router = useRouter()
 
-onMounted(async () => {
-  if (!userStore.isAuthenticated) {
-    router.push('/login')
-  } else {
-    avatarAvailable.value = await avatarExists()
-  }
-})
-const avatarAvailable = ref(false)
+const refreshTimestamp = ref(Date.now())
 
-const avatarExists = async (): Promise<boolean> => {
+const checkAvatar = async () => {
   try {
     const response = await fetch('http://localhost:3000/api/checkfile', {
       method: 'POST',
@@ -34,11 +27,23 @@ const avatarExists = async (): Promise<boolean> => {
     })
 
     const data = await response.json()
-    return data.hasAvatar
+    avatarAvailable.value = data.hasAvatar
   } catch (error) {
-    return false
+    console.error('Error checking avatar:', error)
+    avatarAvailable.value = false
   }
 }
+
+onMounted(async () => {
+  if (!userStore.isAuthenticated) {
+    router.push('/login')
+  } else {
+    await checkAvatar() // Check avatar on mount
+    refreshTimestamp.value = Date.now() // Force refresh
+  }
+})
+const avatarAvailable = ref(false)
+
 const showDeleteConfirm = ref(false)
 
 const initiateDelete = () => {
@@ -69,9 +74,19 @@ const formatDate = (dateString: string) => {
   })
 }
 
-// Add computed property for first letter
+// Get first letter function
 const firstLetter = computed(() => {
   return userStore.user?.username.charAt(0).toUpperCase() || '?'
+})
+
+// User role display
+const userRoleDisplay = computed(() => {
+  switch (userStore.user?.type) {
+    case 'A':
+      return { text: 'Administrator', color: 'text-red-400' }
+    default:
+      return { text: 'User', color: 'text-gray-400' }
+  }
 })
 </script>
 
@@ -85,8 +100,11 @@ const firstLetter = computed(() => {
             <div class="w-24 h-24 rounded-full overflow-hidden bg-white/10">
               <img
                 v-if="avatarAvailable"
-                :src="'/src/assets/avatars/' + userStore.user.username + '.jpg'"
+                :src="
+                  '/src/assets/avatars/' + userStore.user.username + '.jpg?t=' + refreshTimestamp
+                "
                 class="w-full h-full object-cover"
+                :key="refreshTimestamp"
                 alt="User avatar"
               />
               <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
@@ -95,9 +113,22 @@ const firstLetter = computed(() => {
             </div>
             <div>
               <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">
-                {{ userStore.user.username }}
+                {{ userStore.user.displayName || userStore.user.username }}
               </h2>
-              <p class="text-gray-400">{{ userStore.user.email }}</p>
+              <div class="flex flex-col gap-1">
+                <p class="text-gray-400">
+                  <span class="text-gray-500">@</span>{{ userStore.user.username }}
+                </p>
+                <div class="flex items-center gap-2">
+                  <p class="text-gray-400">{{ userStore.user.email }}</p>
+                  <span
+                    class="px-2 py-0.5 rounded-full text-xs bg-white/10"
+                    :class="userRoleDisplay.color"
+                  >
+                    {{ userRoleDisplay.text }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 

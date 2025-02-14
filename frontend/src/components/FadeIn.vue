@@ -1,14 +1,19 @@
 <template>
-  <div class="opacity-0 animate-fade-in">
+  <Transition
+    appear
+    enter-active-class="transition-all duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+  >
     <slot></slot>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -17,6 +22,6 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
+  animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
@@ -12,6 +12,10 @@ const password = ref('')
 const error = ref<string | null>(null)
 const loading = ref(false)
 const userStore = useUserStore()
+
+const isEmailOrUsernameValid = computed(() => email.value?.length >= 3)
+const isPasswordValid = computed(() => password.value?.length >= 6)
+const isFormValid = computed(() => isEmailOrUsernameValid.value && isPasswordValid.value)
 
 const handleLogin = async (e: Event) => {
   e.preventDefault()
@@ -68,40 +72,75 @@ const handleLogin = async (e: Event) => {
           </div>
 
           <form @submit="handleLogin" class="space-y-6">
-            <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg mb-4">
-              {{ error }}
+            <div class="min-h-[48px] transition-all duration-200" v-if="error">
+              <div class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
+                {{ error }}
+              </div>
             </div>
 
             <div class="space-y-2">
-              <label for="email" class="block text-gray-200 text-sm font-medium"
-                >Email or Username</label
-              >
+              <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
+                <span>Email or Username</span>
+                <transition name="fade">
+                  <font-awesome-icon
+                    v-if="email && isEmailOrUsernameValid"
+                    icon="check-circle"
+                    class="text-green-400 ml-2"
+                  />
+                </transition>
+              </label>
               <input
                 type="text"
-                id="email"
                 v-model="email"
                 required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                :class="[
+                  'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
+                  email
+                    ? isEmailOrUsernameValid
+                      ? 'border-green-500'
+                      : 'border-red-500'
+                    : 'border-gray-600',
+                ]"
                 placeholder="Enter your email or username"
               />
             </div>
 
             <div class="space-y-2">
-              <label for="password" class="block text-gray-200 text-sm font-medium">Password</label>
+              <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
+                <span>Password</span>
+                <transition name="fade">
+                  <font-awesome-icon
+                    v-if="password && isPasswordValid"
+                    icon="check-circle"
+                    class="text-green-400 ml-2"
+                  />
+                </transition>
+              </label>
               <input
                 type="password"
-                id="password"
                 v-model="password"
                 required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                :class="[
+                  'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
+                  password
+                    ? isPasswordValid
+                      ? 'border-green-500'
+                      : 'border-red-500'
+                    : 'border-gray-600',
+                ]"
                 placeholder="Enter your password"
               />
             </div>
 
             <button
               type="submit"
-              :disabled="loading"
-              class="w-full p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors duration-200"
+              :disabled="!isFormValid || loading"
+              :class="[
+                'w-full p-3 rounded-lg text-white font-medium transition-all duration-200',
+                isFormValid
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-gray-600 cursor-not-allowed opacity-50',
+              ]"
             >
               {{ loading ? 'Logging in...' : 'Login' }}
             </button>
@@ -142,5 +181,15 @@ const handleLogin = async (e: Event) => {
 body {
   background-image: url();
   background-color: var(--vt-c-black-mute);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

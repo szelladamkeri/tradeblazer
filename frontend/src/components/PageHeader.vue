@@ -2,7 +2,7 @@
 import HeaderLink from './HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -29,28 +29,19 @@ const updateMenuOnResize = () => {
   }
 }
 
-// Add new ref for avatar
-const avatarAvailable = ref(false)
+// Remove local avatar checking logic and use store instead
+const avatarAvailable = computed(() => userStore.avatar.available)
+const avatarTimestamp = computed(() => userStore.avatarTimestamp)
 
-const checkAvatar = async () => {
-  try {
-    const response = await fetch('http://localhost:3000/api/checkfile', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        purpose: 'avatarCheck',
-        username: userStore.user?.username,
-      }),
-    })
-
-    const data = await response.json()
-    avatarAvailable.value = data.hasAvatar
-  } catch (error) {
-    console.error('Error checking avatar:', error)
-  }
-}
+// Add watch for user store changes
+watch(
+  () => userStore.user,
+  async () => {
+    if (userStore.isAuthenticated) {
+      await userStore.checkAvatar()
+    }
+  },
+)
 
 // Add dropdown state
 const showDropdown = ref(false)
@@ -72,7 +63,7 @@ const firstLetter = computed(() => {
 
 onMounted(async () => {
   if (userStore.isAuthenticated) {
-    await checkAvatar()
+    await userStore.checkAvatar()
   }
   window.addEventListener('resize', updateMenuOnResize)
   document.addEventListener('click', closeDropdownOnClickOutside)
@@ -89,13 +80,17 @@ onUnmounted(() => {
     <header
       class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl relative z-[100]"
     >
-      <!-- Main navbar container -->
-      <div class="px-4 py-3">
-        <div class="flex items-center justify-between">
-          <!-- Logo -->
+      <div class="px-2 sm:px-4 py-3">
+        <!-- Adjusted padding -->
+        <div class="flex items-center justify-between gap-2">
+          <!-- Added gap -->
+          <!-- Logo - made more compact on mobile -->
           <div class="flex items-center shrink-0">
-            <font-awesome-icon icon="chart-line" class="text-green-400 text-2xl mr-2" />
-            <span class="text-white font-bold text-xl">TradeBlazer</span>
+            <font-awesome-icon
+              icon="chart-line"
+              class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2"
+            />
+            <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
           </div>
 
           <!-- Mobile menu button -->
@@ -178,139 +173,166 @@ onUnmounted(() => {
             class="relative flex items-center"
             ref="dropdownRef"
           >
-            <!-- Username on the left -->
+            <!-- Replace displayName with username -->
             <div class="hidden sm:block">
-              <span class="text-gray-300 mr-3">{{
-                userStore.user?.displayName || userStore.user?.username
-              }}</span>
+              <span
+                :class="[
+                  'mr-3 transition-colors',
+                  $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
+                ]"
+              >
+                {{ userStore.user?.username }}
+              </span>
             </div>
 
             <!-- Avatar button and dropdown container -->
             <div class="relative">
               <button
                 @click="showProfileDropdown = !showProfileDropdown"
-                class="w-8 h-8 rounded-full overflow-hidden bg-white/10 hover:ring-2 hover:ring-green-400/50 transition-all"
+                :class="[
+                  'w-8 h-8 rounded-full overflow-hidden transition-all relative z-[102] flex items-center justify-center cursor-pointer',
+                  $route.path === '/profile'
+                    ? 'bg-green-500/20 ring-2 ring-green-400/50'
+                    : 'bg-white/10 hover:ring-2 hover:ring-green-400/50',
+                ]"
               >
                 <img
                   v-if="avatarAvailable"
-                  :src="'/src/assets/avatars/' + userStore.user?.username + '.jpg'"
-                  class="w-full h-full object-cover"
+                  :src="
+                    '/src/assets/avatars/' + userStore.user?.username + '.jpg?t=' + avatarTimestamp
+                  "
+                  :key="avatarTimestamp"
+                  class="w-full h-full object-cover pointer-events-none"
                   alt="Profile"
                 />
-                <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
-                  <span class="text-white text-lg font-semibold">{{ firstLetter }}</span>
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center bg-white/10 pointer-events-none"
+                >
+                  <span class="text-green-400 text-lg font-semibold">{{ firstLetter }}</span>
                 </div>
               </button>
 
               <!-- Profile Dropdown -->
-              <div
-                v-show="showProfileDropdown"
-                class="absolute right-0 top-full mt-2 w-48 py-2 bg-black/90 rounded-lg shadow-lg border border-white/10 z-[101]"
-              >
-                <router-link
-                  to="/profile"
-                  class="block px-4 py-2 text-gray-300 hover:bg-white/5 transition-colors"
-                  @click="showProfileDropdown = false"
+              <Transition name="scale">
+                <div
+                  v-show="showProfileDropdown"
+                  class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/90 rounded-lg shadow-lg border border-white/10 z-[101] backdrop-blur-xl backdrop-saturate-150"
                 >
-                  <font-awesome-icon icon="user-circle" class="mr-2" />
-                  Profile
-                </router-link>
-                <button
-                  @click="handleSignOut"
-                  class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/5 transition-colors"
-                >
-                  <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-                  Sign out
-                </button>
-              </div>
+                  <!-- Connecting triangle -->
+                  <div
+                    class="absolute -top-2 right-2 w-3 h-3 bg-black/90 border-t border-l border-white/10 transform rotate-45"
+                  ></div>
+
+                  <router-link
+                    to="/profile"
+                    class="block px-4 py-2 text-gray-300 hover:text-green-400 transition-colors router-link relative z-[102]"
+                    @click="showProfileDropdown = false"
+                    active-class="text-green-400"
+                  >
+                    <font-awesome-icon icon="user-circle" class="mr-2" />
+                    Profile
+                  </router-link>
+                  <div class="w-full h-px bg-white/10 my-1"></div>
+                  <button
+                    @click="handleSignOut"
+                    class="w-full text-left px-4 py-2 text-red-400 hover:text-red-300 transition-colors relative z-[102]"
+                  >
+                    <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                    Sign out
+                  </button>
+                </div>
+              </Transition>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Mobile Navigation -->
-      <div
-        v-show="isMenuOpen"
-        class="sm:hidden border-t border-white/10 overflow-hidden transition-all duration-200 ease-in-out"
-      >
-        <nav class="px-4 py-2 space-y-2">
-          <HeaderLink @click="closeMenu">
-            <template #icon>
-              <router-link
-                to="/"
-                class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
-              >
-                <font-awesome-icon icon="chart-line" class="mr-2" />
-                <span>Dashboard</span>
-              </router-link>
+      <Transition name="slide">
+        <div
+          v-show="isMenuOpen"
+          class="sm:hidden absolute top-full left-0 w-full bg-black/90 border-t border-white/10 transition-all duration-200 ease-in-out"
+        >
+          <nav class="px-4 py-2 space-y-2 overflow-y-auto max-h-[calc(100vh-60px)]">
+            <HeaderLink @click="closeMenu">
+              <template #icon>
+                <router-link
+                  to="/"
+                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                >
+                  <font-awesome-icon icon="chart-line" class="mr-2" />
+                  <span>Dashboard</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <HeaderLink @click="closeMenu">
+              <template #icon>
+                <router-link
+                  to="/markets"
+                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                >
+                  <font-awesome-icon icon="chart-pie" class="mr-2" />
+                  <span>Markets</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <template v-if="userStore.isAuthenticated">
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/portfolio"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="wallet" class="mr-2" />
+                    <span>Portfolio</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/profile"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="user-circle" class="mr-2" />
+                    <span>Profile</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/admin"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="shield" class="mr-2" />
+                    <span>Admin</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
             </template>
-          </HeaderLink>
 
-          <HeaderLink @click="closeMenu">
-            <template #icon>
-              <router-link
-                to="/markets"
-                class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
-              >
-                <font-awesome-icon icon="chart-pie" class="mr-2" />
-                <span>Markets</span>
-              </router-link>
+            <template v-else>
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/login"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                    <span>Login</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
             </template>
-          </HeaderLink>
-
-          <template v-if="userStore.isAuthenticated">
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/portfolio"
-                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
-                >
-                  <font-awesome-icon icon="wallet" class="mr-2" />
-                  <span>Portfolio</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/profile"
-                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
-                >
-                  <font-awesome-icon icon="user-circle" class="mr-2" />
-                  <span>Profile</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/admin"
-                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
-                >
-                  <font-awesome-icon icon="shield" class="mr-2" />
-                  <span>Admin</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-          </template>
-
-          <template v-else>
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/login"
-                  class="flex items-center p-2 w-full rounded hover:bg-white/5 transition-colors"
-                >
-                  <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-                  <span>Login</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-          </template>
-        </nav>
-      </div>
+          </nav>
+        </div>
+      </Transition>
     </header>
   </div>
 </template>
@@ -340,7 +362,7 @@ h3 {
 }
 
 .router-link-active {
-  @apply text-green-400 bg-white/5;
+  @apply text-green-400;
 }
 
 /* Add proper backdrop filter */
@@ -430,5 +452,141 @@ nav {
   background-color: #000000;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+/* Remove hover backgrounds and only keep text color changes */
+router-link:hover,
+button:hover {
+  @apply text-green-400;
+  background: none;
+}
+
+/* Update dropdown menu items to only change text color on hover */
+:deep(.dropdown-item:hover) {
+  @apply text-green-400;
+  background: none;
+}
+
+/* Remove any remaining hover:bg classes */
+[class*='hover:bg'] {
+  @apply hover:bg-transparent;
+}
+
+/* Update hover behaviors */
+.router-link-active {
+  @apply text-green-400;
+}
+
+/* Remove hover backgrounds and only keep text color changes */
+:deep(a),
+:deep(button) {
+  @apply hover:bg-transparent transition-colors;
+}
+
+/* Ensure mobile menu items follow the same pattern */
+.mobile-nav-item {
+  @apply hover:bg-transparent;
+}
+
+/* Override any remaining hover:bg classes */
+[class*='hover:bg'] {
+  @apply hover:bg-transparent !important;
+}
+
+/* Keep text color transitions */
+.text-gray-300 {
+  @apply hover:text-green-400 transition-colors;
+}
+
+.text-red-400 {
+  @apply hover:text-red-300 transition-colors;
+}
+
+/* Update router-link-active for profile dropdown */
+.router-link.router-link-active {
+  @apply bg-green-500/10 text-green-400;
+}
+
+/* Remove the general background removal for this specific case */
+.router-link.router-link-active:hover {
+  @apply bg-green-500/10;
+}
+
+/* Update dropdown styling */
+.router-link,
+button {
+  @apply relative hover:bg-white/5 transition-all duration-200;
+}
+
+/* Remove conflicting hover styles */
+[class*='hover:bg'] {
+  @apply hover:bg-white/5 !important;
+}
+
+/* Override any remaining hover:bg-transparent rules */
+.mobile-nav-item,
+:deep(a),
+:deep(button) {
+  @apply hover:bg-white/5;
+}
+
+/* Keep the router-link-active styling */
+.router-link.router-link-active {
+  @apply bg-green-500/10 text-green-400;
+}
+
+/* Allow background change on hover for active route */
+.router-link.router-link-active:hover {
+  @apply bg-green-500/20;
+}
+
+/* Add these styles for better avatar centering */
+button img,
+button div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.text-lg {
+  line-height: 1;
+}
+
+/* Add these new styles */
+button {
+  cursor: pointer;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+/* Add smooth hover transitions */
+.router-link,
+button {
+  @apply transition-all duration-200 ease-out;
+}
+
+/* Add hover scale effect to active elements */
+.router-link:hover,
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* Add bounce animation for notifications or updates */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
 }
 </style>

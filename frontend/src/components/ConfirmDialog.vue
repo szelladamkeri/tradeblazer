@@ -12,45 +12,32 @@ defineEmits(['confirm', 'cancel'])
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
-      <div class="fixed inset-0 transition-opacity">
-        <div class="absolute inset-0 bg-black/75 backdrop-blur-sm"></div>
-      </div>
-
+  <Transition name="scale">
+    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-200" />
       <div
-        class="bg-black/90 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full backdrop-blur-xl"
-        :class="[type === 'delete' ? 'border border-red-500/20' : 'border border-green-500/20']"
+        class="bg-black/90 rounded-xl p-6 border border-green-500/20 max-w-md w-full scale-100 transition-all duration-200"
       >
-        <div class="p-6">
-          <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <font-awesome-icon
-              icon="triangle-exclamation"
-              :class="[type === 'delete' ? 'text-red-400' : 'text-green-400']"
-            />
-            {{ title }}
-          </h3>
-          <p class="text-gray-300 mb-6">{{ message }}</p>
-
-          <div class="flex justify-end space-x-3">
-            <button
-              @click="$emit('cancel')"
-              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              @click="$emit('confirm')"
-              :class="[
-                'px-4 py-2 text-white rounded-lg transition-colors',
-                confirmButtonClass || 'bg-red-600 hover:bg-red-700',
-              ]"
-            >
-              {{ confirmText || 'Confirm' }}
-            </button>
-          </div>
+        <h3 class="text-xl font-bold text-white mb-3">{{ title }}</h3>
+        <p class="text-gray-300 mb-6">{{ message }}</p>
+        <div class="flex justify-end gap-3">
+          <button
+            @click="$emit('cancel')"
+            class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 transition-colors text-white"
+          >
+            Cancel
+          </button>
+          <button
+            @click="$emit('confirm')"
+            :class="[
+              'px-4 py-2 rounded transition-colors text-white',
+              confirmButtonClass || 'bg-green-600 hover:bg-green-700',
+            ]"
+          >
+            {{ confirmText }}
+          </button>
         </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>

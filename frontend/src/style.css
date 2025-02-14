@@ -1,0 +1,86 @@
+/* Add smooth page transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.15s ease-out;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Add smooth scrolling for the whole site */
+html {
+  scroll-behavior: smooth;
+  scroll-padding: 2rem;
+}
+
+/* Optimize animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Add global transition classes */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Add slide transitions */
+.slide-enter-active,
+.slide-leave-active {
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Add scale transitions */
+.scale-enter-active,
+.scale-leave-active {
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Add hover transition utility */
+.hover-trigger {
+  transition: all 0.2s ease-out;
+}
+
+/* Ensure all interactive elements have smooth transitions */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 0.2s ease-out;
+}
+
+/* Optimize animations */
+* {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

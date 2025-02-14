@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { Cropper } from 'vue-advanced-cropper'
@@ -7,12 +7,13 @@ import 'vue-advanced-cropper/dist/style.css'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import { validateEmail } from '@/utils/validation'
+import { hasChanges } from '@/utils/validation'
 
 const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
-const username = ref('')
 const email = ref('')
 const currentPassword = ref('')
 const newPassword = ref('')
@@ -25,6 +26,8 @@ const showCropper = ref(false)
 const imageUrl = ref('')
 const cropperRef = ref()
 const displayName = ref('')
+
+const refreshTimestamp = ref(Date.now()) //refresh timestamp for avatar
 
 const handleAvatarChange = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -88,36 +91,62 @@ const checkAvatar = async () => {
 
     const data = await response.json()
     if (data.hasAvatar && userStore.user?.username) {
-      avatarPreview.value = `/src/assets/avatars/${userStore.user.username}.jpg`
+      avatarPreview.value = `/src/assets/avatars/${userStore.user.username}.jpg?t=${userStore.avatarTimestamp}`
     }
   } catch (error) {
     console.error('Error checking avatar:', error)
   }
 }
 
+// Update the onMounted hook to force a fresh check
 onMounted(async () => {
   if (!userStore.isAuthenticated) {
     router.push('/login')
     return
   }
   if (userStore.user) {
-    username.value = userStore.user.username
     displayName.value = userStore.user.displayName || userStore.user.username
     email.value = userStore.user.email
-    await checkAvatar() // Add this line to check for existing avatar
+    refreshTimestamp.value = Date.now() // Update timestamp
+    await checkAvatar() // This will now use the new timestamp
   }
 })
 
 const showConfirmDialog = ref(false)
 const pendingFormData = ref<FormData | null>(null)
 
+const hasFormChanges = computed(() => {
+  if (!userStore.user) return false
+  return (
+    hasChanges(
+      { email: userStore.user.email, displayName: userStore.user.displayName },
+      { email: email.value, displayName: displayName.value },
+      ['email', 'displayName'],
+    ) ||
+    newPassword.value.length > 0 ||
+    avatarFile.value !== null
+  )
+})
+
 const handleSubmit = async (e: Event) => {
   e.preventDefault()
   error.value = null
 
+  // Validate email
+  const emailError = validateEmail(email.value)
+  if (emailError) {
+    error.value = emailError
+    return
+  }
+
+  // Check if any changes were made
+  if (!hasFormChanges.value) {
+    error.value = 'No changes were made'
+    return
+  }
+
   const formData = new FormData()
   formData.append('id', userStore.user?.id.toString() || '')
-  formData.append('username', username.value)
   formData.append('email', email.value)
   formData.append('currentPassword', currentPassword.value)
   formData.append('displayName', displayName.value)
@@ -147,6 +176,9 @@ const handleConfirmUpdate = async () => {
       throw new Error(data.message || 'Failed to update profile')
     }
 
+    // Force a full refresh of user data and avatar
+    await userStore.refreshUser()
+    await checkAvatar()
     router.push('/profile')
   } catch (err) {
     console.error('Update error:', err)
@@ -175,17 +207,6 @@ const handleConfirmUpdate = async () => {
 
           <div class="space-y-4">
             <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Username</label>
-              <input
-                v-model="username"
-                type="text"
-                disabled
-                class="w-full p-3 rounded-lg bg-white/5 border border-gray-600/50 text-gray-400 cursor-not-allowed"
-              />
-              <p class="text-sm text-gray-400">Username cannot be changed</p>
-            </div>
-
-            <div class="space-y-2">
               <label class="block text-gray-200 text-sm font-medium">Display Name</label>
               <input
                 v-model="displayName"
@@ -207,11 +228,12 @@ const handleConfirmUpdate = async () => {
 
             <div class="space-y-2">
               <label class="block text-gray-200 text-sm font-medium">Profile Picture</label>
-              <div class="flex items-center space-x-4">
-                <div class="w-24 h-24 rounded-full overflow-hidden bg-white/10">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div class="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
                   <img
                     v-if="avatarPreview"
                     :src="avatarPreview"
+                    :key="userStore.avatarTimestamp"
                     class="w-full h-full object-cover"
                     alt="Avatar preview"
                   />
@@ -219,16 +241,27 @@ const handleConfirmUpdate = async () => {
                     <span>No image</span>
                   </div>
                 </div>
-                <div class="flex-1">
+                <div class="w-full">
                   <input
                     type="file"
                     accept="image/jpeg"
                     @change="handleAvatarChange"
-                    class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer"
+                    class="w-full text-sm text-gray-400 file:mb-2 sm:file:mb-0 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer"
                   />
                   <p class="mt-1 text-sm text-gray-400">JPG files only (not JPEG/PNG), max 2MB</p>
                 </div>
               </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-gray-200 text-sm font-medium">Current Password</label>
+              <input
+                v-model="currentPassword"
+                type="password"
+                required
+                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                placeholder="Enter your current password"
+              />
             </div>
 
             <div class="space-y-2">
@@ -374,5 +407,24 @@ const handleConfirmUpdate = async () => {
 
 :deep(.vue-advanced-cropper__line) {
   background-color: rgba(34, 197, 94, 0.5);
+}
+
+/* Add these styles for better file input responsiveness */
+input[type='file'] {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-all;
+}
+
+@media (max-width: 640px) {
+  input[type='file'] {
+    width: 100%;
+  }
+
+  input[type='file']::file-selector-button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+  }
 }
 </style>

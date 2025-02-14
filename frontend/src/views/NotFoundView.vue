@@ -16,7 +16,7 @@ import PageMain from '@/components/PageMain.vue'
         to="/"
         class="inline-block mt-4 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
       >
-        Return Home
+        Return to Dashboard
       </router-link>
     </div>
   </PageMain>

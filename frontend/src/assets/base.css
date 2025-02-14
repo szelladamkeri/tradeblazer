@@ -57,7 +57,7 @@ body {
   color: var(--color-text);
   /*background: var(--color-background);
    */
-  background-image: url(../../public/background.jpg);
+  background-image: url(/background.jpg);
   background-size: cover;
   background-position: center;
   transition:

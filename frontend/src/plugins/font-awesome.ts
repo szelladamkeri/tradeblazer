@@ -25,6 +25,7 @@ import {
   faHashtag,
   faWrench,
   faUserPen,
+  faCheckCircle,
   faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -53,6 +54,7 @@ library.add(
   faHashtag,
   faWrench,
   faUserPen,
+  faCheckCircle,
   faTriangleExclamation,
 )
 
