@@ -77,8 +77,9 @@ onUnmounted(() => {
 
 <template>
   <div class="w-full max-w-7xl mx-auto mb-2">
+    <!-- Update header z-index -->
     <header
-      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl relative z-[100]"
+      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl relative z-[50]"
     >
       <div class="px-2 sm:px-4 py-3">
         <!-- Adjusted padding -->
@@ -205,11 +206,8 @@ onUnmounted(() => {
                   class="w-full h-full object-cover pointer-events-none"
                   alt="Profile"
                 />
-                <div
-                  v-else
-                  class="w-full h-full flex items-center justify-center bg-white/10 pointer-events-none"
-                >
-                  <span class="text-green-400 text-lg font-semibold">{{ firstLetter }}</span>
+                <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
+                  <span class="text-white text-sm font-medium">{{ firstLetter }}</span>
                 </div>
               </button>
 
@@ -217,7 +215,7 @@ onUnmounted(() => {
               <Transition name="scale">
                 <div
                   v-show="showProfileDropdown"
-                  class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[101]"
+                  class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[201]"
                 >
                   <!-- Connecting triangle -->
                   <div
@@ -439,12 +437,24 @@ nav {
 }
 
 /* Update z-index classes */
-.z-\[100\] {
-  z-index: 100;
+.z-\[50\] {
+  z-index: 50;
 }
 
-.z-\[101\] {
-  z-index: 101;
+.z-\[51\] {
+  z-index: 51;
+}
+
+/* Profile dropdown should be higher than header */
+.absolute.right-0 {
+  z-index: 52;
+}
+
+/* Remove any lower z-index values that might conflict */
+.z-\[100\],
+.z-\[101\],
+.z-\[102\] {
+  z-index: unset;
 }
 
 /* Add background color for .bg-black */

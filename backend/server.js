@@ -518,22 +518,60 @@ app.put('/api/admin/users/:id/avatar', upload.single('avatar'), async (req, res)
   }
 })
 
-// Add DELETE endpoint for avatar
+// Update DELETE endpoint for avatar
 app.delete('/api/admin/users/:id/avatar', async (req, res) => {
   const username = req.query.username
-  const avatarPath = '../frontend/src/assets/avatars/' + username + '.jpg'
+  if (!username) {
+    return res.status(400).json({
+      error: 'Missing username',
+      message: 'Username is required for avatar deletion',
+    })
+  }
+
+  const avatarPath = path.join(__dirname, '../frontend/src/assets/avatars/', username + '.jpg')
 
   try {
     if (fs.existsSync(avatarPath)) {
       fs.unlinkSync(avatarPath)
+      res.json({
+        success: true,
+        message: 'Avatar deleted successfully',
+      })
+    } else {
+      res.status(404).json({
+        error: 'Not found',
+        message: 'Avatar does not exist',
+      })
     }
-    res.json({ success: true })
   } catch (error) {
+    console.error('Error deleting avatar:', error)
     res.status(500).json({
       error: 'Server error',
       message: error.message,
     })
   }
+})
+
+app.post('/api/checkfile', async (req, res) => {
+  const purpose = req.body.purpose
+  const username = req.body.username
+
+  if (!username) {
+    return res.status(400).json({
+      success: false,
+      message: 'Username is required',
+    })
+  }
+
+  if (purpose === 'avatarCheck') {
+    const avatarPath = path.join(__dirname, '../frontend/src/assets/avatars/', username + '.jpg')
+    const hasAvatar = fs.existsSync(avatarPath)
+    return res.json({
+      success: true,
+      hasAvatar: hasAvatar,
+    })
+  }
+  return res.status(400).json({ success: false, message: 'Invalid purpose' })
 })
 
 // Add user deletion endpoint
@@ -557,18 +595,6 @@ app.delete(
     })
   })
 )
-
-app.post('/api/checkfile', async (req, res) => {
-  const purpose = req.body.purpose
-  if (purpose === 'avatarCheck') {
-    const hasAvatar = fs.existsSync('../frontend/src/assets/avatars/' + req.body.username + '.jpg')
-    return res.json({
-      success: true,
-      hasAvatar: hasAvatar,
-    })
-  }
-  return res.status(400).json({ success: false, message: 'Invalid purpose' })
-})
 
 // Error handling middleware
 app.use((err, req, res, next) => {
