@@ -254,7 +254,12 @@ const handleConfirmUpdate = async () => {
                     </div>
                   </div>
                   <div class="w-full">
-                    <input type="file" accept="image/jpeg" @change="handleAvatarChange" />
+                    <input
+                      type="file"
+                      accept="image/jpeg"
+                      @change="handleAvatarChange"
+                      class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer file:transition-colors"
+                    />
                     <p class="mt-1 text-sm text-gray-400">JPG files only (not JPEG/PNG), max 2MB</p>
                   </div>
                 </div>
@@ -272,7 +277,7 @@ const handleConfirmUpdate = async () => {
               </div>
 
               <div class="space-y-2">
-                <label class="block text-gray-200 text-sm font-medium flex items-center gap-2">
+                <label class="text-gray-200 text-sm font-medium flex items-center gap-2">
                   New Password
                   <span
                     class="text-sm font-normal px-2 py-0.5 rounded-md bg-gray-700/50 text-gray-400"
@@ -424,15 +429,18 @@ input[type='file'] {
   word-break: break-all;
 }
 
+input[type='file']::file-selector-button {
+  transition: background-color 0.2s ease-in-out;
+}
+
 @media (max-width: 640px) {
   input[type='file'] {
     width: 100%;
   }
 
   input[type='file']::file-selector-button {
-    width: 100%;
+    width: auto;
     margin-bottom: 0.5rem;
-    margin-right: 0;
   }
 }
 
