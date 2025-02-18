@@ -9,9 +9,11 @@ import PageMain from '@/components/PageMain.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { validateEmail } from '@/utils/validation'
 import { hasChanges } from '@/utils/validation'
+import FadeIn from '@/components/FadeIn.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+const initialLoading = ref(true)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const email = ref('')
@@ -104,11 +106,17 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  if (userStore.user) {
-    displayName.value = userStore.user.displayName || userStore.user.username
-    email.value = userStore.user.email
-    refreshTimestamp.value = Date.now() // Update timestamp
-    await checkAvatar() // This will now use the new timestamp
+  try {
+    if (userStore.user) {
+      displayName.value = userStore.user.displayName || userStore.user.username
+      email.value = userStore.user.email
+      refreshTimestamp.value = Date.now() // Update timestamp
+      await checkAvatar() // This will now use the new timestamp
+    }
+  } catch (error) {
+    console.error('Error loading profile:', error)
+  } finally {
+    initialLoading.value = false
   }
 })
 
@@ -193,123 +201,123 @@ const handleConfirmUpdate = async () => {
 <template>
   <PageHeader />
   <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
-    <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
-      <div class="space-y-8">
-        <div class="text-center sm:text-left">
-          <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Edit Profile</h2>
-          <p class="text-gray-400">Update your account information</p>
-        </div>
-
-        <form @submit="handleSubmit" class="space-y-6">
-          <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
-            {{ error }}
+    <FadeIn :show="!initialLoading">
+      <div v-if="!initialLoading" class="w-full max-w-2xl mx-auto p-6 sm:p-8">
+        <div class="space-y-8">
+          <div class="text-center sm:text-left">
+            <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Edit Profile</h2>
+            <p class="text-gray-400">Update your account information</p>
           </div>
 
-          <div class="space-y-4">
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Display Name</label>
-              <input
-                v-model="displayName"
-                type="text"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
+          <form @submit="handleSubmit" class="space-y-6">
+            <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
+              {{ error }}
             </div>
 
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Email</label>
-              <input
-                v-model="email"
-                type="email"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <label class="block text-gray-200 text-sm font-medium">Display Name</label>
+                <input
+                  v-model="displayName"
+                  type="text"
+                  required
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                />
+              </div>
 
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Profile Picture</label>
-              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div class="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
-                  <img
-                    v-if="avatarPreview"
-                    :src="avatarPreview"
-                    :key="userStore.avatarTimestamp"
-                    class="w-full h-full object-cover"
-                    alt="Avatar preview"
-                  />
-                  <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                    <span>No image</span>
+              <div class="space-y-2">
+                <label class="block text-gray-200 text-sm font-medium">Email</label>
+                <input
+                  v-model="email"
+                  type="email"
+                  required
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-gray-200 text-sm font-medium">Profile Picture</label>
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div class="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+                    <img
+                      v-if="avatarPreview"
+                      :src="avatarPreview"
+                      :key="userStore.avatarTimestamp"
+                      class="w-full h-full object-cover"
+                      alt="Avatar preview"
+                    />
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center text-gray-400"
+                    >
+                      <span>No image</span>
+                    </div>
+                  </div>
+                  <div class="w-full">
+                    <input type="file" accept="image/jpeg" @change="handleAvatarChange" />
+                    <p class="mt-1 text-sm text-gray-400">JPG files only (not JPEG/PNG), max 2MB</p>
                   </div>
                 </div>
-                <div class="w-full">
-                  <input
-                    type="file"
-                    accept="image/jpeg"
-                    @change="handleAvatarChange"
-                    class="w-full text-sm text-gray-400 file:mb-2 sm:file:mb-0 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer"
-                  />
-                  <p class="mt-1 text-sm text-gray-400">JPG files only (not JPEG/PNG), max 2MB</p>
-                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-gray-200 text-sm font-medium">Current Password</label>
+                <input
+                  v-model="currentPassword"
+                  type="password"
+                  required
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                  placeholder="Enter your current password"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-gray-200 text-sm font-medium flex items-center gap-2">
+                  New Password
+                  <span
+                    class="text-sm font-normal px-2 py-0.5 rounded-md bg-gray-700/50 text-gray-400"
+                  >
+                    optional
+                  </span>
+                </label>
+                <input
+                  v-model="newPassword"
+                  type="password"
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                />
+              </div>
+
+              <div v-if="newPassword && newPassword.length > 0" class="space-y-2">
+                <label class="block text-gray-200 text-sm font-medium">Confirm New Password</label>
+                <input
+                  v-model="confirmPassword"
+                  type="password"
+                  required
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
+                />
               </div>
             </div>
 
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Current Password</label>
-              <input
-                v-model="currentPassword"
-                type="password"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-                placeholder="Enter your current password"
-              />
+            <div class="flex gap-4 justify-end">
+              <button
+                type="button"
+                @click="router.push('/profile')"
+                class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="loading"
+                class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                {{ loading ? 'Saving...' : 'Save Changes' }}
+              </button>
             </div>
-
-            <div class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium flex items-center gap-2">
-                New Password
-                <span
-                  class="text-sm font-normal px-2 py-0.5 rounded-md bg-gray-700/50 text-gray-400"
-                >
-                  optional
-                </span>
-              </label>
-              <input
-                v-model="newPassword"
-                type="password"
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-
-            <div v-if="newPassword && newPassword.length > 0" class="space-y-2">
-              <label class="block text-gray-200 text-sm font-medium">Confirm New Password</label>
-              <input
-                v-model="confirmPassword"
-                type="password"
-                required
-                class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-              />
-            </div>
-          </div>
-
-          <div class="flex gap-4 justify-end">
-            <button
-              type="button"
-              @click="router.push('/profile')"
-              class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              {{ loading ? 'Saving...' : 'Save Changes' }}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
+    </FadeIn>
 
     <!-- Image cropper modal -->
     <div v-if="showCropper" class="fixed inset-0 z-50 overflow-y-auto">
@@ -426,5 +434,18 @@ input[type='file'] {
     margin-bottom: 0.5rem;
     margin-right: 0;
   }
+}
+
+/* Add smooth transitions for avatar */
+img {
+  transition: opacity 0.3s ease-in-out;
+}
+
+img[src] {
+  opacity: 1;
+}
+
+img:not([src]) {
+  opacity: 0;
 }
 </style>

@@ -217,18 +217,18 @@ onUnmounted(() => {
               <Transition name="scale">
                 <div
                   v-show="showProfileDropdown"
-                  class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/90 rounded-lg shadow-lg border border-white/10 z-[101] backdrop-blur-xl backdrop-saturate-150"
+                  class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[101]"
                 >
                   <!-- Connecting triangle -->
                   <div
-                    class="absolute -top-2 right-2 w-3 h-3 bg-black/90 border-t border-l border-white/10 transform rotate-45"
+                    class="absolute -top-2 right-2 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45"
                   ></div>
 
                   <router-link
                     to="/profile"
-                    class="block px-4 py-2 text-gray-300 hover:text-green-400 transition-colors router-link relative z-[102]"
+                    class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200 relative z-[102]"
                     @click="showProfileDropdown = false"
-                    active-class="text-green-400"
+                    active-class="text-green-400 bg-white/5"
                   >
                     <font-awesome-icon icon="user-circle" class="mr-2" />
                     Profile
@@ -236,7 +236,7 @@ onUnmounted(() => {
                   <div class="w-full h-px bg-white/10 my-1"></div>
                   <button
                     @click="handleSignOut"
-                    class="w-full text-left px-4 py-2 text-red-400 hover:text-red-300 transition-colors relative z-[102]"
+                    class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 hover:text-red-300 transition-all duration-200 relative z-[102]"
                   >
                     <font-awesome-icon icon="right-from-bracket" class="mr-2" />
                     Sign out
@@ -249,10 +249,10 @@ onUnmounted(() => {
       </div>
 
       <!-- Mobile Navigation -->
-      <Transition name="slide">
+      <Transition name="slide" :duration="{ enter: 150, leave: 150 }">
         <div
           v-show="isMenuOpen"
-          class="sm:hidden absolute top-full left-0 w-full bg-black/90 border-t border-white/10 transition-all duration-200 ease-in-out"
+          class="sm:hidden absolute top-full left-0 right-0 mx-2 mt-2 bg-black rounded-xl border border-white/10 transition-all duration-150 ease-in-out"
         >
           <nav class="px-4 py-2 space-y-2 overflow-y-auto max-h-[calc(100vh-60px)]">
             <HeaderLink @click="closeMenu">
@@ -588,5 +588,41 @@ button:hover {
 
 .animate-bounce {
   animation: bounce 2s infinite;
+}
+
+/* Update slide animation to be faster */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 150ms ease-out;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateY(-1rem);
+  opacity: 0;
+}
+
+.slide-enter-to,
+.slide-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Add scale transition for dropdown */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 150ms ease-out;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.scale-enter-to,
+.scale-leave-from {
+  opacity: 1;
+  transform: scale(1) translateY(0);
 }
 </style>
