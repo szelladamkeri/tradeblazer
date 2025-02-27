@@ -117,6 +117,15 @@ onUnmounted(() => {
 
             <HeaderLink>
               <template #icon>
+                <router-link to="/search" class="text-gray-300 hover:text-green-400 flex items-center">
+                  <font-awesome-icon icon="search" class="mr-2" />
+                  <span>Search</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <HeaderLink>
+              <template #icon>
                 <router-link
                   to="/markets"
                   class="text-gray-300 hover:text-green-400 flex items-center"
@@ -199,9 +208,7 @@ onUnmounted(() => {
               >
                 <img
                   v-if="avatarAvailable"
-                  :src="
-                    '/src/assets/avatars/' + userStore.user?.username + '.jpg?t=' + avatarTimestamp
-                  "
+                  :src="`http://localhost:3000/uploads/avatars/${userStore.user?.username}.jpg?t=${avatarTimestamp}`"
                   :key="avatarTimestamp"
                   class="w-full h-full object-cover pointer-events-none"
                   alt="Profile"
@@ -261,6 +268,18 @@ onUnmounted(() => {
                 >
                   <font-awesome-icon icon="chart-line" class="mr-2" />
                   <span>Dashboard</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <HeaderLink @click="closeMenu">
+              <template #icon>
+                <router-link
+                  to="/search"
+                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                >
+                  <font-awesome-icon icon="search" class="mr-2" />
+                  <span>Search</span>
                 </router-link>
               </template>
             </HeaderLink>

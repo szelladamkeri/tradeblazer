@@ -24,9 +24,9 @@ const fetchData = async (): Promise<void> => {
   try {
     loading.value = true
     const [assetsResponse, typesResponse, trendingResponse] = await Promise.all([
-      fetch('http://localhost:3000/api/data'),
-      fetch('http://localhost:3000/api/types'),
-      fetch('http://localhost:3000/api/trending-asset'),
+      fetch('http://localhost:3000/api/assets/data'),        // Changed from /api/data
+      fetch('http://localhost:3000/api/assets/types'),       // Changed from /api/types
+      fetch('http://localhost:3000/api/assets/trending')     // Changed from /api/trending-asset
     ])
 
     if (!assetsResponse.ok) {

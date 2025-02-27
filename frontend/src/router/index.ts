@@ -1,11 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import AboutView from '../views/AboutView.vue'
-import ProfileView from '../views/ProfileView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
-import EditProfileView from '../views/EditProfileView.vue'
-import NotFoundView from '../views/NotFoundView.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
@@ -14,71 +7,84 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('../views/HomeView.vue')
     },
     {
       path: '/about',
       name: 'about',
-      component: AboutView,
+      component: () => import('../views/AboutView.vue')
     },
     {
       path: '/profile',
       name: 'profile',
-      component: ProfileView,
+      component: () => import('../views/ProfileView.vue'),
       meta: {
-        requiresAuth: true,
-      },
+        requiresAuth: true
+      }
     },
     {
       path: '/search',
       name: 'search',
-      component: AboutView,
+      component: () => import('../views/SearchView.vue')
+    },
+    {
+      path: '/portfolio',
+      name: 'portfolio',
+      component: () => import('../views/PortfolioView.vue'),
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: () => import('../views/LoginView.vue')
     },
     {
       path: '/register',
       name: 'register',
-      component: RegisterView,
+      component: () => import('../views/RegisterView.vue')
     },
     {
       path: '/edit-profile',
       name: 'editProfile',
-      component: EditProfileView,
+      component: () => import('../views/EditProfileView.vue'),
       meta: {
-        requiresAuth: true,
-      },
+        requiresAuth: true
+      }
     },
     {
       path: '/404',
       name: 'not-found',
-      component: NotFoundView,
+      component: () => import('../views/NotFoundView.vue')
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/404',
+      redirect: '/404'
     },
     {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true },
-    },
-  ],
+      meta: { requiresAuth: true, requiresAdmin: true }
+    }
+  ]
 })
 
 // Add navigation guard
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
-  if (to.matched.some((record) => record.meta.requiresAdmin)) {
-    if (!userStore.isAdmin) {
-      next({ path: '/' })
-      return
-    }
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    next('/login')
+    return
+  }
+
+  // Check if route requires admin privileges
+  if (to.meta.requiresAdmin && !userStore.isAdmin) {
+    next('/')
+    return
   }
 
   if (to.matched.length === 0) {

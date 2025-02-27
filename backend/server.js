@@ -3,29 +3,9 @@ const cors = require('cors')
 const mysql = require('mysql')
 const fs = require('fs')
 const ini = require('ini')
-const multer = require('multer')
 const path = require('path')
 const app = express()
 const port = 3000
-
-//HAS HOTRELOAD (nodemon)
-
-// Update CORS configuration
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type'],
-    credentials: true,
-  })
-)
-
-// Add middleware before routes
-app.use(express.json())
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}:`, req.body)
-  next()
-})
 
 // Read the ini file
 const config = ini.parse(fs.readFileSync('./db/db_config.ini', 'utf-8'))
@@ -38,28 +18,26 @@ const con = mysql.createConnection({
   database: config.dbname,
 })
 
-// Connection error handling
-con.connect(function (err) {
-  if (err) {
-    if (err.code === 'ECONNREFUSED') {
-      console.error(
-        'Database connection failed: MySQL server is not running. Please start XAMPP MySQL service.'
-      )
-      console.error('Error details:', {
-        code: err.code,
-        errno: err.errno,
-        syscall: err.syscall,
-        port: err.port,
-      })
-    } else {
-      console.error('Database connection error:', err.message)
-    }
-  } else {
-    console.log('Connected to the database!')
-  }
+// CORS and middleware configuration
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+)
+
+app.use(express.json())
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}:`, req.body)
+  next()
 })
 
-// Add more robust connection testing
+// Add this after other middleware configurations
+app.use('/uploads/avatars', express.static(path.join(__dirname, '../frontend/src/assets/avatars')))
+
+// Database connection test function
 const testConnection = () => {
   return new Promise((resolve, reject) => {
     con.ping((err) => {
@@ -75,526 +53,27 @@ const testConnection = () => {
   })
 }
 
-// Helper function to wrap async routes
+// Helper function for async route handling
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next)
 }
 
-// Configure multer for avatar uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, '../frontend/src/assets/avatars/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, req.body.username + '.jpg')
-  },
-})
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB
-  },
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype !== 'image/jpeg') {
-      return cb(new Error('Only JPG files are allowed'))
-    }
-    cb(null, true)
-  },
-})
-
-// Register endpoint
-app.post(
-  '/api/register',
-  asyncHandler(async (req, res) => {
-    const { username, email, password } = req.body
-    console.log('Register attempt:', { username, email })
-
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        error: 'Missing credentials',
-        message: 'Username, email and password are required',
-      })
-    }
-
-    await testConnection()
-
-    // Check if email already exists
-    con.query('SELECT id FROM users WHERE email = ?', [email], (err, result) => {
-      if (err) {
-        console.error('Email check error:', err)
-        return res.status(500).json({
-          error: 'Database error',
-          message: 'Internal server error',
-        })
-      }
-
-      if (result && result.length > 0) {
-        return res.status(400).json({
-          error: 'Registration failed',
-          message: 'Email already exists',
-        })
-      }
-
-      // Create new user
-      const insertQuery = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)'
-      con.query(insertQuery, [username, email, password], (insertErr) => {
-        if (insertErr) {
-          console.error('User creation error:', insertErr)
-          return res.status(500).json({
-            error: 'Registration failed',
-            message: 'Could not create user',
-          })
-        }
-
-        res.status(201).json({
-          success: true,
-          message: 'Registration successful',
-        })
-      })
-    })
-  })
-)
-
-// Data on home page
-app.get(
-  '/api/data',
-  asyncHandler(async (req, res) => {
-    await testConnection()
-    con.query('SELECT * FROM assets', function (err, result) {
-      if (err) {
-        console.error('Database query error:', err)
-        return res.status(500).json({
-          error: 'Database query error',
-          message: err.message,
-        })
-      }
-
-      if (!result || result.length === 0) {
-        return res.status(404).json({
-          error: 'No data found',
-          message: 'The assets table is empty',
-        })
-      }
-
-      res.json(result)
-    })
-  })
-)
-
-// Asset types on homepage
-app.get(
-  '/api/types',
-  asyncHandler(async (req, res) => {
-    await testConnection()
-    con.query('SELECT DISTINCT type FROM assets', function (err, result) {
-      if (err) {
-        console.error('Database query error:', err)
-        return res.status(500).json({
-          error: 'Database query error',
-          message: err.message,
-        })
-      }
-
-      if (!result || result.length === 0) {
-        return res.status(404).json({
-          error: 'No types found',
-          message: 'The assets table has no types',
-        })
-      }
-
-      const types = result.map((row) => row.type)
-      res.json(types)
-    })
-  })
-)
-
-// Login endpoint
-app.post(
-  '/api/login',
-  asyncHandler(async (req, res) => {
-    console.log('Login request received:', req.body)
-    const { emailOrUsername, password } = req.body
-
-    if (!emailOrUsername || !password) {
-      console.log('Missing credentials')
-      return res.status(400).json({
-        error: 'Missing credentials',
-        message: 'Username/Email and password are required',
-      })
-    }
-    // TODO: Return which login credential is wrong, email/username or password
-    // probably more selects
-    try {
-      await testConnection()
-      con.query(
-        `SELECT id, username, email, type, created_at FROM users WHERE email = ? OR username = ? LIMIT 1`,
-        [emailOrUsername, emailOrUsername],
-        (err, result) => {
-          if (err) {
-            console.error('Login query error usercheck:', err)
-            return res.status(500).json({
-              error: 'Database error',
-              message: 'Internal server error',
-            })
-          }
-
-          if (!result || result.length === 0) {
-            return res.status(401).json({
-              error: 'Authentication failed',
-              message: 'Invalid email or username',
-            })
-          }
-          console.log('getting to the second query')
-          const user = result[0]
-          con.query(
-            `SELECT id FROM users WHERE (email = ? OR username = ?) AND password = ? LIMIT 1`,
-            [emailOrUsername, emailOrUsername, password],
-            (err, result) => {
-              if (err) {
-                //check for errors
-                console.error('Login query error password check:', err)
-                return res.status(500).json({
-                  error: 'Database error',
-                  message: 'Internal server error',
-                })
-              }
-
-              if (!result || result.length === 0) {
-                //if empty or null
-                return res.status(401).json({
-                  error: 'Authentication failed',
-                  message: 'Invalid password',
-                })
-              }
-
-              console.log('Login successful', user)
-
-              const response = {
-                success: true,
-                user: {
-                  id: user.id,
-                  username: user.username,
-                  email: user.email,
-                  type: user.type,
-                  created_at: user.created_at,
-                },
-              }
-
-              res.setHeader('Content-Type', 'application/json')
-              console.log('Sending response:', response)
-              res.json(response)
-            }
-          )
-        }
-      )
-    } catch (error) {
-      console.error('Database connection error:', error)
-      res.status(500).json({
-        error: 'Database connection error',
-        message: error.message,
-      })
-    }
-  })
-)
-
-//Profile change endpoint
-app.put('/api/user/update', upload.single('avatar'), async (req, res) => {
-  console.log('Update request received:', req.body)
-  const { id, displayName, email, currentPassword, newPassword } = req.body
-
-  if (!id || !displayName || !email || !currentPassword) {
-    return res.status(400).json({
-      error: 'Missing required fields',
-      message: 'All fields are required except new password',
-    })
-  }
-
-  await testConnection()
-  // First verify current password
-  con.query(
-    'SELECT id FROM users WHERE id = ? AND password = ?',
-    [id, currentPassword],
-    (err, result) => {
-      if (err) {
-        console.error('Verification error:', err)
-        return res.status(500).json({
-          error: 'Database error',
-          message: 'Internal server error',
-        })
-      }
-
-      if (!result || result.length === 0) {
-        return res.status(401).json({
-          error: 'Authentication failed',
-          message: 'Current password is incorrect',
-        })
-      }
-
-      // Update user information
-      const updateQuery = newPassword
-        ? 'UPDATE users SET display_name = ?, email = ?, password = ? WHERE id = ?'
-        : 'UPDATE users SET display_name = ?, email = ? WHERE id = ?'
-      const updateParams = newPassword
-        ? [displayName, email, newPassword, id]
-        : [displayName, email, id]
-
-      con.query(updateQuery, updateParams, (updateErr, updateResult) => {
-        if (updateErr) {
-          console.error('Update error:', updateErr)
-          return res.status(500).json({
-            error: 'Database error',
-            message: 'Failed to update profile',
-          })
-        }
-
-        if (updateResult.affectedRows === 0) {
-          return res.status(404).json({
-            error: 'Update failed',
-            message: 'User not found',
-          })
-        }
-
-        res.json({
-          success: true,
-          user: {
-            id,
-            username: req.body.username,
-            displayName,
-            email,
-          },
-        })
-      })
-    }
-  )
-})
-
-// Get api health
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date(),
-  })
-})
-
-// Get trending asset in last 7 days for most trending endpoint
-app.get(
-  '/api/trending-asset',
-  asyncHandler(async (req, res) => {
-    await testConnection()
-    const query = `
-    SELECT a.*, COUNT(t.id) as trade_count
-    FROM assets a
-    LEFT JOIN trades t ON a.id = t.asset_id AND t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-    GROUP BY a.id
-    ORDER BY trade_count DESC, a.id ASC
-    LIMIT 1
-  `
-    con.query(query, function (err, result) {
-      if (err) {
-        console.error('Database query error:', err)
-        return res.status(500).json({
-          error: 'Database query error',
-          message: err.message,
-        })
-      }
-
-      if (!result || result.length === 0) {
-        return res.status(404).json({
-          error: 'No assets found',
-          message: 'The assets table is empty',
-        })
-      }
-
-      res.json(result[0])
-    })
-  })
-)
-
-// Add admin users endpoint
-app.get(
-  '/api/admin/users',
-  asyncHandler(async (req, res) => {
-    await testConnection()
-    con.query('SELECT id, username, email, type as role, created_at FROM users', (err, result) => {
-      if (err) {
-        console.error('Database query error:', err)
-        return res.status(500).json({
-          error: 'Database query error',
-          message: err.message,
-        })
-      }
-
-      res.json(result)
-    })
-  })
-)
-
-app.delete(
-  '/api/admin/users/:id',
-  asyncHandler(async (req, res) => {
-    const userId = req.params.id
-    await testConnection()
-
-    con.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
-      if (err) {
-        console.error('Delete user error:', err)
-        return res.status(500).json({
-          error: 'Database error',
-          message: 'Failed to delete user',
-        })
-      }
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          error: 'Not found',
-          message: 'User not found',
-        })
-      }
-
-      res.json({ success: true })
-    })
-  })
-)
-
-app.put(
-  '/api/admin/users/:id',
-  asyncHandler(async (req, res) => {
-    const userId = req.params.id
-    const { username, email, role } = req.body
-
-    await testConnection()
-
-    // Simple update without restrictions
-    con.query(
-      'UPDATE users SET username = ?, email = ?, type = ? WHERE id = ?',
-      [username, email, role, userId],
-      (err, result) => {
-        if (err) {
-          return res.status(500).json({
-            error: 'Database error',
-            message: 'Failed to update user',
-          })
-        }
-
-        res.json({
-          success: true,
-          user: { id: userId, username, email, role },
-        })
-      }
-    )
-  })
-)
-
-// Admin avatar upload endpoint
-app.put('/api/admin/users/:id/avatar', upload.single('avatar'), async (req, res) => {
-  const userId = req.params.id
-  const username = req.body.username
-
-  if (!username) {
-    return res.status(400).json({
-      error: 'Missing username',
-      message: 'Username is required for avatar upload',
-    })
-  }
-
-  try {
-    if (req.file) {
-      res.json({
-        success: true,
-        message: 'Avatar updated successfully',
-      })
+// Connect to database
+con.connect(function (err) {
+  if (err) {
+    if (err.code === 'ECONNREFUSED') {
+      console.error('Database connection failed: MySQL server is not running.')
     } else {
-      res.status(400).json({
-        error: 'Upload failed',
-        message: 'No file was uploaded',
-      })
+      console.error('Database connection error:', err.message)
     }
-  } catch (error) {
-    res.status(500).json({
-      error: 'Server error',
-      message: error.message,
-    })
+  } else {
+    console.log('Connected to the database!')
   }
 })
 
-// Update DELETE endpoint for avatar
-app.delete('/api/admin/users/:id/avatar', async (req, res) => {
-  const username = req.query.username
-  if (!username) {
-    return res.status(400).json({
-      error: 'Missing username',
-      message: 'Username is required for avatar deletion',
-    })
-  }
-
-  const avatarPath = path.join(__dirname, '../frontend/src/assets/avatars/', username + '.jpg')
-
-  try {
-    if (fs.existsSync(avatarPath)) {
-      fs.unlinkSync(avatarPath)
-      res.json({
-        success: true,
-        message: 'Avatar deleted successfully',
-      })
-    } else {
-      res.status(404).json({
-        error: 'Not found',
-        message: 'Avatar does not exist',
-      })
-    }
-  } catch (error) {
-    console.error('Error deleting avatar:', error)
-    res.status(500).json({
-      error: 'Server error',
-      message: error.message,
-    })
-  }
-})
-
-app.post('/api/checkfile', async (req, res) => {
-  const purpose = req.body.purpose
-  const username = req.body.username
-
-  if (!username) {
-    return res.status(400).json({
-      success: false,
-      message: 'Username is required',
-    })
-  }
-
-  if (purpose === 'avatarCheck') {
-    const avatarPath = path.join(__dirname, '../frontend/src/assets/avatars/', username + '.jpg')
-    const hasAvatar = fs.existsSync(avatarPath)
-    return res.json({
-      success: true,
-      hasAvatar: hasAvatar,
-    })
-  }
-  return res.status(400).json({ success: false, message: 'Invalid purpose' })
-})
-
-// Add user deletion endpoint
-app.delete(
-  '/api/user/:id',
-  asyncHandler(async (req, res) => {
-    const userId = req.params.id
-    await testConnection()
-
-    // Delete user data
-    con.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
-      if (err) {
-        console.error('Delete user error:', err)
-        return res.status(500).json({
-          error: 'Database error',
-          message: 'Failed to delete account',
-        })
-      }
-
-      res.json({ success: true })
-    })
-  })
-)
+// Routes
+app.use('/api', require('./routes')(con, asyncHandler))
+app.use('/api/portfolio', require('./routes/portfolio'))
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -612,7 +91,7 @@ app.use((err, req, res, next) => {
   }
 })
 
-// Handle uncaught exceptions and unhandled promise rejections
+// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err)
 })

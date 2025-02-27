@@ -61,7 +61,7 @@ const handleSubmit = async (e: Event) => {
 
   try {
     console.log('Sending registration request...')
-    const response = await fetch('http://localhost:3000/api/register', {
+    const response = await fetch('http://localhost:3000/api/auth/register', {  // Updated endpoint
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

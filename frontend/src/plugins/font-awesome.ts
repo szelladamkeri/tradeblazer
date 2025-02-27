@@ -1,51 +1,50 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
+  faChartLine,
+  faChartPie,
   faHome,
   faInfo,
   faUser,
-  faSignInAlt,
-  faSignOutAlt,
+  faRightFromBracket as faSignOut,
+  faRightToBracket as faSignIn,
   faEdit,
-  faChartLine,
   faDollarSign,
   faFire,
   faCoins,
   faBars,
-  faTimes,
-  faChartPie,
+  faXmark,
   faUserCircle,
   faWallet,
-  faXmark,
   faShield,
   faUsers,
-  faUserTag,
+  faTag as faUserTag,
   faEnvelope,
   faTrash,
   faHashtag,
   faWrench,
-  faUserPen,
-  faCheckCircle,
-  faTriangleExclamation,
+  faPen as faUserPen,
+  faCheck as faCheckCircle,
+  faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 
+// Add all icons to the library
 library.add(
   faHome,
   faInfo,
   faUser,
-  faSignInAlt,
-  faSignOutAlt,
+  faSignIn,
+  faSignOut,
   faEdit,
   faChartLine,
   faDollarSign,
   faFire,
   faCoins,
   faBars,
-  faTimes,
+  faXmark,
   faChartPie,
   faUserCircle,
   faWallet,
-  faXmark,
   faShield,
   faUsers,
   faUserTag,
@@ -55,7 +54,7 @@ library.add(
   faWrench,
   faUserPen,
   faCheckCircle,
-  faTriangleExclamation,
+  faTriangleExclamation
 )
 
 export { FontAwesomeIcon }

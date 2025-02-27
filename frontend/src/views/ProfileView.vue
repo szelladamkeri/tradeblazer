@@ -15,7 +15,7 @@ const refreshTimestamp = ref(Date.now())
 
 const checkAvatar = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/checkfile', {
+    const response = await fetch('http://localhost:3000/api/admin/checkfile', {  // Updated endpoint path
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -100,9 +100,7 @@ const userRoleDisplay = computed(() => {
             <div class="w-24 h-24 rounded-full overflow-hidden bg-white/10">
               <img
                 v-if="avatarAvailable"
-                :src="
-                  '/src/assets/avatars/' + userStore.user.username + '.jpg?t=' + refreshTimestamp
-                "
+                :src="`http://localhost:3000/uploads/avatars/${userStore.user?.username}.jpg?t=${refreshTimestamp}`"
                 class="w-full h-full object-cover"
                 :key="refreshTimestamp"
                 alt="User avatar"

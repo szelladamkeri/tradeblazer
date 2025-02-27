@@ -9,36 +9,62 @@ import { useUserStore } from './stores/userStore'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-/* Import icons */
+/* Import specific icons */
 import {
-  faUserSlash,
+  faChartLine,
+  faChartPie,
+  faFire,
+  faCoins,
+  faBars,
+  faXmark,
+  faWallet,
+  faWrench,
+  faUserCircle,
   faShield,
+  faUserPen,
+  faEdit,
+  faTrash,
+  faUserSlash,
+  faRightFromBracket,
+  faRightToBracket,
+  // Add missing icons
   faUsers,
   faHashtag,
   faUser,
   faEnvelope,
   faUserTag,
-  faWrench,
-  faUserCircle,
-  faEdit,
-  faTrash,
-  faPen,
+  faHome,
+  faInfo,
+  faSearch,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
 library.add(
-  faUserSlash,
+  faChartLine,
+  faChartPie,
+  faFire,
+  faCoins,
+  faBars,
+  faXmark,
+  faWallet,
+  faWrench,
+  faUserCircle,
   faShield,
+  faUserPen,
+  faEdit,
+  faTrash,
+  faUserSlash,
+  faRightFromBracket,
+  faRightToBracket,
+  // Add missing icons
   faUsers,
   faHashtag,
   faUser,
   faEnvelope,
   faUserTag,
-  faWrench,
-  faUserCircle,
-  faEdit,
-  faTrash,
-  faPen,
+  faHome,
+  faInfo,
+  faSearch
 )
 
 const app = createApp(App)

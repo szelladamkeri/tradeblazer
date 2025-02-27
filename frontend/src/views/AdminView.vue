@@ -32,7 +32,7 @@ const userStore = useUserStore()
 // Add checkAvatar function
 const checkAvatar = async (username: string, userId: number) => {
   try {
-    const response = await fetch('http://localhost:3000/api/checkfile', {
+    const response = await fetch('http://localhost:3000/api/admin/checkfile', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

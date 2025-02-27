@@ -99,30 +99,26 @@ export const useUserStore = defineStore('user', {
     },
 
     async checkAvatar() {
-      if (!this.user?.username || this.avatar.loading) return
-
-      this.avatar.loading = true
+      if (!this.user?.username) return;
+      
       try {
-        const response = await fetch('http://localhost:3000/api/checkfile', {
+        const response = await fetch('http://localhost:3000/api/admin/checkfile', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             purpose: 'avatarCheck',
             username: this.user.username,
           }),
-        })
-        const data = await response.json()
-        this.avatar.available = data.hasAvatar
-        if (data.hasAvatar) {
-          // Preload the avatar image
-          const img = new Image()
-          img.src = `/src/assets/avatars/${this.user.username}.jpg?t=${this.avatarTimestamp}`
-        }
+        });
+
+        const data = await response.json();
+        this.avatar.available = data.hasAvatar;
+        this.avatarTimestamp = Date.now(); // Force refresh
       } catch (error) {
-        console.error('Error checking avatar:', error)
-        this.avatar.available = false
-      } finally {
-        this.avatar.loading = false
+        console.error('Error checking avatar:', error);
+        this.avatar.available = false;
       }
     },
   },
