@@ -23,11 +23,6 @@ const router = createRouter({
       }
     },
     {
-      path: '/search',
-      name: 'search',
-      component: () => import('../views/SearchView.vue')
-    },
-    {
       path: '/portfolio',
       name: 'portfolio',
       component: () => import('../views/PortfolioView.vue'),
@@ -67,6 +62,23 @@ const router = createRouter({
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/trade/:id',
+      name: 'trade',
+      component: () => import('../views/TradeView.vue'),
+      props: true
+    },
+    {
+      path: '/markets',
+      name: 'markets',
+      component: () => import('../views/MarketsView.vue')
+    },
+    {
+      path: '/markets/:id',
+      name: 'asset-details',
+      component: () => import('../views/MarketsView.vue'),
+      props: true
     }
   ]
 })

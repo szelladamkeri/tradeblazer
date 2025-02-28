@@ -329,7 +329,7 @@ onMounted(fetchUsers)
 </script>
 
 <template>
-  <PageHeader />
+  <PageHeader class="page-header mb-4" />
   <PageMain class="relative z-[1]">
     <div
       :class="{
@@ -772,5 +772,36 @@ onMounted(fetchUsers)
 /* Ensure proper stacking */
 .relative {
   isolation: isolate;
+}
+
+/* Fixed width header to match wider PageMain with proper spacing */
+.page-header {
+  height: 4rem;
+  width: 1366px !important;
+  max-width: 1366px !important;
+  margin: 0 auto;
+  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
+}
+
+/* Media query adjustments for smaller screens */
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 1366px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 90vw !important;
+    max-width: 1024px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    height: 3.5rem;
+    width: calc(100vw - 2rem) !important;
+  }
 }
 </style>

@@ -3,6 +3,7 @@ import HeaderLink from './HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -61,17 +62,83 @@ const firstLetter = computed(() => {
   return userStore.user?.username.charAt(0).toUpperCase() || '?'
 })
 
+// Improved search functionality
+const searchQuery = ref('')
+const searchResults = ref<any[]>([])
+const searchLoading = ref(false)
+const searchError = ref<string | null>(null)
+const showSearchResults = ref(false)
+
+const performSearch = async () => {
+  if (!searchQuery.value.trim()) {
+    searchResults.value = []
+    return
+  }
+
+  searchLoading.value = true
+  searchError.value = null
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/assets/search?q=${encodeURIComponent(searchQuery.value)}`)
+    if (!response.ok) throw new Error('Search failed')
+    const data = await response.json()
+    searchResults.value = data.slice(0, 5) // Limit to 5 results for better UX
+  } catch (err) {
+    searchError.value = 'Failed to perform search'
+    console.error(err)
+  } finally {
+    searchLoading.value = false
+  }
+}
+
+// Debounce search for better performance
+let searchTimeout: any = null
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout)
+  if (searchQuery.value.length >= 2) {
+    searchTimeout = setTimeout(() => {
+      performSearch()
+      showSearchResults.value = true
+    }, 300)
+  } else {
+    searchResults.value = []
+    showSearchResults.value = false
+  }
+})
+
+const closeSearchResults = () => {
+  showSearchResults.value = false
+}
+
+const goToAsset = (assetId: number) => {
+  router.push(`/markets/${assetId}`)
+  searchQuery.value = ''
+  closeSearchResults()
+  closeMenu()
+}
+
+// Add click outside detection for search results
+const searchContainerRef = ref<HTMLDivElement | null>(null)
+
+const closeSearchResultsOnClickOutside = (event: MouseEvent) => {
+  if (searchContainerRef.value && !searchContainerRef.value.contains(event.target as Node)) {
+    showSearchResults.value = false
+  }
+}
+
 onMounted(async () => {
   if (userStore.isAuthenticated) {
     await userStore.checkAvatar()
   }
   window.addEventListener('resize', updateMenuOnResize)
   document.addEventListener('click', closeDropdownOnClickOutside)
+  document.addEventListener('click', closeSearchResultsOnClickOutside)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateMenuOnResize)
   document.removeEventListener('click', closeDropdownOnClickOutside)
+  document.removeEventListener('click', closeSearchResultsOnClickOutside)
 })
 </script>
 
@@ -94,6 +161,113 @@ onUnmounted(() => {
             <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
           </div>
 
+          <!-- Search Bar - Centered and optimized -->
+          <div 
+            ref="searchContainerRef" 
+            class="relative flex-1 mx-3 md:mx-8 max-w-md hidden sm:block"
+          >
+            <div class="relative group">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search assets..."
+                class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors group-hover:bg-white/15"
+              />
+              <div 
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
+              >
+                <font-awesome-icon
+                  v-if="searchLoading"
+                  icon="spinner"
+                  class="text-gray-400 animate-spin"
+                />
+                <font-awesome-icon
+                  v-else-if="searchQuery && searchQuery.length > 0"
+                  @click="searchQuery = ''"
+                  icon="times-circle"
+                  class="text-gray-400 cursor-pointer hover:text-white"
+                />
+                <font-awesome-icon
+                  v-else
+                  icon="search"
+                  class="text-gray-400"
+                />
+              </div>
+            </div>
+
+            <!-- Search Results Dropdown -->
+            <transition 
+              name="fade"
+              enter-active-class="transition ease-out duration-200"
+              enter-from-class="opacity-0 translate-y-1"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-active-class="transition ease-in duration-150"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 translate-y-1"
+            >
+              <div
+                v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+                class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-xl backdrop-saturate-150 rounded-lg border border-white/10 shadow-lg max-h-96 overflow-y-auto z-[60]"
+              >
+                <!-- Loading State -->
+                <div v-if="searchLoading" class="py-4 px-4 text-center">
+                  <LoadingSpinner class="h-6 w-6 mx-auto" />
+                  <p class="mt-2 text-gray-400">Searching...</p>
+                </div>
+
+                <!-- Error State -->
+                <div v-else-if="searchError" class="py-4 px-4 text-center">
+                  <font-awesome-icon icon="exclamation-triangle" class="text-red-400 text-xl mb-2" />
+                  <p class="text-red-400">{{ searchError }}</p>
+                </div>
+
+                <!-- Results -->
+                <div v-else class="py-1">
+                  <div
+                    v-for="result in searchResults"
+                    :key="result.id"
+                    @click="goToAsset(result.id)"
+                    class="px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer group"
+                  >
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <div class="font-medium text-white flex items-center">
+                          {{ result.symbol }}
+                          <span class="ml-2 px-2 py-0.5 text-xs bg-white/10 rounded-full text-gray-400">
+                            {{ result.type }}
+                          </span>
+                        </div>
+                        <div class="text-sm text-gray-400 truncate max-w-[220px]">{{ result.name }}</div>
+                      </div>
+                      <div class="text-green-400 font-medium group-hover:translate-x-0.5 transition-transform">
+                        ${{ result.price }}
+                        <font-awesome-icon icon="arrow-right" class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- View all results link -->
+                  <div v-if="searchResults.length > 0" class="mt-1 pt-2 border-t border-white/10 px-4 py-2 text-center">
+                    <a 
+                      @click="closeSearchResults"
+                      href="#" 
+                      class="text-green-400 hover:text-green-300 text-sm transition-colors"
+                    >
+                      <font-awesome-icon icon="list" class="mr-1" />
+                      View all results
+                    </a>
+                  </div>
+                </div>
+
+                <!-- No results -->
+                <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-6 px-4 text-center">
+                  <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
+                  <p class="text-gray-400">No results found</p>
+                </div>
+              </div>
+            </transition>
+          </div>
+
           <!-- Mobile menu button -->
           <button
             @click="toggleMenu"
@@ -111,15 +285,6 @@ onUnmounted(() => {
                 <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
                   <font-awesome-icon icon="chart-line" class="mr-2" />
                   <span>Dashboard</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink>
-              <template #icon>
-                <router-link to="/search" class="text-gray-300 hover:text-green-400 flex items-center">
-                  <font-awesome-icon icon="search" class="mr-2" />
-                  <span>Search</span>
                 </router-link>
               </template>
             </HeaderLink>
@@ -251,6 +416,170 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+
+        <!-- Mobile menu content - Add search bar here too -->
+        <div v-if="isMenuOpen" class="sm:hidden mt-4 pb-4">
+          <div class="mb-4 px-1">
+            <div class="relative">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search assets..."
+                class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
+              />
+              <div 
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
+              >
+                <font-awesome-icon
+                  v-if="searchLoading"
+                  icon="spinner"
+                  class="text-gray-400 animate-spin"
+                />
+                <font-awesome-icon
+                  v-else-if="searchQuery && searchQuery.length > 0"
+                  @click="searchQuery = ''"
+                  icon="times-circle"
+                  class="text-gray-400 cursor-pointer hover:text-white"
+                />
+                <font-awesome-icon
+                  v-else
+                  icon="search"
+                  class="text-gray-400"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Search Results -->
+          <transition 
+            name="fade"
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+          >
+            <div
+              v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+              class="bg-black/90 backdrop-blur-xl backdrop-saturate-150 rounded-lg border border-white/10 shadow-lg max-h-64 overflow-y-auto mb-4 mx-1"
+            >
+              <!-- Loading State -->
+              <div v-if="searchLoading" class="py-4 px-4 text-center">
+                <LoadingSpinner class="h-6 w-6 mx-auto" />
+                <p class="mt-2 text-gray-400">Searching...</p>
+              </div>
+
+              <!-- Error State -->
+              <div v-else-if="searchError" class="py-4 px-4 text-center">
+                <p class="text-red-400">{{ searchError }}</p>
+              </div>
+
+              <!-- Results -->
+              <div v-else>
+                <div
+                  v-for="result in searchResults"
+                  :key="result.id"
+                  @click="goToAsset(result.id)"
+                  class="p-3 hover:bg-white/10 transition-colors cursor-pointer border-b border-white/10 last:border-b-0"
+                >
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <div class="font-medium text-white">{{ result.symbol }}</div>
+                      <div class="text-sm text-gray-400 truncate max-w-[200px]">{{ result.name }}</div>
+                    </div>
+                    <div class="text-green-400 font-medium">
+                      ${{ result.price }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- No results -->
+              <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-4 px-4 text-center">
+                <p class="text-gray-400">No results found</p>
+              </div>
+            </div>
+          </transition>
+
+          <nav class="flex flex-col gap-1">
+            <HeaderLink @click="closeMenu">
+              <template #icon>
+                <router-link
+                  to="/"
+                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                >
+                  <font-awesome-icon icon="chart-line" class="mr-2" />
+                  <span>Dashboard</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <HeaderLink @click="closeMenu">
+              <template #icon>
+                <router-link
+                  to="/markets"
+                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                >
+                  <font-awesome-icon icon="chart-pie" class="mr-2" />
+                  <span>Markets</span>
+                </router-link>
+              </template>
+            </HeaderLink>
+
+            <template v-if="userStore.isAuthenticated">
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/portfolio"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="wallet" class="mr-2" />
+                    <span>Portfolio</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/profile"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="user-circle" class="mr-2" />
+                    <span>Profile</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/admin"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="shield" class="mr-2" />
+                    <span>Admin</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+            </template>
+
+            <template v-else>
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/login"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                    <span>Login</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+            </template>
+          </nav>
+        </div>
       </div>
 
       <!-- Mobile Navigation -->
@@ -268,18 +597,6 @@ onUnmounted(() => {
                 >
                   <font-awesome-icon icon="chart-line" class="mr-2" />
                   <span>Dashboard</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/search"
-                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                >
-                  <font-awesome-icon icon="search" class="mr-2" />
-                  <span>Search</span>
                 </router-link>
               </template>
             </HeaderLink>
@@ -653,5 +970,66 @@ button:hover {
 .scale-leave-from {
   opacity: 1;
   transform: scale(1) translateY(0);
+}
+
+/* Add styling for search dropdown */
+.max-h-96 {
+  max-height: 24rem;
+}
+
+/* Ensure the search results scroll properly */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+/* Improve search dropdown styling */
+.max-h-96 {
+  max-height: 24rem;
+}
+
+.max-h-64 {
+  max-height: 16rem;
+}
+
+/* Enhance scrollbar styling */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Add subtle hover effect to search input */
+input[type="text"]:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 </style>

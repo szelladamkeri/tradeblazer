@@ -5,6 +5,7 @@ import HeaderLink from '@/components/HeaderLink.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import FadeIn from '@/components/FadeIn.vue'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 interface Asset {
   id: number
@@ -19,6 +20,7 @@ const types = ref<string[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const trendingAsset = ref<Asset | null>(null)
+const router = useRouter()
 
 const fetchData = async (): Promise<void> => {
   try {
@@ -76,7 +78,7 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col">
-    <PageHeader />
+    <PageHeader class="page-header mb-4" />
     <PageMain>
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <div v-if="loading" class="flex justify-center items-center py-8">
@@ -130,6 +132,7 @@ onMounted(() => {
                 <div
                   v-for="asset in assets"
                   :key="asset.id"
+                  @click="router.push(`/markets/${asset.id}`)"
                   class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer flex flex-col"
                 >
                   <div class="flex items-center mb-2">
@@ -180,5 +183,36 @@ onMounted(() => {
 .overflow-y-auto {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Fixed width header to match wider PageMain with proper spacing */
+.page-header {
+  height: 4rem;
+  width: 1366px !important;
+  max-width: 1366px !important;
+  margin: 0 auto;
+  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
+}
+
+/* Media query adjustments for smaller screens */
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 1366px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 90vw !important;
+    max-width: 1024px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    height: 3.5rem;
+    width: calc(100vw - 2rem) !important;
+  }
 }
 </style>

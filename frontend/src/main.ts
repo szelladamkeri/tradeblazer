@@ -36,6 +36,11 @@ import {
   faHome,
   faInfo,
   faSearch,
+  // Add the missing icons
+  faStar,
+  faExchangeAlt,
+  // Add triangle exclamation icon for error messages
+  faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -64,7 +69,11 @@ library.add(
   faUserTag,
   faHome,
   faInfo,
-  faSearch
+  faSearch,
+  // Add the missing icons to the library
+  faStar,
+  faExchangeAlt,
+  faTriangleExclamation,
 )
 
 const app = createApp(App)

@@ -63,7 +63,7 @@ const handleCrop = () => {
       // Create a new file from the blob
       const croppedFile = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
       avatarFile.value = croppedFile
-      avatarPreview.value = URL.createObjectURL(blob)
+      avatarPreview.value = URL.createObjectURL(blob) // This is already correct - using object URL for local preview
       showCropper.value = false
     },
     'image/jpeg',
@@ -80,7 +80,7 @@ const cancelCrop = () => {
 
 const checkAvatar = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/checkfile', {
+    const response = await fetch('http://localhost:3000/api/admin/checkfile', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,7 +93,8 @@ const checkAvatar = async () => {
 
     const data = await response.json()
     if (data.hasAvatar && userStore.user?.username) {
-      avatarPreview.value = `/src/assets/avatars/${userStore.user.username}.jpg?t=${userStore.avatarTimestamp}`
+      // Update to use the correct backend URL for avatars
+      avatarPreview.value = `http://localhost:3000/uploads/avatars/${userStore.user.username}.jpg?t=${refreshTimestamp.value}`
     }
   } catch (error) {
     console.error('Error checking avatar:', error)
@@ -238,19 +239,25 @@ const handleConfirmUpdate = async () => {
               <div class="space-y-2">
                 <label class="block text-gray-200 text-sm font-medium">Profile Picture</label>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div class="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+                  <div class="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden bg-white/10 relative">
+                    <!-- Add loading indicator and error handling for avatar -->
                     <img
                       v-if="avatarPreview"
                       :src="avatarPreview"
-                      :key="userStore.avatarTimestamp"
+                      :key="refreshTimestamp"
                       class="w-full h-full object-cover"
                       alt="Avatar preview"
+                      @error="avatarPreview = ''" 
                     />
                     <div
                       v-else
                       class="w-full h-full flex items-center justify-center text-gray-400"
                     >
                       <span>No image</span>
+                    </div>
+                    <!-- Add loading overlay -->
+                    <div v-if="loading" class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <font-awesome-icon icon="spinner" class="text-white animate-spin" />
                     </div>
                   </div>
                   <div class="w-full">
@@ -455,5 +462,23 @@ img[src] {
 
 img:not([src]) {
   opacity: 0;
+}
+
+/* Add these styles to fix responsive avatar display */
+.rounded-full {
+  overflow: hidden;
+  position: relative;
+}
+
+.rounded-full img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+/* Handle image error states better */
+.rounded-full img[src=""] {
+  display: none;
 }
 </style>

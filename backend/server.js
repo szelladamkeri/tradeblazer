@@ -73,7 +73,32 @@ con.connect(function (err) {
 
 // Routes
 app.use('/api', require('./routes')(con, asyncHandler))
-app.use('/api/portfolio', require('./routes/portfolio'))
+// Update this line to pass the connection to portfolio router
+app.use('/api/portfolio', require('./routes/portfolio')(con, asyncHandler))
+
+// Add API endpoint for search
+app.get('/api/assets/search', (req, res) => {
+  const searchQuery = req.query.q?.toLowerCase();
+  
+  if (!searchQuery) {
+    return res.json([]);
+  }
+
+  const query = `
+    SELECT id, name, symbol, type, price
+    FROM assets
+    WHERE LOWER(name) LIKE ? OR LOWER(symbol) LIKE ?
+    LIMIT 10
+  `;
+
+  con.query(query, [`%${searchQuery}%`, `%${searchQuery}%`], (err, results) => {
+    if (err) {
+      console.error('Search error:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+    res.json(results);
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
