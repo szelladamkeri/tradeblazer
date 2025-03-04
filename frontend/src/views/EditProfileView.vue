@@ -200,133 +200,168 @@ const handleConfirmUpdate = async () => {
 </script>
 
 <template>
-  <PageHeader />
-  <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
+  <PageHeader class="mb-4" />
+  <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto py-6">
     <FadeIn :show="!initialLoading">
-      <div v-if="!initialLoading" class="w-full max-w-2xl mx-auto p-6 sm:p-8">
-        <div class="space-y-8">
-          <div class="text-center sm:text-left">
-            <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Edit Profile</h2>
-            <p class="text-gray-400">Update your account information</p>
+      <div v-if="!initialLoading" class="w-full max-w-4xl mx-auto px-6">
+        <!-- Header with clear fixed layout -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Edit Profile</h2>
+            <p class="text-gray-400 text-sm mt-1">Update your account information</p>
           </div>
+          
+          <!-- Desktop buttons - more clearly positioned -->
+          <div class="hidden sm:flex items-center gap-4 self-end sm:self-center">
+            <button
+              type="button"
+              @click="router.push('/profile')"
+              class="px-5 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-md"
+            >
+              Cancel
+            </button>
+            <button
+              @click="handleSubmit"
+              :disabled="loading"
+              class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
+            >
+              {{ loading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
 
-          <form @submit="handleSubmit" class="space-y-6">
-            <div v-if="error" class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
-              {{ error }}
-            </div>
-
-            <div class="space-y-4">
-              <div class="space-y-2">
-                <label class="block text-gray-200 text-sm font-medium">Display Name</label>
-                <input
-                  v-model="displayName"
-                  type="text"
-                  required
-                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-                />
-              </div>
-
-              <div class="space-y-2">
-                <label class="block text-gray-200 text-sm font-medium">Email</label>
-                <input
-                  v-model="email"
-                  type="email"
-                  required
-                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-                />
-              </div>
-
-              <div class="space-y-2">
-                <label class="block text-gray-200 text-sm font-medium">Profile Picture</label>
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div class="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden bg-white/10 relative">
-                    <!-- Add loading indicator and error handling for avatar -->
-                    <img
-                      v-if="avatarPreview"
-                      :src="avatarPreview"
-                      :key="refreshTimestamp"
-                      class="w-full h-full object-cover"
-                      alt="Avatar preview"
-                      @error="avatarPreview = ''" 
-                    />
-                    <div
-                      v-else
-                      class="w-full h-full flex items-center justify-center text-gray-400"
-                    >
-                      <span>No image</span>
-                    </div>
-                    <!-- Add loading overlay -->
-                    <div v-if="loading" class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <font-awesome-icon icon="spinner" class="text-white animate-spin" />
-                    </div>
+        <!-- Error message with consistent spacing -->
+        <div v-if="error" class="bg-red-500/20 text-red-200 p-4 rounded-lg mb-6">
+          {{ error }}
+        </div>
+        
+        <!-- Main content grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16 sm:mb-0">
+          <!-- Profile picture column with proper vertical alignment -->
+          <div class="flex flex-col">
+            <div class="bg-black/30 rounded-xl p-6 border border-white/10 h-full">
+              <h3 class="text-white text-lg font-medium mb-4">Profile Picture</h3>
+              <div class="flex flex-col items-center gap-6">
+                <div class="w-36 h-36 rounded-full overflow-hidden bg-white/10 border border-white/10 relative mx-auto">
+                  <img
+                    v-if="avatarPreview"
+                    :src="avatarPreview"
+                    :key="refreshTimestamp"
+                    class="w-full h-full object-cover"
+                    alt="Avatar preview"
+                    @error="avatarPreview = ''" 
+                  />
+                  <div
+                    v-else
+                    class="w-full h-full flex items-center justify-center text-gray-400"
+                  >
+                    <span>No image</span>
                   </div>
-                  <div class="w-full">
-                    <input
-                      type="file"
-                      accept="image/jpeg"
-                      @change="handleAvatarChange"
-                      class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer file:transition-colors"
-                    />
-                    <p class="mt-1 text-sm text-gray-400">JPG files only (not JPEG/PNG), max 2MB</p>
+                  <div v-if="loading" class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <font-awesome-icon icon="spinner" class="text-white animate-spin" />
                   </div>
                 </div>
-              </div>
-
-              <div class="space-y-2">
-                <label class="block text-gray-200 text-sm font-medium">Current Password</label>
-                <input
-                  v-model="currentPassword"
-                  type="password"
-                  required
-                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-                  placeholder="Enter your current password"
-                />
-              </div>
-
-              <div class="space-y-2">
-                <label class="text-gray-200 text-sm font-medium flex items-center gap-2">
-                  New Password
-                  <span
-                    class="text-sm font-normal px-2 py-0.5 rounded-md bg-gray-700/50 text-gray-400"
-                  >
-                    optional
-                  </span>
-                </label>
-                <input
-                  v-model="newPassword"
-                  type="password"
-                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-                />
-              </div>
-
-              <div v-if="newPassword && newPassword.length > 0" class="space-y-2">
-                <label class="block text-gray-200 text-sm font-medium">Confirm New Password</label>
-                <input
-                  v-model="confirmPassword"
-                  type="password"
-                  required
-                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring focus:ring-green-500/20"
-                />
+                
+                <div class="w-full">
+                  <input
+                    type="file"
+                    accept="image/jpeg"
+                    @change="handleAvatarChange"
+                    class="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer file:transition-colors"
+                  />
+                  <p class="mt-2 text-xs text-gray-500 text-center">JPG files only, max 2MB</p>
+                </div>
               </div>
             </div>
+          </div>
+          
+          <!-- Account details column with matching heights -->
+          <div class="flex flex-col gap-6">
+            <!-- Account details section -->
+            <div class="bg-black/30 rounded-xl p-6 border border-white/10">
+              <h3 class="text-white text-lg font-medium mb-4">Account Details</h3>
+              
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-gray-200 text-sm font-medium mb-1.5">Display Name</label>
+                  <input
+                    v-model="displayName"
+                    type="text"
+                    required
+                    class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30"
+                  />
+                </div>
 
-            <div class="flex gap-4 justify-end">
-              <button
-                type="button"
-                @click="router.push('/profile')"
-                class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                :disabled="loading"
-                class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                {{ loading ? 'Saving...' : 'Save Changes' }}
-              </button>
+                <div>
+                  <label class="block text-gray-200 text-sm font-medium mb-1.5">Email</label>
+                  <input
+                    v-model="email"
+                    type="email"
+                    required
+                    class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30"
+                  />
+                </div>
+              </div>
             </div>
-          </form>
+            
+            <!-- Password section -->
+            <div class="bg-black/30 rounded-xl p-6 border border-white/10">
+              <h3 class="text-white text-lg font-medium mb-4">Password</h3>
+              
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-gray-200 text-sm font-medium mb-1.5">Current Password</label>
+                  <input
+                    v-model="currentPassword"
+                    type="password"
+                    required
+                    class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30"
+                    placeholder="Enter your current password"
+                  />
+                </div>
+
+                <div>
+                  <label class="text-gray-200 text-sm font-medium flex items-center gap-2 mb-1.5">
+                    New Password
+                    <span class="text-xs px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400">optional</span>
+                  </label>
+                  <input
+                    v-model="newPassword"
+                    type="password"
+                    class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30"
+                  />
+                </div>
+
+                <div v-if="newPassword && newPassword.length > 0">
+                  <label class="block text-gray-200 text-sm font-medium mb-1.5">Confirm New Password</label>
+                  <input
+                    v-model="confirmPassword"
+                    type="password"
+                    required
+                    class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Mobile buttons - fixed at bottom with better positioning -->
+        <div class="sm:hidden fixed bottom-4 inset-x-4 flex gap-4 z-10">
+          <button
+            type="button"
+            @click="router.push('/profile')"
+            class="flex-1 px-5 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-lg font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            @click="handleSubmit"
+            :disabled="loading"
+            class="flex-1 px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-lg font-medium"
+          >
+            {{ loading ? 'Saving...' : 'Save Changes' }}
+          </button>
         </div>
       </div>
     </FadeIn>
@@ -480,5 +515,108 @@ img:not([src]) {
 /* Handle image error states better */
 .rounded-full img[src=""] {
   display: none;
+}
+
+/* Ensure buttons are visible */
+button[type="button"],
+button[type="submit"] {
+  position: relative;
+  z-index: 10;
+  font-weight: 500;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Add margin to the form to ensure space at the bottom */
+form {
+  margin-bottom: 2rem;
+}
+
+/* Improve the layout in mobile view */
+@media (max-width: 768px) {
+  input, select, button {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+/* Optimize contrast for better readability */
+.bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Add subtle card hover effect */
+.bg-black\/30:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Make form fields more compact but still usable */
+input {
+  height: 42px;
+}
+
+/* Ensure buttons are visible with better shadow */
+button[type="button"],
+button[type="submit"] {
+  position: relative;
+  z-index: 10;
+  height: 40px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix button appearance for better positioning */
+button {
+  position: relative;
+  z-index: 10;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-height: 42px;
+}
+
+/* Ensure consistent input height */
+input {
+  height: 46px;
+}
+
+/* Fix card hover effect */
+.bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.bg-black\/30:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Fix mobile spacing */
+@media (max-width: 640px) {
+  input, select, button {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  /* Ensure buttons have enough spacing for touch */
+  button {
+    min-height: 48px;
+  }
+}
+
+/* Mobile buttons should have a solid background to ensure visibility */
+@media (max-width: 640px) {
+  .fixed.bottom-4 button {
+    min-height: 48px;
+    background-color: rgba(17, 24, 39, 0.9);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(55, 65, 81, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .fixed.bottom-4 button:last-child {
+    background-color: rgba(16, 185, 129, 0.9);
+  }
 }
 </style>

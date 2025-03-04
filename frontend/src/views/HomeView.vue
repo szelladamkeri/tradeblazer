@@ -78,7 +78,7 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col">
-    <PageHeader class="page-header mb-4" />
+    <PageHeader class="mb-4" />
     <PageMain>
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <div v-if="loading" class="flex justify-center items-center py-8">
@@ -96,7 +96,7 @@ onMounted(() => {
                 <span class="text-gray-400 animate-pulse-slow">(last 7 days)</span>
               </h2>
               <div
-                class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer"
+                class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer"
               >
                 <div
                   class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
@@ -133,7 +133,7 @@ onMounted(() => {
                   v-for="asset in assets"
                   :key="asset.id"
                   @click="router.push(`/markets/${asset.id}`)"
-                  class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer flex flex-col"
+                  class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl cursor-pointer flex flex-col"
                 >
                   <div class="flex items-center mb-2">
                     <font-awesome-icon icon="chart-line" class="text-green-400 mr-2" />
@@ -185,16 +185,16 @@ onMounted(() => {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Fixed width header to match wider PageMain with proper spacing */
+/* Remove the duplicate page-header styles as they're now handled by the component */
+/* 
 .page-header {
   height: 4rem;
   width: 1366px !important;
   max-width: 1366px !important;
   margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
+  margin-bottom: 1rem !important;
 }
 
-/* Media query adjustments for smaller screens */
 @media (max-width: 1400px) {
   .page-header {
     width: 95vw !important;
@@ -215,4 +215,5 @@ onMounted(() => {
     width: calc(100vw - 2rem) !important;
   }
 }
+*/
 </style>

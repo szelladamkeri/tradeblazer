@@ -92,7 +92,7 @@ const handleSubmit = async (e: Event) => {
 </script>
 
 <template>
-  <PageHeader class="page-header mb-4" />
+  <PageHeader class="mb-4" />
   <PageMain>
     <div class="w-full h-[calc(100vh-12rem)] flex items-center justify-center">
       <div class="max-w-md w-full px-4 py-8 sm:px-6">
@@ -221,15 +221,6 @@ const handleSubmit = async (e: Event) => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
-}
-
-/* Fixed width header to match wider PageMain with proper spacing */
-.page-header {
-  height: 4rem;
-  width: 1366px !important;
-  max-width: 1366px !important;
-  margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
 }
 
 /* Media query adjustments for smaller screens */

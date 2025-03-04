@@ -329,362 +329,364 @@ onMounted(fetchUsers)
 </script>
 
 <template>
-  <PageHeader class="page-header mb-4" />
-  <PageMain class="relative z-[1]">
-    <div
-      :class="{
-        'pointer-events-none':
-          showDeleteConfirm ||
-          showAvatarConfirm ||
-          showEditModal ||
-          showDeleteAvatarConfirm ||
-          showAvatarModal,
-        'transition-[filter] duration-200': true,
-        'filter blur-[4px]':
-          showDeleteConfirm ||
-          showAvatarConfirm ||
-          showEditModal ||
-          showDeleteAvatarConfirm ||
-          showAvatarModal,
-      }"
-    >
-      <div class="p-6 sm:p-8">
-        <div class="flex items-center gap-3 mb-8">
-          <font-awesome-icon icon="shield" class="text-green-400 text-2xl" />
-          <h1 class="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
-        </div>
-
-        <div v-if="loading" class="flex justify-center items-center py-8">
-          <LoadingSpinner />
-        </div>
-
-        <div v-else-if="error" class="text-red-400 text-center py-8">
-          <div
-            class="bg-black/40 backdrop-blur-xl backdrop-saturate-150 rounded-xl p-6 border border-red-500/20"
-          >
-            <span class="text-xl font-medium">{{ error }}</span>
+  <div class="flex flex-col">
+    <PageHeader class="mb-4" />
+    <PageMain class="relative z-[1]">
+      <div
+        :class="{
+          'pointer-events-none':
+            showDeleteConfirm ||
+            showAvatarConfirm ||
+            showEditModal ||
+            showDeleteAvatarConfirm ||
+            showAvatarModal,
+          'transition-[filter] duration-200': true,
+          'filter blur-[4px]':
+            showDeleteConfirm ||
+            showAvatarConfirm ||
+            showEditModal ||
+            showDeleteAvatarConfirm ||
+            showAvatarModal,
+        }"
+      >
+        <div class="p-6 sm:p-8">
+          <div class="flex items-center gap-3 mb-8">
+            <font-awesome-icon icon="shield" class="text-green-400 text-2xl" />
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
           </div>
-        </div>
 
-        <div v-else class="space-y-6">
-          <!-- Mobile View -->
-          <div class="sm:hidden">
+          <div v-if="loading" class="flex justify-center items-center py-8">
+            <LoadingSpinner />
+          </div>
+
+          <div v-else-if="error" class="text-red-400 text-center py-8">
             <div
-              v-for="user in users"
-              :key="user.id"
-              class="bg-white/5 rounded-xl p-4 mb-4 hover:bg-white/10 transition-colors"
+              class="bg-black/40 backdrop-blur-xl backdrop-saturate-150 rounded-xl p-6 border border-red-500/20"
             >
-              <div class="flex flex-col gap-4">
-                <!-- User Info Section -->
-                <div class="flex items-start justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
-                      <img
-                        :src="
-                          '/src/assets/avatars/' +
-                          user.username +
-                          '.jpg?t=' +
-                          (avatarTimestamps[user.id] || Date.now())
-                        "
-                        :key="avatarTimestamps[user.id]"
-                        class="w-full h-full object-cover"
-                        @error="
-                          ($event.target as HTMLImageElement)?.parentElement
-                            ? (($event.target as HTMLImageElement).parentElement!.innerHTML =
-                                `<div class='w-full h-full flex items-center justify-center bg-green-500'>
-                                <span class='text-white text-lg font-semibold'>${getFirstLetter(user.username)}</span>
-                              </div>`)
-                            : null
-                        "
-                        alt=""
-                      />
-                    </div>
-                    <div>
-                      <div class="font-medium text-white">{{ user.username }}</div>
-                      <div class="text-sm text-gray-400">{{ user.email }}</div>
-                      <div class="text-sm mt-1">
-                        <span :class="user.role === 'A' ? 'text-green-400' : 'text-gray-400'">
-                          {{ user.role === 'A' ? 'Admin' : 'User' }}
-                        </span>
-                        <span class="text-gray-500 ml-2">#{{ user.id }}</span>
+              <span class="text-xl font-medium">{{ error }}</span>
+            </div>
+          </div>
+
+          <div v-else class="space-y-6">
+            <!-- Mobile View -->
+            <div class="sm:hidden">
+              <div
+                v-for="user in users"
+                :key="user.id"
+                class="bg-white/5 rounded-xl p-4 mb-4 hover:bg-white/10 transition-colors"
+              >
+                <div class="flex flex-col gap-4">
+                  <!-- User Info Section -->
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                        <img
+                          :src="
+                            '/src/assets/avatars/' +
+                            user.username +
+                            '.jpg?t=' +
+                            (avatarTimestamps[user.id] || Date.now())
+                          "
+                          :key="avatarTimestamps[user.id]"
+                          class="w-full h-full object-cover"
+                          @error="
+                            ($event.target as HTMLImageElement)?.parentElement
+                              ? (($event.target as HTMLImageElement).parentElement!.innerHTML =
+                                  `<div class='w-full h-full flex items-center justify-center bg-green-500'>
+                                  <span class='text-white text-lg font-semibold'>${getFirstLetter(user.username)}</span>
+                                </div>`)
+                              : null
+                          "
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        <div class="font-medium text-white">{{ user.username }}</div>
+                        <div class="text-sm text-gray-400">{{ user.email }}</div>
+                        <div class="text-sm mt-1">
+                          <span :class="user.role === 'A' ? 'text-green-400' : 'text-gray-400'">
+                            {{ user.role === 'A' ? 'Admin' : 'User' }}
+                          </span>
+                          <span class="text-gray-500 ml-2">#{{ user.id }}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Mobile View Actions Section -->
-                <div class="flex items-center justify-between border-t border-white/5 pt-3">
-                  <div class="flex gap-2">
-                    <button
-                      @click="openEditModal(user)"
-                      class="text-green-400 hover:text-green-300 p-2"
-                    >
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                    <button
-                      @click="handleDeleteUser(user)"
-                      class="text-red-400 hover:text-red-300 p-2"
-                    >
-                      <font-awesome-icon icon="trash" />
-                    </button>
-                    <button
-                      v-if="avatarTimestamps[user.id]"
-                      @click="handleDeleteAvatar(user)"
-                      class="text-red-400 hover:text-red-300 p-2"
-                    >
-                      <font-awesome-icon icon="user-slash" />
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      @click="openAvatarModal(user)"
-                      class="text-xs px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-                    >
-                      Change Avatar
-                    </button>
+                  <!-- Mobile View Actions Section -->
+                  <div class="flex items-center justify-between border-t border-white/5 pt-3">
+                    <div class="flex gap-2">
+                      <button
+                        @click="openEditModal(user)"
+                        class="text-green-400 hover:text-green-300 p-2"
+                      >
+                        <font-awesome-icon icon="edit" />
+                      </button>
+                      <button
+                        @click="handleDeleteUser(user)"
+                        class="text-red-400 hover:text-red-300 p-2"
+                      >
+                        <font-awesome-icon icon="trash" />
+                      </button>
+                      <button
+                        v-if="avatarTimestamps[user.id]"
+                        @click="handleDeleteAvatar(user)"
+                        class="text-red-400 hover:text-red-300 p-2"
+                      >
+                        <font-awesome-icon icon="user-slash" />
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        @click="openAvatarModal(user)"
+                        class="text-xs px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+                      >
+                        Change Avatar
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Desktop View -->
-          <div class="hidden sm:block bg-white/5 rounded-xl p-4 sm:p-6 overflow-hidden">
-            <div class="flex items-center gap-3 mb-4">
-              <font-awesome-icon icon="users" class="text-green-400" />
-              <h2 class="text-xl text-white font-semibold">User Management</h2>
-            </div>
+            <!-- Desktop View -->
+            <div class="hidden sm:block bg-white/5 rounded-xl p-4 sm:p-6 overflow-hidden border border-white/10">
+              <div class="flex items-center gap-3 mb-4">
+                <font-awesome-icon icon="users" class="text-green-400" />
+                <h2 class="text-xl text-white font-semibold">User Management</h2>
+              </div>
 
-            <div class="overflow-x-auto">
-              <div class="min-w-[700px]">
-                <table class="w-full text-gray-300">
-                  <thead class="text-left border-b border-white/10">
-                    <tr>
-                      <th class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="hashtag" class="text-green-400" />
-                        </div>
-                      </th>
-                      <th class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="user" class="text-green-400" />
-                          Username
-                        </div>
-                      </th>
-                      <th class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="envelope" class="text-green-400" />
-                          Email
-                        </div>
-                      </th>
-                      <th class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="user-tag" class="text-green-400" />
-                          Role
-                        </div>
-                      </th>
-                      <th class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="wrench" class="text-green-400" />
-                          Actions
-                        </div>
-                      </th>
-                      <th class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="user-circle" class="text-green-400" />
-                          Avatar
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="user in users"
-                      :key="user.id"
-                      class="border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <td class="py-3 px-4 whitespace-nowrap">#{{ user.id }}</td>
-                      <td class="py-3 px-4 whitespace-nowrap">{{ user.username }}</td>
-                      <td class="py-3 px-4 whitespace-nowrap">{{ user.email }}</td>
-                      <td class="py-3 px-4 whitespace-nowrap">
-                        <span :class="user.role === 'A' ? 'text-green-400' : 'text-gray-400'">
-                          {{ user.role === 'A' ? 'Admin' : 'User' }}
-                        </span>
-                      </td>
-                      <td class="py-3 px-4 whitespace-nowrap">
-                        <div class="flex gap-3">
-                          <button
-                            @click="openEditModal(user)"
-                            class="text-green-400 hover:text-green-300"
-                          >
-                            <font-awesome-icon icon="edit" />
-                          </button>
-                          <button
-                            class="text-red-400 hover:text-red-300"
-                            @click="handleDeleteUser(user)"
-                          >
-                            <font-awesome-icon icon="trash" />
-                          </button>
-                        </div>
-                      </td>
-                      <!-- Desktop View Avatar Actions -->
-                      <td class="py-3 px-4">
-                        <div class="flex items-center gap-2">
-                          <div class="w-10 h-10 rounded-full overflow-hidden bg-white/10">
-                            <img
-                              :src="
-                                '/src/assets/avatars/' +
-                                user.username +
-                                '.jpg?t=' +
-                                (avatarTimestamps[user.id] || Date.now())
-                              "
-                              :key="avatarTimestamps[user.id]"
-                              class="w-full h-full object-cover"
-                              @error="
-                                ($event.target as HTMLImageElement)?.parentElement
-                                  ? (($event.target as HTMLImageElement).parentElement!.innerHTML =
-                                      `<div class='w-full h-full flex items-center justify-center bg-green-500'>
-                                      <span class='text-white text-lg font-semibold'>${getFirstLetter(user.username)}</span>
-                                    </div>`)
-                                  : null
-                              "
-                              alt=""
-                            />
+              <div class="overflow-x-auto">
+                <div class="min-w-[700px]">
+                  <table class="w-full text-gray-300">
+                    <thead class="text-left border-b border-white/10">
+                      <tr>
+                        <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="hashtag" class="text-green-400" />
                           </div>
-                          <div class="flex gap-1">
+                        </th>
+                        <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="user" class="text-green-400" />
+                            Username
+                          </div>
+                        </th>
+                        <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="envelope" class="text-green-400" />
+                            Email
+                          </div>
+                        </th>
+                        <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="user-tag" class="text-green-400" />
+                            Role
+                          </div>
+                        </th>
+                        <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="wrench" class="text-green-400" />
+                            Actions
+                          </div>
+                        </th>
+                        <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="user-circle" class="text-green-400" />
+                            Avatar
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                      <tr
+                        v-for="user in users"
+                        :key="user.id"
+                        class="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      >
+                        <td class="py-3 px-4 whitespace-nowrap">#{{ user.id }}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">{{ user.username }}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">{{ user.email }}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                          <span :class="user.role === 'A' ? 'text-green-400' : 'text-gray-400'">
+                            {{ user.role === 'A' ? 'Admin' : 'User' }}
+                          </span>
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                          <div class="flex gap-3">
                             <button
-                              @click="openAvatarModal(user)"
-                              class="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
+                              @click="openEditModal(user)"
+                              class="text-green-400 hover:text-green-300"
                             >
-                              Change
+                              <font-awesome-icon icon="edit" />
                             </button>
                             <button
-                              v-if="avatarTimestamps[user.id]"
-                              @click="handleDeleteAvatar(user)"
-                              class="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                              class="text-red-400 hover:text-red-300"
+                              @click="handleDeleteUser(user)"
                             >
-                              Remove
+                              <font-awesome-icon icon="trash" />
                             </button>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                        </td>
+                        <!-- Desktop View Avatar Actions -->
+                        <td class="py-3 px-4">
+                          <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-white/10">
+                              <img
+                                :src="
+                                  '/src/assets/avatars/' +
+                                  user.username +
+                                  '.jpg?t=' +
+                                  (avatarTimestamps[user.id] || Date.now())
+                                "
+                                :key="avatarTimestamps[user.id]"
+                                class="w-full h-full object-cover"
+                                @error="
+                                  ($event.target as HTMLImageElement)?.parentElement
+                                    ? (($event.target as HTMLImageElement).parentElement!.innerHTML =
+                                        `<div class='w-full h-full flex items-center justify-center bg-green-500'>
+                                        <span class='text-white text-lg font-semibold'>${getFirstLetter(user.username)}</span>
+                                      </div>`)
+                                    : null
+                                "
+                                alt=""
+                              />
+                            </div>
+                            <div class="flex gap-1">
+                              <button
+                                @click="openAvatarModal(user)"
+                                class="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
+                              >
+                                Change
+                              </button>
+                              <button
+                                v-if="avatarTimestamps[user.id]"
+                                @click="handleDeleteAvatar(user)"
+                                class="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Move ConfirmDialogs outside of the blurred content -->
-    <ConfirmDialog
-      :show="showDeleteConfirm"
-      title="Delete User"
-      :message="`Are you sure you want to delete '${userToDelete?.username}'? This action cannot be undone.`"
-      confirm-text="Delete"
-      :confirm-button-class="'bg-red-600 hover:bg-red-700'"
-      type="delete"
-      :z-index="200"
-      @confirm="confirmDelete"
-      @cancel="showDeleteConfirm = false"
-    />
+      <!-- Move ConfirmDialogs outside of the blurred content -->
+      <ConfirmDialog
+        :show="showDeleteConfirm"
+        title="Delete User"
+        :message="`Are you sure you want to delete '${userToDelete?.username}'? This action cannot be undone.`"
+        confirm-text="Delete"
+        :confirm-button-class="'bg-red-600 hover:bg-red-700'"
+        type="delete"
+        :z-index="200"
+        @confirm="confirmDelete"
+        @cancel="showDeleteConfirm = false"
+      />
 
-    <ConfirmDialog
-      :show="showAvatarConfirm"
-      title="Update Avatar"
-      :message="`Are you sure you want to update the avatar for '${selectedUserForAvatar?.username}'?`"
-      confirm-text="Update"
-      :confirm-button-class="'bg-green-600 hover:bg-green-700'"
-      type="update"
-      :z-index="200"
-      @confirm="confirmAvatarUpdate"
-      @cancel="showAvatarConfirm = false"
-    />
+      <ConfirmDialog
+        :show="showAvatarConfirm"
+        title="Update Avatar"
+        :message="`Are you sure you want to update the avatar for '${selectedUserForAvatar?.username}'?`"
+        confirm-text="Update"
+        :confirm-button-class="'bg-green-600 hover:bg-green-700'"
+        type="update"
+        :z-index="200"
+        @confirm="confirmAvatarUpdate"
+        @cancel="showAvatarConfirm = false"
+      />
 
-    <ConfirmDialog
-      :show="showDeleteAvatarConfirm"
-      title="Delete Avatar"
-      :message="`Are you sure you want to delete the avatar for '${userToDeleteAvatar?.username}'?`"
-      confirm-text="Delete"
-      :confirm-button-class="'bg-red-600 hover:bg-red-700'"
-      type="delete"
-      :z-index="200"
-      @confirm="confirmDeleteAvatar"
-      @cancel="showDeleteAvatarConfirm = false"
-    />
+      <ConfirmDialog
+        :show="showDeleteAvatarConfirm"
+        title="Delete Avatar"
+        :message="`Are you sure you want to delete the avatar for '${userToDeleteAvatar?.username}'?`"
+        confirm-text="Delete"
+        :confirm-button-class="'bg-red-600 hover:bg-red-700'"
+        type="delete"
+        :z-index="200"
+        @confirm="confirmDeleteAvatar"
+        @cancel="showDeleteAvatarConfirm = false"
+      />
 
-    <!-- Avatar Modal -->
-    <div
-      v-if="showAvatarModal"
-      class="fixed inset-0 z-[60]"
-      :class="{
-        'pointer-events-none': showDeleteConfirm || showAvatarConfirm || showDeleteAvatarConfirm,
-      }"
-    >
-      <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
-      <div class="fixed inset-0 flex items-center justify-center p-4">
-        <div
-          class="relative bg-black/90 rounded-xl p-6 border border-green-500/20 max-w-md w-full mx-4"
-        >
-          <h3 class="text-xl font-bold text-white mb-4">
-            Update Avatar for {{ selectedUserForAvatar?.username }}
-          </h3>
+      <!-- Avatar Modal -->
+      <div
+        v-if="showAvatarModal"
+        class="fixed inset-0 z-[60]"
+        :class="{
+          'pointer-events-none': showDeleteConfirm || showAvatarConfirm || showDeleteAvatarConfirm,
+        }"
+      >
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <div
+            class="relative bg-black/90 rounded-xl p-6 border border-green-500/20 max-w-md w-full mx-4"
+          >
+            <h3 class="text-xl font-bold text-white mb-4">
+              Update Avatar for {{ selectedUserForAvatar?.username }}
+            </h3>
 
-          <template v-if="!showCropper">
-            <div v-if="fileError" class="mb-4 text-red-400 text-sm bg-red-500/10 p-3 rounded">
-              {{ fileError }}
-            </div>
-            <input
-              type="file"
-              accept="image/jpeg"
-              @change="handleAvatarChange"
-              class="mb-6 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer"
-            />
-
-            <div class="flex justify-end gap-3">
-              <button
-                @click="showAvatarModal = false"
-                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </template>
-
-          <!-- Cropper view -->
-          <template v-else>
-            <div class="h-96 mb-4">
-              <Cropper
-                ref="cropperRef"
-                :src="imageUrl"
-                :stencil-props="{
-                  aspectRatio: 1,
-                }"
-                class="cropper"
+            <template v-if="!showCropper">
+              <div v-if="fileError" class="mb-4 text-red-400 text-sm bg-red-500/10 p-3 rounded">
+                {{ fileError }}
+              </div>
+              <input
+                type="file"
+                accept="image/jpeg"
+                @change="handleAvatarChange"
+                class="mb-6 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer"
               />
-            </div>
 
-            <div class="flex justify-end gap-3">
-              <button
-                @click="cancelCrop"
-                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                @click="handleCrop"
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-              >
-                Apply & Upload
-              </button>
-            </div>
-          </template>
+              <div class="flex justify-end gap-3">
+                <button
+                  @click="showAvatarModal = false"
+                  class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </template>
+
+            <!-- Cropper view -->
+            <template v-else>
+              <div class="h-96 mb-4">
+                <Cropper
+                  ref="cropperRef"
+                  :src="imageUrl"
+                  :stencil-props="{
+                    aspectRatio: 1,
+                  }"
+                  class="cropper"
+                />
+              </div>
+
+              <div class="flex justify-end gap-3">
+                <button
+                  @click="cancelCrop"
+                  class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="handleCrop"
+                  class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                >
+                  Apply & Upload
+                </button>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
-    </div>
-  </PageMain>
+    </PageMain>
+  </div>
 </template>
 
 <style scoped>
@@ -774,34 +776,43 @@ onMounted(fetchUsers)
   isolation: isolate;
 }
 
-/* Fixed width header to match wider PageMain with proper spacing */
-.page-header {
-  height: 4rem;
-  width: 1366px !important;
-  max-width: 1366px !important;
-  margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
+/* Update background opacity to match MarketsView */
+.bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Media query adjustments for smaller screens */
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 1366px !important;
-  }
+/* Ensure consistent hover states */
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-@media (max-width: 1100px) {
-  .page-header {
-    width: 90vw !important;
-    max-width: 1024px !important;
-  }
+/* Table styles */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-@media (max-width: 640px) {
-  .page-header {
-    height: 3.5rem;
-    width: calc(100vw - 2rem) !important;
-  }
+.overflow-x-auto::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* Update empty state and error state backgrounds to match */
+.bg-black\/40 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Ensure proper stacking */
+.relative {
+  isolation: isolate;
 }
 </style>

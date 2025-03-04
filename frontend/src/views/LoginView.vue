@@ -61,7 +61,7 @@ const handleLogin = async (e: Event) => {
 </script>
 
 <template>
-  <PageHeader class="page-header mb-4" />
+  <PageHeader class="mb-4" />
   <PageMain>
     <div class="w-full h-[calc(100vh-12rem)] flex items-center justify-center">
       <div class="max-w-md w-full px-4 py-8 sm:px-6">
@@ -193,16 +193,16 @@ body {
   opacity: 0;
 }
 
-/* Fixed width header to match wider PageMain with proper spacing */
+/* Remove duplicate page-header styles as they're now handled by the PageHeader component */
+/*
 .page-header {
   height: 4rem;
   width: 1366px !important;
   max-width: 1366px !important;
   margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
+  margin-bottom: 1rem !important;
 }
 
-/* Media query adjustments for smaller screens */
 @media (max-width: 1400px) {
   .page-header {
     width: 95vw !important;
@@ -223,4 +223,5 @@ body {
     width: calc(100vw - 2rem) !important;
   }
 }
+*/
 </style>

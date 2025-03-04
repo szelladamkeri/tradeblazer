@@ -4,8 +4,8 @@ import HomeView from './views/HomeView.vue'
 </script>
 
 <template>
-  <div class="app-container mx-auto w-screen min-h-screen flex items-center justify-center px-2 sm:px-4 py-4">
-    <RouterView />
+  <div class="app-container mx-auto w-screen min-h-screen flex items-center justify-center px-4">
+    <RouterView class="w-full" />
   </div>
 </template>
 
@@ -95,8 +95,15 @@ html, body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100vw;
   padding: 1rem 0;
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 0.5rem 0;
+  }
 }
 
 /* Make sure RouterView takes full height */

@@ -143,199 +143,197 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full max-w-7xl mx-auto mb-2">
-    <!-- Update header z-index -->
-    <header
-      class="w-full bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl relative z-[50]"
-    >
-      <div class="px-2 sm:px-4 py-3">
-        <!-- Adjusted padding -->
-        <div class="flex items-center justify-between gap-2">
-          <!-- Added gap -->
-          <!-- Logo - made more compact on mobile -->
-          <div class="flex items-center shrink-0">
-            <font-awesome-icon
-              icon="chart-line"
-              class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2"
-            />
-            <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
-          </div>
-
-          <!-- Search Bar - Centered and optimized -->
-          <div 
-            ref="searchContainerRef" 
-            class="relative flex-1 mx-3 md:mx-8 max-w-md hidden sm:block"
-          >
-            <div class="relative group">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search assets..."
-                class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors group-hover:bg-white/15"
+  <div class="page-header-wrapper w-full px-4">
+    <div class="page-header">
+      <header class="w-full bg-black/70 rounded-xl relative z-[50]">
+        <div class="px-2 sm:px-4 py-3">
+          <!-- Adjusted padding -->
+          <div class="flex items-center justify-between gap-2">
+            <!-- Added gap -->
+            <!-- Logo - made more compact on mobile -->
+            <div class="flex items-center shrink-0">
+              <font-awesome-icon
+                icon="chart-line"
+                class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2"
               />
-              <div 
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
-              >
-                <font-awesome-icon
-                  v-if="searchLoading"
-                  icon="spinner"
-                  class="text-gray-400 animate-spin"
-                />
-                <font-awesome-icon
-                  v-else-if="searchQuery && searchQuery.length > 0"
-                  @click="searchQuery = ''"
-                  icon="times-circle"
-                  class="text-gray-400 cursor-pointer hover:text-white"
-                />
-                <font-awesome-icon
-                  v-else
-                  icon="search"
-                  class="text-gray-400"
-                />
-              </div>
+              <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
             </div>
 
-            <!-- Search Results Dropdown -->
-            <transition 
-              name="fade"
-              enter-active-class="transition ease-out duration-200"
-              enter-from-class="opacity-0 translate-y-1"
-              enter-to-class="opacity-100 translate-y-0"
-              leave-active-class="transition ease-in duration-150"
-              leave-from-class="opacity-100 translate-y-0"
-              leave-to-class="opacity-0 translate-y-1"
+            <!-- Search Bar - Centered and optimized -->
+            <div 
+              ref="searchContainerRef" 
+              class="relative flex-1 mx-3 md:mx-8 max-w-md hidden sm:block"
             >
-              <div
-                v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
-                class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-xl backdrop-saturate-150 rounded-lg border border-white/10 shadow-lg max-h-96 overflow-y-auto z-[60]"
+              <div class="relative group">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Search assets..."
+                  class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors group-hover:bg-white/15"
+                />
+                <div 
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
+                >
+                  <font-awesome-icon
+                    v-if="searchLoading"
+                    icon="spinner"
+                    class="text-gray-400 animate-spin"
+                  />
+                  <font-awesome-icon
+                    v-else-if="searchQuery && searchQuery.length > 0"
+                    @click="searchQuery = ''"
+                    icon="times-circle"
+                    class="text-gray-400 cursor-pointer hover:text-white"
+                  />
+                  <font-awesome-icon
+                    v-else
+                    icon="search"
+                    class="text-gray-400"
+                  />
+                </div>
+              </div>
+
+              <!-- Search Results Dropdown -->
+              <transition 
+                name="fade"
+                enter-active-class="transition ease-out duration-200"
+                enter-from-class="opacity-0 translate-y-1"
+                enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition ease-in duration-150"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 translate-y-1"
               >
-                <!-- Loading State -->
-                <div v-if="searchLoading" class="py-4 px-4 text-center">
-                  <LoadingSpinner class="h-6 w-6 mx-auto" />
-                  <p class="mt-2 text-gray-400">Searching...</p>
-                </div>
+                <div
+                  v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+                  class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-xl backdrop-saturate-150 rounded-lg border border-white/10 shadow-lg max-h-96 overflow-y-auto z-[60]"
+                >
+                  <!-- Loading State -->
+                  <div v-if="searchLoading" class="py-4 px-4 text-center">
+                    <LoadingSpinner class="h-6 w-6 mx-auto" />
+                    <p class="mt-2 text-gray-400">Searching...</p>
+                  </div>
 
-                <!-- Error State -->
-                <div v-else-if="searchError" class="py-4 px-4 text-center">
-                  <font-awesome-icon icon="exclamation-triangle" class="text-red-400 text-xl mb-2" />
-                  <p class="text-red-400">{{ searchError }}</p>
-                </div>
+                  <!-- Error State -->
+                  <div v-else-if="searchError" class="py-4 px-4 text-center">
+                    <font-awesome-icon icon="exclamation-triangle" class="text-red-400 text-xl mb-2" />
+                    <p class="text-red-400">{{ searchError }}</p>
+                  </div>
 
-                <!-- Results -->
-                <div v-else class="py-1">
-                  <div
-                    v-for="result in searchResults"
-                    :key="result.id"
-                    @click="goToAsset(result.id)"
-                    class="px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer group"
-                  >
-                    <div class="flex justify-between items-center">
-                      <div>
-                        <div class="font-medium text-white flex items-center">
-                          {{ result.symbol }}
-                          <span class="ml-2 px-2 py-0.5 text-xs bg-white/10 rounded-full text-gray-400">
-                            {{ result.type }}
-                          </span>
+                  <!-- Results -->
+                  <div v-else class="py-1">
+                    <div
+                      v-for="result in searchResults"
+                      :key="result.id"
+                      @click="goToAsset(result.id)"
+                      class="px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer group"
+                    >
+                      <div class="flex justify-between items-center">
+                        <div>
+                          <div class="font-medium text-white flex items-center">
+                            {{ result.symbol }}
+                            <span class="ml-2 px-2 py-0.5 text-xs bg-white/10 rounded-full text-gray-400">
+                              {{ result.type }}
+                            </span>
+                          </div>
+                          <div class="text-sm text-gray-400 truncate max-w-[220px]">{{ result.name }}</div>
                         </div>
-                        <div class="text-sm text-gray-400 truncate max-w-[220px]">{{ result.name }}</div>
+                        <div class="text-green-400 font-medium group-hover:translate-x-0.5 transition-transform">
+                          ${{ result.price }}
+                          <font-awesome-icon icon="arrow-right" class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       </div>
-                      <div class="text-green-400 font-medium group-hover:translate-x-0.5 transition-transform">
-                        ${{ result.price }}
-                        <font-awesome-icon icon="arrow-right" class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
+                    </div>
+
+                    <!-- View all results link -->
+                    <div v-if="searchResults.length > 0" class="mt-1 pt-2 border-t border-white/10 px-4 py-2 text-center">
+                      <a 
+                        @click="closeSearchResults"
+                        href="#" 
+                        class="text-green-400 hover:text-green-300 text-sm transition-colors"
+                      >
+                        <font-awesome-icon icon="list" class="mr-1" />
+                        View all results
+                      </a>
                     </div>
                   </div>
 
-                  <!-- View all results link -->
-                  <div v-if="searchResults.length > 0" class="mt-1 pt-2 border-t border-white/10 px-4 py-2 text-center">
-                    <a 
-                      @click="closeSearchResults"
-                      href="#" 
-                      class="text-green-400 hover:text-green-300 text-sm transition-colors"
-                    >
-                      <font-awesome-icon icon="list" class="mr-1" />
-                      View all results
-                    </a>
+                  <!-- No results -->
+                  <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-6 px-4 text-center">
+                    <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
+                    <p class="text-gray-400">No results found</p>
                   </div>
                 </div>
+              </transition>
+            </div>
 
-                <!-- No results -->
-                <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-6 px-4 text-center">
-                  <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
-                  <p class="text-gray-400">No results found</p>
-                </div>
-              </div>
-            </transition>
-          </div>
+            <!-- Mobile menu button -->
+            <button
+              @click="toggleMenu"
+              class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
+              aria-label="Toggle menu"
+            >
+              <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-2xl" />
+            </button>
 
-          <!-- Mobile menu button -->
-          <button
-            @click="toggleMenu"
-            class="sm:hidden p-2 text-white hover:text-green-400 transition-colors"
-            aria-label="Toggle menu"
-          >
-            <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-2xl" />
-          </button>
-
-          <!-- Desktop Navigation -->
-          <nav class="hidden sm:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto">
-            <!-- Changed space-x-4 to space-x-2 for tighter spacing -->
-            <HeaderLink>
-              <template #icon>
-                <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
-                  <font-awesome-icon icon="chart-line" class="mr-2" />
-                  <span>Dashboard</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink>
-              <template #icon>
-                <router-link
-                  to="/markets"
-                  class="text-gray-300 hover:text-green-400 flex items-center"
-                >
-                  <font-awesome-icon icon="chart-pie" class="mr-2" />
-                  <span>Markets</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <template v-if="userStore.isAuthenticated">
+            <!-- Desktop Navigation -->
+            <nav class="hidden sm:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto">
+              <!-- Changed space-x-4 to space-x-2 for tighter spacing -->
               <HeaderLink>
                 <template #icon>
-                  <router-link
-                    to="/portfolio"
-                    class="text-gray-300 hover:text-green-400 flex items-center"
-                  >
-                    <font-awesome-icon icon="wallet" class="mr-2" />
-                    <span>Portfolio</span>
+                  <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
+                    <font-awesome-icon icon="chart-line" class="mr-2" />
+                    <span>Dashboard</span>
                   </router-link>
                 </template>
               </HeaderLink>
 
-              <HeaderLink v-if="userStore.isAdmin">
-                <template #icon>
-                  <router-link
-                    to="/admin"
-                    class="text-gray-300 hover:text-green-400 flex items-center"
-                  >
-                    <font-awesome-icon icon="shield" class="mr-2" />
-                    <span>Admin</span>
-                  </router-link>
-                </template>
-              </HeaderLink>
-            </template>
-
-            <template v-else>
               <HeaderLink>
                 <template #icon>
                   <router-link
-                    to="/login"
+                    to="/markets"
                     class="text-gray-300 hover:text-green-400 flex items-center"
                   >
-                    <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-                    <span>Login</span>
+                    <font-awesome-icon icon="chart-pie" class="mr-2" />
+                    <span>Markets</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <template v-if="userStore.isAuthenticated">
+                <HeaderLink>
+                  <template #icon>
+                    <router-link
+                      to="/portfolio"
+                      class="text-gray-300 hover:text-green-400 flex items-center"
+                    >
+                      <font-awesome-icon icon="wallet" class="mr-2" />
+                      <span>Portfolio</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
+                <HeaderLink v-if="userStore.isAdmin">
+                  <template #icon>
+                    <router-link
+                      to="/admin"
+                      class="text-gray-300 hover:text-green-400 flex items-center"
+                    >
+                      <font-awesome-icon icon="shield" class="mr-2" />
+                      <span>Admin</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+              </template>
+
+              <template v-else>
+                <HeaderLink>
+                  <template #icon>
+                    <router-link
+                      to="/login"
+                      class="text-gray-300 hover:text-green-400 flex items-center"
+                    >
+                      <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                      <span>Login</span>
                   </router-link>
                 </template>
               </HeaderLink>
@@ -416,7 +414,7 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
-
+        </div>
         <!-- Mobile menu content - Add search bar here too -->
         <div v-if="isMenuOpen" class="sm:hidden mt-4 pb-4">
           <div class="mb-4 px-1">
@@ -580,94 +578,8 @@ onUnmounted(() => {
             </template>
           </nav>
         </div>
-      </div>
-
-      <!-- Mobile Navigation -->
-      <Transition name="slide" :duration="{ enter: 150, leave: 150 }">
-        <div
-          v-show="isMenuOpen"
-          class="sm:hidden absolute top-full left-0 right-0 mx-2 mt-2 bg-black rounded-xl border border-white/10 transition-all duration-150 ease-in-out"
-        >
-          <nav class="px-4 py-2 space-y-2 overflow-y-auto max-h-[calc(100vh-60px)]">
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/"
-                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                >
-                  <font-awesome-icon icon="chart-line" class="mr-2" />
-                  <span>Dashboard</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <HeaderLink @click="closeMenu">
-              <template #icon>
-                <router-link
-                  to="/markets"
-                  class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                >
-                  <font-awesome-icon icon="chart-pie" class="mr-2" />
-                  <span>Markets</span>
-                </router-link>
-              </template>
-            </HeaderLink>
-
-            <template v-if="userStore.isAuthenticated">
-              <HeaderLink @click="closeMenu">
-                <template #icon>
-                  <router-link
-                    to="/portfolio"
-                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                  >
-                    <font-awesome-icon icon="wallet" class="mr-2" />
-                    <span>Portfolio</span>
-                  </router-link>
-                </template>
-              </HeaderLink>
-
-              <HeaderLink @click="closeMenu">
-                <template #icon>
-                  <router-link
-                    to="/profile"
-                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                  >
-                    <font-awesome-icon icon="user-circle" class="mr-2" />
-                    <span>Profile</span>
-                  </router-link>
-                </template>
-              </HeaderLink>
-
-              <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
-                <template #icon>
-                  <router-link
-                    to="/admin"
-                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                  >
-                    <font-awesome-icon icon="shield" class="mr-2" />
-                    <span>Admin</span>
-                  </router-link>
-                </template>
-              </HeaderLink>
-            </template>
-
-            <template v-else>
-              <HeaderLink @click="closeMenu">
-                <template #icon>
-                  <router-link
-                    to="/login"
-                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                  >
-                    <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-                    <span>Login</span>
-                  </router-link>
-                </template>
-              </HeaderLink>
-            </template>
-          </nav>
-        </div>
-      </Transition>
-    </header>
+      </header>
+    </div>
   </div>
 </template>
 
@@ -703,7 +615,7 @@ h3 {
 header {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
-  min-width: min-content;
+  min-width: unset;
   width: 100%;
 }
 
@@ -1031,5 +943,65 @@ button:hover {
 /* Add subtle hover effect to search input */
 input[type="text"]:hover {
   background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Update header container styles */
+header {
+  width: 100%;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  header {
+    height: 3.5rem;
+  }
+}
+
+/* Add consistent width styling for the header wrapper that exactly matches PageMain */
+.page-header {
+  width: 1366px !important;
+  max-width: 1366px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 1366px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 90vw !important;
+    max-width: 1024px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    width: calc(100vw - 2rem) !important;
+  }
+}
+
+/* Match the border radius to be consistent with PageMain */
+header {
+  border-radius: 0.75rem;
+  width: 100%;
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    width: calc(100vw - 2rem) !important;
+  }
+  
+  header {
+    height: 3.5rem;
+  }
 }
 </style>

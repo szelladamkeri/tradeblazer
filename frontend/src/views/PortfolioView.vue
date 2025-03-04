@@ -113,108 +113,111 @@ const formatPrice = (price: number): string => {
 
 <template>
   <div class="flex flex-col">
-    <PageHeader class="page-header mb-4" />
+    <PageHeader class="mb-4" />
     
     <PageMain>
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
-        <div v-if="loading" class="flex justify-center items-center py-8">
-          <LoadingSpinner />
-        </div>
-        
-        <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
-          {{ error }}
-        </div>
-        
-        <div v-else class="space-y-6">
-          <!-- Portfolio Summary -->
-          <FadeIn>
-            <div class="w-full">
-              <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
-                <font-awesome-icon icon="wallet" class="text-green-400 mr-2" />
-                Portfolio Summary
-              </h2>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                  <p class="text-sm text-gray-400">Total Value</p>
-                  <p class="text-green-400 text-2xl font-bold">
-                    ${{ formatPrice(portfolioData.totalValue) }}
-                  </p>
-                </div>
-                <div class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                  <p class="text-sm text-gray-400">Available Balance</p>
-                  <p class="text-green-400 text-2xl font-bold">
-                    ${{ formatPrice(portfolioData.balance) }}
-                  </p>
-                </div>
-                <div class="bg-white/10 p-4 rounded-xl transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                  <p class="text-sm text-gray-400">Total Positions</p>
-                  <p class="text-green-400 text-2xl font-bold">{{ totalPositions }}</p>
+        <!-- Add the conditional overflow container to match MarketsView -->
+        <div class="h-full" :class="{'overflow-y-auto': portfolioData.assets.length > 10}">
+          <div v-if="loading" class="flex justify-center items-center py-8">
+            <LoadingSpinner />
+          </div>
+          
+          <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
+            {{ error }}
+          </div>
+          
+          <div v-else class="space-y-6">
+            <!-- Portfolio Summary -->
+            <FadeIn>
+              <div class="w-full">
+                <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
+                  <font-awesome-icon icon="wallet" class="text-green-400 mr-2" />
+                  Portfolio Summary
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                    <p class="text-sm text-gray-400">Total Value</p>
+                    <p class="text-green-400 text-2xl font-bold">
+                      ${{ formatPrice(portfolioData.totalValue) }}
+                    </p>
+                  </div>
+                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                    <p class="text-sm text-gray-400">Available Balance</p>
+                    <p class="text-green-400 text-2xl font-bold">
+                      ${{ formatPrice(portfolioData.balance) }}
+                    </p>
+                  </div>
+                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                    <p class="text-sm text-gray-400">Total Positions</p>
+                    <p class="text-green-400 text-2xl font-bold">{{ totalPositions }}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </FadeIn>
+            </FadeIn>
 
-          <!-- Holdings List -->
-          <FadeIn>
-            <div class="w-full">
-              <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
-                <font-awesome-icon icon="coins" class="text-yellow-500 mr-2" />
-                Holdings
-              </h2>
-              <div class="overflow-x-auto bg-white/10 rounded-xl p-4">
-                <table class="min-w-full divide-y divide-white/10">
-                  <thead>
-                    <tr>
-                      <th class="text-left py-3 px-4 text-gray-400 text-sm font-medium">Symbol</th>
-                      <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium">Shares</th>
-                      <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium">Avg Price</th>
-                      <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium">Current</th>
-                      <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium">Value</th>
-                      <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium">Return</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-white/10">
-                    <tr v-if="portfolioData.assets.length === 0">
-                      <td colspan="6" class="py-4 px-4 text-center text-gray-400">
-                        No holdings found
-                      </td>
-                    </tr>
-                    <tr v-for="asset in portfolioData.assets" :key="asset.assetId" 
-                        class="hover:bg-white/5 transition-colors">
-                      <td class="py-4 px-4">
-                        <div class="flex items-center">
-                          <div>
-                            <div class="font-medium text-white">{{ asset.symbol }}</div>
-                            <div class="text-sm text-gray-400">{{ asset.name }}</div>
+            <!-- Holdings List -->
+            <FadeIn>
+              <div class="w-full">
+                <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
+                  <font-awesome-icon icon="coins" class="text-yellow-500 mr-2" />
+                  Holdings
+                </h2>
+                <div class="overflow-x-auto bg-white/5 rounded-xl p-4 border border-white/10">
+                  <table class="min-w-full divide-y divide-white/10">
+                    <thead>
+                      <tr>
+                        <th class="text-left py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Symbol</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Shares</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Avg Price</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Current</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Value</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Return</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                      <tr v-if="portfolioData.assets.length === 0">
+                        <td colspan="6" class="py-4 px-4 text-center text-gray-400">
+                          No holdings found
+                        </td>
+                      </tr>
+                      <tr v-for="asset in portfolioData.assets" :key="asset.assetId" 
+                          class="hover:bg-white/5 transition-colors">
+                        <td class="py-4 px-4">
+                          <div class="flex items-center">
+                            <div>
+                              <div class="font-medium text-white">{{ asset.symbol }}</div>
+                              <div class="text-sm text-gray-400">{{ asset.name }}</div>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td class="py-4 px-4 text-right font-medium text-white">
-                        {{ asset.quantity }}
-                      </td>
-                      <td class="py-4 px-4 text-right font-medium text-white">
-                        ${{ formatPrice(asset.averagePrice) }}
-                      </td>
-                      <td class="py-4 px-4 text-right font-medium text-white">
-                        ${{ formatPrice(asset.currentPrice) }}
-                      </td>
-                      <td class="py-4 px-4 text-right font-medium text-white">
-                        ${{ formatPrice(asset.quantity * asset.currentPrice) }}
-                      </td>
-                      <td class="py-4 px-4 text-right">
-                        <span :class="[
-                          calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'text-gray-400' : 
-                          parseFloat(calculateReturnPercentage(asset.averagePrice, asset.currentPrice)) >= 0 ? 'text-green-400' : 'text-red-400'
-                        ]">
-                          {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'N/A' : calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                        </td>
+                        <td class="py-4 px-4 text-right font-medium text-white">
+                          {{ asset.quantity }}
+                        </td>
+                        <td class="py-4 px-4 text-right font-medium text-white">
+                          ${{ formatPrice(asset.averagePrice) }}
+                        </td>
+                        <td class="py-4 px-4 text-right font-medium text-white">
+                          ${{ formatPrice(asset.currentPrice) }}
+                        </td>
+                        <td class="py-4 px-4 text-right font-medium text-white">
+                          ${{ formatPrice(asset.quantity * asset.currentPrice) }}
+                        </td>
+                        <td class="py-4 px-4 text-right">
+                          <span :class="[
+                            calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'text-gray-400' : 
+                            parseFloat(calculateReturnPercentage(asset.averagePrice, asset.currentPrice)) >= 0 ? 'text-green-400' : 'text-red-400'
+                          ]">
+                            {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'N/A' : calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          </FadeIn>
+            </FadeIn>
+          </div>
         </div>
       </div>
     </PageMain>
@@ -246,15 +249,6 @@ const formatPrice = (price: number): string => {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Fixed width header to match wider PageMain with proper spacing */
-.page-header {
-  height: 4rem;
-  width: 1366px !important;
-  max-width: 1366px !important;
-  margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
-}
-
 /* Media query adjustments for smaller screens */
 @media (max-width: 1400px) {
   .page-header {
@@ -275,5 +269,52 @@ const formatPrice = (price: number): string => {
     height: 3.5rem;
     width: calc(100vw - 2rem) !important;
   }
+}
+
+/* Table styles */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  button, input, select {
+    min-height: 44px;
+  }
+}
+
+/* Add table hover effect */
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Update background opacity to match AdminView */
+.bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Clean up table borders */
+.border-collapse {
+  border-collapse: collapse;
+}
+
+/* Update empty state and error state backgrounds to match */
+.bg-black\/40 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 </style>

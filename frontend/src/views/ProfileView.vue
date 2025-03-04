@@ -91,7 +91,7 @@ const userRoleDisplay = computed(() => {
 </script>
 
 <template>
-  <PageHeader class="page-header mb-4" />
+  <PageHeader class="mb-4" />
   <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
     <FadeIn>
       <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
@@ -131,11 +131,11 @@ const userRoleDisplay = computed(() => {
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="bg-white/10 p-4 rounded-xl">
+            <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
               <h3 class="text-white text-lg font-semibold mb-2">Account Status</h3>
               <p class="text-green-400">Active</p>
             </div>
-            <div class="bg-white/10 p-4 rounded-xl">
+            <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
               <h3 class="text-white text-lg font-semibold mb-2">Member Since</h3>
               <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
             </div>
@@ -189,16 +189,16 @@ const userRoleDisplay = computed(() => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Fixed width header to match wider PageMain with proper spacing */
+/* Remove duplicate page-header styles as they're now handled by the PageHeader component */
+/*
 .page-header {
   height: 4rem;
   width: 1366px !important;
   max-width: 1366px !important;
   margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
+  margin-bottom: 1rem !important;
 }
 
-/* Media query adjustments for smaller screens */
 @media (max-width: 1400px) {
   .page-header {
     width: 95vw !important;
@@ -219,4 +219,5 @@ const userRoleDisplay = computed(() => {
     width: calc(100vw - 2rem) !important;
   }
 }
+*/
 </style>

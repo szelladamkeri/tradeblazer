@@ -1,5 +1,5 @@
 <template>
-  <PageHeader class="page-header mb-4" />
+  <PageHeader class="mb-4" />
   <div class="trade-container">
     <h1>Trade Asset</h1>
 
@@ -177,36 +177,5 @@ onMounted(() => {
   color: #d32f2f;
   border-radius: 8px;
   margin: 20px 0;
-}
-
-/* Fixed width header to match wider PageMain with proper spacing */
-.page-header {
-  height: 4rem;
-  width: 1366px !important;
-  max-width: 1366px !important;
-  margin: 0 auto;
-  margin-bottom: 1rem !important; /* Ensure consistent spacing between header and main */
-}
-
-/* Media query adjustments for smaller screens */
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 1366px !important;
-  }
-}
-
-@media (max-width: 1100px) {
-  .page-header {
-    width: 90vw !important;
-    max-width: 1024px !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .page-header {
-    height: 3.5rem;
-    width: calc(100vw - 2rem) !important;
-  }
 }
 </style>
