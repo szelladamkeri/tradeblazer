@@ -204,30 +204,10 @@ const handleConfirmUpdate = async () => {
   <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto py-6">
     <FadeIn :show="!initialLoading">
       <div v-if="!initialLoading" class="w-full max-w-4xl mx-auto px-6">
-        <!-- Header with clear fixed layout -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-          <div>
-            <h2 class="text-2xl font-bold text-white">Edit Profile</h2>
-            <p class="text-gray-400 text-sm mt-1">Update your account information</p>
-          </div>
-          
-          <!-- Desktop buttons - more clearly positioned -->
-          <div class="hidden sm:flex items-center gap-4 self-end sm:self-center">
-            <button
-              type="button"
-              @click="router.push('/profile')"
-              class="px-5 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-md"
-            >
-              Cancel
-            </button>
-            <button
-              @click="handleSubmit"
-              :disabled="loading"
-              class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
-            >
-              {{ loading ? 'Saving...' : 'Save Changes' }}
-            </button>
-          </div>
+        <!-- Header section without buttons -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-white">Edit Profile</h2>
+          <p class="text-gray-400 text-sm mt-1">Update your account information</p>
         </div>
 
         <!-- Error message with consistent spacing -->
@@ -236,7 +216,7 @@ const handleConfirmUpdate = async () => {
         </div>
         
         <!-- Main content grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16 sm:mb-0">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-24 sm:mb-20">
           <!-- Profile picture column with proper vertical alignment -->
           <div class="flex flex-col">
             <div class="bg-black/30 rounded-xl p-6 border border-white/10 h-full">
@@ -346,19 +326,22 @@ const handleConfirmUpdate = async () => {
           </div>
         </div>
         
-        <!-- Mobile buttons - fixed at bottom with better positioning -->
-        <div class="sm:hidden fixed bottom-4 inset-x-4 flex gap-4 z-10">
+        <!-- Unified button bar for both mobile and desktop -->
+        <div class="sticky bottom-0 right-0 left-0 py-4 px-2 mt-6 bg-black/80 backdrop-blur-md border-t border-white/10 z-50 flex gap-4 justify-end">
           <button
             type="button"
             @click="router.push('/profile')"
-            class="flex-1 px-5 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-lg font-medium"
+            class="px-5 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-md"
           >
             Cancel
           </button>
           <button
             @click="handleSubmit"
-            :disabled="loading"
-            class="flex-1 px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-lg font-medium"
+            :disabled="loading || !hasFormChanges"
+            :class="[
+              'px-5 py-3 text-white rounded-lg transition-colors shadow-md',
+              hasFormChanges ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600/50 cursor-not-allowed'
+            ]"
           >
             {{ loading ? 'Saving...' : 'Save Changes' }}
           </button>
@@ -618,5 +601,48 @@ input {
   .fixed.bottom-4 button:last-child {
     background-color: rgba(16, 185, 129, 0.9);
   }
+}
+
+/* Improved mobile button bar */
+.sticky.bottom-0 {
+  position: sticky;
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Add specific mobile optimizations */
+@media (max-width: 640px) {
+  .sticky.bottom-0 {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Ensure buttons are visible and tappable */
+  .sticky.bottom-0 button {
+    flex: 1;
+    font-size: 16px;
+  }
+  
+  /* Create more space at the bottom of the content for the button bar */
+  .mb-24 {
+    margin-bottom: 6rem !important;
+  }
+}
+
+/* Remove any duplicate button styles that might conflict */
+.fixed.bottom-4,
+.fixed.bottom-6,
+.sm\:hidden.fixed {
+  display: none !important;
 }
 </style>

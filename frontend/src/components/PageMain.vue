@@ -3,112 +3,135 @@ import '../assets/base.css'
 </script>
 
 <template>
-  <main
-    class="page-main bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl"
-  >
-    <slot></slot>
-  </main>
+  <div class="component-global-wrapper">
+    <main
+      class="page-main bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl"
+    >
+      <slot></slot>
+    </main>
+  </div>
 </template>
 
 <style scoped>
-/* Fixed size consistent main container with widescreen format */
+/* Global wrapper class to ensure identical positioning */
+.component-global-wrapper {
+  width: 100% !important; 
+  display: flex !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Base styling for the main container */
 .page-main {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
-  height: 42rem !important; /* Increased height */
-  min-height: 42rem !important;
-  max-height: 42rem !important;
-  width: 1366px !important; /* Wider width for widescreen look */
-  min-width: 1366px !important;
+  /* Use min-height instead of fixed height for better responsiveness */
+  min-height: 42rem;
+  width: 1366px !important;
   max-width: 1366px !important;
-  margin: 0 auto;
+  margin: 0 auto !important;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
-  overflow: hidden; /* Don't show scrollbar by default */
+  overflow: hidden;
+  border-radius: 0.75rem;
 }
 
-/* Ensure content containers handle their own overflow */
+/* Media query adjustments - high specificity selectors */
+@media (max-width: 1400px) {
+  .component-global-wrapper .page-main {
+    width: 95vw !important;
+    min-width: auto !important;
+    max-width: 1366px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .component-global-wrapper .page-main {
+    width: 95vw !important;
+    min-width: auto !important;
+    max-width: 1024px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* Explicit tablet media query with highest specificity - Updated for better centering */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .component-global-wrapper {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 0 1rem !important;
+    box-sizing: border-box !important;
+  }
+  
+  .component-global-wrapper .page-main {
+    width: 100% !important;
+    max-width: 95vw !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    min-height: 52rem !important; /* Further increased height for tablet mode */
+    height: calc(100vh - 5.5rem) !important; /* Adjust height calculation for tablets */
+  }
+}
+
+/* Additional breakpoint to handle the transition better */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .component-global-wrapper .page-main {
+    max-width: 90vw !important;
+  }
+}
+
+/* Tablet-specific adjustments */
+@media (max-width: 900px) and (min-width: 641px) {
+  .page-main {
+    min-height: 48rem;
+  }
+}
+
+/* Mobile adjustments - Completely revised */
+@media (max-width: 640px) {
+  .page-main {
+    /* Improved height calculation with minimum height safeguard */
+    height: calc(100vh - 4.5rem);
+    min-height: 30rem; /* Minimum height safeguard */
+    max-height: none;
+    width: calc(100vw - 2rem) !important;
+    min-width: auto !important;
+    max-width: 100% !important;
+    border-radius: 0.75rem;
+    margin: 0 auto !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .page-main {
+    min-height: 28rem;
+    width: calc(100vw - 1.5rem);
+  }
+}
+
+/* Content container styling */
 :deep(.content-container) {
   height: 100%;
   overflow-y: auto;
-}
-
-:deep(.overflow-y-auto) {
-  overflow-y: auto; /* Only show scrollbar when needed */
   -webkit-overflow-scrolling: touch;
 }
 
-/* Media query adjustments */
-@media (max-width: 640px) {
-  .page-main {
-    height: 40rem !important; /* Increased height for mobile */
-    min-height: 40rem !important;
-    max-height: 40rem !important;
-  }
+:deep(.overflow-y-auto) {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Improve mobile responsiveness */
-@media (max-width: 640px) {
-  .page-main {
-    height: calc(100vh - 11rem) !important;
-    min-height: calc(100vh - 11rem) !important;
-    max-height: calc(100vh - 11rem) !important;
-    padding-bottom: 0 !important;
-  }
-  
-  :deep(.overflow-y-auto) {
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Ensure content takes full height */
-:deep(.content-container) {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* iOS fixes */
-@supports (-webkit-touch-callout: none) {
-  .page-main {
-    height: calc(100vh - 11rem - env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* Ensure bottom margin/padding doesn't push content up */
-@media (max-width: 640px) {
-  .page-main {
-    margin-bottom: 1rem !important; 
-    padding-bottom: 1.5rem !important;
-    height: calc(100vh - 11rem) !important;
-  }
-  
-  :deep(.overflow-y-auto > *:last-child) {
-    margin-bottom: 2rem;
-  }
-}
-
-/* Ensure main container takes full available height */
-@media (max-height: 700px) {
-  .page-main {
-    height: calc(100vh - 8rem) !important;
-    min-height: calc(100vh - 8rem) !important;
-  }
-}
-
-/* Create container for content to prevent layout shifts */
-:deep(.content-container) {
-  min-height: inherit;
-  position: relative;
-}
-
-/* Clean up scrollbar styling */
+/* Improve scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
-  /* Always show scrollbar to prevent layout shifts */
-  display: block;
 }
 
 ::-webkit-scrollbar-track {
@@ -124,49 +147,23 @@ import '../assets/base.css'
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Existing heading styles */
-h1 {
-  font-weight: 500;
-  font-size: 2.6rem;
-  position: relative;
-  top: -10px;
-}
-
-h3 {
-  font-size: 1.2rem;
-}
-
-/* Add bottom space to content for mobile */
+/* Add bottom padding to content for better spacing */
 :deep(.overflow-y-auto > *:last-child) {
   margin-bottom: 1.5rem;
 }
 
-/* Media query adjustments for smaller screens */
-@media (max-width: 1100px) {
+/* Fix iOS-specific height issues */
+@supports (-webkit-touch-callout: none) {
   .page-main {
-    width: 90vw !important; /* Fall back to responsive width on smaller screens */
-    min-width: auto !important;
-    max-width: 1024px !important;
+    height: calc(100vh - 4.5rem - env(safe-area-inset-bottom));
   }
 }
 
-/* Mobile adjustments */
-@media (max-width: 640px) {
+/* Landscape mode adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
   .page-main {
-    height: 36rem !important; /* Slightly smaller on mobile */
-    min-height: 36rem !important;
-    max-height: 36rem !important;
-    width: calc(100vw - 2rem) !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-/* Media query adjustments for smaller screens */
-@media (max-width: 1400px) {
-  .page-main {
-    width: 95vw !important; /* Fall back to responsive width on smaller screens */
-    min-width: auto !important;
-    max-width: 1366px !important;
+    height: calc(100vh - 3.5rem);
+    min-height: 24rem;
   }
 }
 </style>

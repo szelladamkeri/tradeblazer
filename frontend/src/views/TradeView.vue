@@ -1,54 +1,68 @@
 <template>
-  <PageHeader class="mb-4" />
-  <div class="trade-container">
-    <h1>Trade Asset</h1>
+  <div class="flex flex-col">
+    <PageHeader class="mb-4" />
+    <PageMain>
+      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
+        <div v-if="loading" class="flex justify-center items-center py-8">
+          <LoadingSpinner />
+        </div>
 
-    <div v-if="loading" class="loading">
-      Loading asset details...
-    </div>
+        <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
+          {{ error }}
+        </div>
 
-    <div v-else-if="error" class="error-message">
-      {{ error }}
-    </div>
+        <div v-else-if="asset" class="space-y-6">
+          <div class="bg-white/10 p-6 rounded-xl border border-white/10">
+            <h2 class="text-2xl font-bold text-white mb-4">{{ asset.name }} ({{ asset.symbol }})</h2>
+            <div class="text-green-400 text-3xl font-bold">
+              ${{ formatPrice(asset.price) }}
+            </div>
+          </div>
 
-    <div v-else-if="asset" class="trade-content">
-      <div class="asset-info">
-        <h2>{{ asset.name }} ({{ asset.symbol }})</h2>
-        <div class="current-price">
-          Current Price: ${{ Number(asset.price).toLocaleString() }}
+          <div class="bg-white/10 p-6 rounded-xl border border-white/10" v-if="isLoggedIn">
+            <h3 class="text-xl font-bold text-white mb-4">Trade Asset</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-gray-200 text-sm font-medium mb-2">Trade Type</label>
+                <select v-model="tradeType" 
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white">
+                  <option value="buy">Buy</option>
+                  <option value="sell">Sell</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-gray-200 text-sm font-medium mb-2">Quantity</label>
+                <input type="number" v-model="quantity" min="0" step="0.01" 
+                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white">
+              </div>
+
+              <div class="p-4 bg-black/30 rounded-lg mt-6">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-300">Total Value:</span>
+                  <span class="text-green-400 text-xl font-bold">
+                    ${{ formatPrice(quantity * asset.price) }}
+                  </span>
+                </div>
+              </div>
+
+              <button @click="executeTrade" :disabled="!canTrade" 
+                class="w-full mt-4 py-3 px-5 bg-green-600 disabled:bg-green-600/50 text-white rounded-lg">
+                Execute Trade
+              </button>
+            </div>
+          </div>
+
+          <div v-else class="bg-white/10 p-6 rounded-xl border border-white/10 text-center">
+            <p class="text-gray-300 mb-4">Please log in to trade this asset</p>
+            <button @click="$router.push('/login')" 
+              class="py-3 px-6 bg-green-600 text-white rounded-lg">
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
-
-      <div class="trade-form" v-if="isLoggedIn">
-        <div class="form-group">
-          <label>Trade Type</label>
-          <select v-model="tradeType">
-            <option value="buy">Buy</option>
-            <option value="sell">Sell</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Quantity</label>
-          <input type="number" v-model="quantity" min="0" step="0.01">
-        </div>
-
-        <div class="trade-summary">
-          <p>Total Value: ${{ (quantity * asset.price).toLocaleString() }}</p>
-        </div>
-
-        <button @click="executeTrade" :disabled="!canTrade" class="trade-button">
-          Execute Trade
-        </button>
-      </div>
-
-      <div v-else class="login-prompt">
-        <p>Please log in to trade</p>
-        <button @click="$router.push('/login')" class="login-button">
-          Go to Login
-        </button>
-      </div>
-    </div>
+    </PageMain>
   </div>
 </template>
 

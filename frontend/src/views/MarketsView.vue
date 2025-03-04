@@ -111,8 +111,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <PageHeader class="mb-4" />
+  <div class="flex flex-col markets-view">
+    <PageHeader />
     <PageMain>
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <!-- Replace the content-container with updated styling that matches PageMain -->
@@ -131,21 +131,27 @@ onMounted(() => {
                   type="text"
                   v-model="searchTerm"
                   placeholder="Search assets..."
-                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:bg-black/60"
+                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200"
                 />
                 <font-awesome-icon icon="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
               
-              <div class="flex items-center gap-2 w-full sm:w-auto">
-                <select
-                  v-model="selectedType"
-                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 focus:ring-2 focus:ring-green-400 focus:bg-black/60"
-                >
-                  <option value="all">All Assets</option>
-                  <option value="stock">Stocks</option>
-                  <option value="crypto">Crypto</option>
-                  <option value="forex">Forex</option>
-                </select>
+              <!-- Improved custom dropdown -->
+              <div class="relative flex items-center gap-2 w-full sm:w-auto">
+                <div class="custom-select-wrapper w-full">
+                  <select
+                    v-model="selectedType"
+                    class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200"
+                  >
+                    <option value="all">All Assets</option>
+                    <option value="stock">Stocks</option>
+                    <option value="crypto">Crypto</option>
+                    <option value="forex">Forex</option>
+                  </select>
+                  <span class="custom-select-icon">
+                    <font-awesome-icon icon="chevron-down" class="text-gray-400" />
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -310,5 +316,109 @@ tbody tr:hover {
 /* Update empty state and error state backgrounds to match */
 .bg-black\/40 {
   background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Fix dropdown visibility */
+.custom-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.custom-select-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Add explicit styling for dropdown options */
+select option {
+  background-color: #1f2937;
+  color: white;
+  padding: 8px;
+}
+
+/* Fix dropdown appearance in different browsers */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+  cursor: pointer;
+}
+
+/* Handle select styles in Firefox */
+@-moz-document url-prefix() {
+  select {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4);
+    text-indent: 0.01px;
+    text-overflow: '';
+    padding-right: 2rem;
+  }
+  
+  select:focus {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+  }
+  
+  select option {
+    background-color: #1f2937;
+    color: white;
+  }
+}
+
+/* Handle select styles in Chrome/Safari */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  select {
+    padding-right: 2rem;
+  }
+  
+  select:focus {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+  }
+  
+  select option {
+    background-color: #1f2937;
+    color: white;
+  }
+}
+
+/* Consistent focus states across browsers */
+select:focus, input:focus {
+  border-color: #22c55e !important; /* green-500 */
+  --tw-ring-color: rgba(34, 197, 94, 0.5) !important; /* green-500 with opacity */
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
+/* Mobile optimization for dropdown */
+@media (max-width: 640px) {
+  select, input, button {
+    font-size: 16px; /* Prevents iOS zoom */
+    height: 44px; /* Larger touch target */
+    width: 100%;
+  }
+  
+  .custom-select-wrapper {
+    width: 100%;
+  }
+  
+  .custom-select-icon {
+    right: 16px;
+  }
+}
+
+/* Safari-specific fixes */
+@media not all and (min-resolution:.001dpcm) { 
+  @supports (-webkit-appearance:none) {
+    select {
+      background-color: rgba(0, 0, 0, 0.4);
+      color: white;
+    }
+  }
 }
 </style>

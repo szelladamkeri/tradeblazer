@@ -1,58 +1,62 @@
 <template>
-  <PageHeader class="mb-4" />
-  <div class="watchlist-container">
-    <h1>Your Watchlist</h1>
-    
-    <div v-if="!isLoggedIn" class="login-prompt">
-      <p>Please log in to view your watchlist</p>
-      <button @click="$router.push('/login')" class="login-button">Go to Login</button>
-    </div>
-    
-    <div v-else>
-      <div v-if="error" class="error-message">
-        <p>{{ error }}</p>
-        <button @click="fetchWatchlist" class="retry-button">Retry</button>
-      </div>
-      
-      <div v-else-if="loading" class="loading">
-        <div class="loading-spinner"></div>
-        <p>Loading your watchlist...</p>
-      </div>
-      
-      <div v-else-if="watchlist.length === 0" class="empty-watchlist">
-        <p>Your watchlist is empty.</p>
-        <button @click="$router.push('/search')" class="browse-button">
-          Browse Assets
-        </button>
-      </div>
-      
-      <div v-else>
-        <div class="watchlist-grid">
-          <div v-for="item in watchlist" :key="item.id" class="watchlist-item">
-            <div class="card-header">
-              <span class="asset-symbol">{{ item.symbol }}</span>
-              <span class="asset-type" :class="`type-${item.type}`">{{ item.type }}</span>
-            </div>
-            
-            <h3 class="asset-name">{{ item.name }}</h3>
-            
-            <div class="asset-price">
-              <span>Current Price:</span>
-              <span class="price">${{ Number(item.price).toLocaleString() }}</span>
-            </div>
-            
-            <div class="card-actions">
-              <button @click="removeFromWatchlist(item.watchlistId)" class="remove-button">
-                Remove
-              </button>
-              <button @click="goToTrade(item.id)" class="trade-button">
-                Trade
-              </button>
+  <div class="flex flex-col">
+    <PageHeader class="mb-4" />
+    <PageMain>
+      <div class="watchlist-container">
+        <h1>Your Watchlist</h1>
+        
+        <div v-if="!isLoggedIn" class="login-prompt">
+          <p>Please log in to view your watchlist</p>
+          <button @click="$router.push('/login')" class="login-button">Go to Login</button>
+        </div>
+        
+        <div v-else>
+          <div v-if="error" class="error-message">
+            <p>{{ error }}</p>
+            <button @click="fetchWatchlist" class="retry-button">Retry</button>
+          </div>
+          
+          <div v-else-if="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading your watchlist...</p>
+          </div>
+          
+          <div v-else-if="watchlist.length === 0" class="empty-watchlist">
+            <p>Your watchlist is empty.</p>
+            <button @click="$router.push('/search')" class="browse-button">
+              Browse Assets
+            </button>
+          </div>
+          
+          <div v-else>
+            <div class="watchlist-grid">
+              <div v-for="item in watchlist" :key="item.id" class="watchlist-item">
+                <div class="card-header">
+                  <span class="asset-symbol">{{ item.symbol }}</span>
+                  <span class="asset-type" :class="`type-${item.type}`">{{ item.type }}</span>
+                </div>
+                
+                <h3 class="asset-name">{{ item.name }}</h3>
+                
+                <div class="asset-price">
+                  <span>Current Price:</span>
+                  <span class="price">${{ Number(item.price).toLocaleString() }}</span>
+                </div>
+                
+                <div class="card-actions">
+                  <button @click="removeFromWatchlist(item.watchlistId)" class="remove-button">
+                    Remove
+                  </button>
+                  <button @click="goToTrade(item.id)" class="trade-button">
+                    Trade
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </PageMain>
   </div>
 </template>
 
