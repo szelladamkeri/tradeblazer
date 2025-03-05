@@ -105,6 +105,29 @@ const formatMarketCap = (marketCap: number | undefined): string => {
   return formatPrice(marketCap)
 }
 
+// Add asset type icons mapping
+const typeIcons = {
+  crypto: 'coins',
+  stock: 'chart-line',
+  forex: 'exchange-alt'
+}
+
+// Add function to get appropriate icon for asset type
+const getAssetTypeIcon = (type: string) => {
+  return typeIcons[type as keyof typeof typeIcons] || 'question'
+}
+
+// Add goToTrade function
+const goToTrade = (assetId: number) => {
+  router.push(`/trade/${assetId}`)
+}
+
+// Add watchlist functionality
+const addToWatchlist = async (assetId: number) => {
+  // Implementation to be added later
+  console.log('Adding to watchlist:', assetId)
+}
+
 onMounted(() => {
   fetchAssets()
 })
@@ -117,11 +140,16 @@ onMounted(() => {
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <!-- Replace the content-container with updated styling that matches PageMain -->
         <div class="h-full" :class="{'overflow-y-auto': needsScrolling}">
-          <!-- Header section -->
+          <!-- Header section with improved icons -->
           <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-            <div>
-              <h1 class="text-2xl sm:text-3xl font-bold text-white">Markets</h1>
-              <p class="text-gray-400 mt-1">Browse and trade available assets on our platform</p>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
+              </div>
+              <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">Markets</h1>
+                <p class="text-gray-400 mt-1">Browse and trade available assets on our platform</p>
+              </div>
             </div>
             
             <!-- Controls -->
@@ -143,10 +171,18 @@ onMounted(() => {
                     v-model="selectedType"
                     class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200"
                   >
-                    <option value="all">All Assets</option>
-                    <option value="stock">Stocks</option>
-                    <option value="crypto">Crypto</option>
-                    <option value="forex">Forex</option>
+                    <option value="all">
+                      <font-awesome-icon icon="layer-group" /> All Assets
+                    </option>
+                    <option value="stock">
+                      <font-awesome-icon icon="chart-line" /> Stocks
+                    </option>
+                    <option value="crypto">
+                      <font-awesome-icon icon="coins" /> Crypto
+                    </option>
+                    <option value="forex">
+                      <font-awesome-icon icon="exchange-alt" /> Forex
+                    </option>
                   </select>
                   <span class="custom-select-icon">
                     <font-awesome-icon icon="chevron-down" class="text-gray-400" />
@@ -186,21 +222,41 @@ onMounted(() => {
                 <table class="w-full text-left border-collapse">
                   <thead>
                     <tr>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10">Asset</th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">Price</th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">24h Change</th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">Market Cap</th>
+                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10">
+                        <div class="flex items-center gap-2">
+                          <font-awesome-icon icon="coins" class="text-green-400" />
+                          Asset
+                        </div>
+                      </th>
+                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                        <div class="flex items-center gap-2 justify-end">
+                          <font-awesome-icon icon="dollar-sign" class="text-green-400" />
+                          Price
+                        </div>
+                      </th>
+                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                        <div class="flex items-center gap-2 justify-end">
+                          <font-awesome-icon icon="chart-line" class="text-green-400" />
+                          24h Change
+                        </div>
+                      </th>
+                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                        <div class="flex items-center gap-2 justify-end">
+                          <font-awesome-icon icon="sack-dollar" class="text-green-400" />
+                          Market Cap
+                        </div>
+                      </th>
                       <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/10">
                     <tr v-for="asset in filteredAssets" 
                         :key="asset.id"
-                        class="hover:bg-white/5 transition-colors">
+                        class="hover:bg-white/5 transition-colors group">
                       <td class="py-4 px-4">
                         <div class="flex items-center gap-3">
-                          <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-                            <font-awesome-icon :icon="asset.type === 'crypto' ? 'coins' : 'chart-line'" 
+                          <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                            <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" 
                                             class="text-green-400" />
                           </div>
                           <div>
@@ -211,7 +267,8 @@ onMounted(() => {
                       </td>
                       <td class="py-4 px-4 text-right font-medium text-white">{{ formatPrice(asset.price) }}</td>
                       <td class="py-4 px-4 text-right">
-                        <span :class="getChangeClass(asset.change_24h)">
+                        <span :class="getChangeClass(asset.change_24h)" class="flex items-center justify-end gap-1">
+                          <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
                           {{ formatChange(asset.change_24h) }}
                         </span>
                       </td>
@@ -219,12 +276,14 @@ onMounted(() => {
                       <td class="py-4 px-4 text-right">
                         <div class="flex gap-2 justify-end">
                           <button @click="goToTrade(asset.id)"
-                                  class="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors">
+                                  class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors flex items-center gap-2">
+                            <font-awesome-icon icon="exchange-alt" />
                             Trade
                           </button>
                           <button v-if="isLoggedIn" 
                                   @click="addToWatchlist(asset.id)"
-                                  class="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                  class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                                  :title="'Add ' + asset.symbol + ' to watchlist'">
                             <font-awesome-icon icon="star" />
                           </button>
                         </div>

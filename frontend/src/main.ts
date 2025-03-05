@@ -41,6 +41,12 @@ import {
   faExchangeAlt,
   // Add triangle exclamation icon for error messages
   faTriangleExclamation,
+  faLayerGroup,
+  faCaretUp,
+  faCaretDown,
+  faSackDollar,
+  faDollarSign,
+  faQuestion,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -74,6 +80,12 @@ library.add(
   faStar,
   faExchangeAlt,
   faTriangleExclamation,
+  faLayerGroup,
+  faCaretUp,
+  faCaretDown,
+  faSackDollar,
+  faDollarSign,
+  faQuestion,
 )
 
 const app = createApp(App)
