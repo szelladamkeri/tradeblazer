@@ -81,7 +81,26 @@ INSERT INTO `assets` (`id`, `name`, `type`, `symbol`, `price`, `exchange`) VALUE
 (8, 'Amazon.com Inc', 'stock', 'AMZN', 3200.00000000, 'NASDAQ'),
 (9, 'Microsoft Corp', 'stock', 'MSFT', 340.00000000, 'NASDAQ'),
 (10, 'GBP/USD', 'forex', 'GBP/USD', 1.30000000, ''),
-(11, 'Litecoin / U.S. Dollar', 'crypto', 'LTCUSD', 150.00000000, '');
+(11, 'Litecoin / U.S. Dollar', 'crypto', 'LTCUSD', 150.00000000, ''),
+(12, 'Ripple / U.S. Dollar', 'crypto', 'XRPUSD', 0.75000000, ''),
+(13, 'Cardano / U.S. Dollar', 'crypto', 'ADAUSD', 0.50000000, ''),
+(14, 'S&P 500 Index', 'stock', 'SPX', 4500.00000000, 'NYSE'),
+(15, 'Dow Jones Industrial Average', 'stock', 'DJIA', 35000.00000000, 'NYSE'),
+(16, 'Netflix Inc', 'stock', 'NFLX', 450.00000000, 'NASDAQ'),
+(17, 'JPMorgan Chase & Co', 'stock', 'JPM', 180.00000000, 'NYSE'),
+(18, 'USD/JPY', 'forex', 'USD/JPY', 150.00000000, ''),
+(19, 'Solana / U.S. Dollar', 'crypto', 'SOLUSD', 120.00000000, ''),
+(20, 'Meta Platforms Inc', 'stock', 'META', 350.00000000, 'NASDAQ'),
+(21, 'AUD/USD', 'forex', 'AUD/USD', 0.75000000, ''),
+(22, 'Nvidia Corp', 'stock', 'NVDA', 1000.00000000, 'NASDAQ'),
+(23, 'Dogecoin / U.S. Dollar', 'crypto', 'DOGEUSD', 0.20000000, ''),
+(24, 'Chevron Corp', 'stock', 'CVX', 180.00000000, 'NYSE'),
+(25, 'EUR/JPY', 'forex', 'EUR/JPY', 160.00000000, ''),
+(26, 'Coinbase Global Inc', 'stock', 'COIN', 250.00000000, 'NASDAQ'),
+(27, 'Swiss Franc / U.S. Dollar', 'forex', 'CHF/USD', 1.10000000, ''),
+(28, 'Polygon / U.S. Dollar', 'crypto', 'MATICUSD', 1.20000000, ''),
+(29, 'Walt Disney Co', 'stock', 'DIS', 120.00000000, 'NYSE'),
+(30, 'Canadian Dollar / U.S. Dollar', 'forex', 'CAD/USD', 0.80000000, '');
 
 -- --------------------------------------------------------
 
