@@ -11,6 +11,3 @@
 
 # Várt működés:
 - A felhasználó visszajelzést kap minden nem megengedett művelet után
-
-# Esetleges kép:
-[Demonstráló kép](/path/to/image)

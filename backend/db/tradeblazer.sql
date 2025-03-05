@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 13. 13:24
+-- Létrehozás ideje: 2025. Már 05. 13:21
 -- Kiszolgáló verziója: 10.4.28-MariaDB
 -- PHP verzió: 8.1.17
 
@@ -35,6 +35,22 @@ CREATE TABLE `activity_log` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- A tábla adatainak kiíratása `activity_log`
+--
+
+INSERT INTO `activity_log` (`id`, `user_id`, `action`, `description`, `created_at`) VALUES
+(1, 3, 'Logged in', 'Logged in performed', '2025-03-05 12:05:12'),
+(2, 8, 'Deposited funds', 'Deposited funds performed', '2025-03-05 12:05:12'),
+(3, 1, 'Updated profile', 'Updated profile performed', '2025-03-05 12:05:12'),
+(4, 6, 'Logged in', 'Logged in performed', '2025-03-05 12:05:12'),
+(5, 9, 'Updated profile', 'Updated profile performed', '2025-03-05 12:05:12'),
+(6, 10, 'Placed an order', 'Placed an order performed', '2025-03-05 12:05:12'),
+(7, 1, 'Deposited funds', 'Deposited funds performed', '2025-03-05 12:05:12'),
+(8, 2, 'Deposited funds', 'Deposited funds performed', '2025-03-05 12:05:12'),
+(9, 6, 'Updated profile', 'Updated profile performed', '2025-03-05 12:05:12'),
+(10, 6, 'Placed an order', 'Placed an order performed', '2025-03-05 12:05:12');
+
 -- --------------------------------------------------------
 
 --
@@ -60,7 +76,12 @@ INSERT INTO `assets` (`id`, `name`, `type`, `symbol`, `price`, `exchange`) VALUE
 (3, 'Apple Inc', 'stock', 'AAPL', 228.01000000, 'NASDAQ'),
 (4, 'Google', 'stock', 'GOOG', 2800.00000000, 'NASDAQ'),
 (5, 'EUR/USD', 'forex', 'EUR/USD', 1.05000000, ''),
-(6, 'NASDAQ Composite Index', 'stock', 'NASDAQ', 15000.00000000, 'NASDAQ');
+(6, 'NASDAQ Composite Index', 'stock', 'NASDAQ', 15000.00000000, 'NASDAQ'),
+(7, 'Tesla Inc', 'stock', 'TSLA', 800.00000000, 'NASDAQ'),
+(8, 'Amazon.com Inc', 'stock', 'AMZN', 3200.00000000, 'NASDAQ'),
+(9, 'Microsoft Corp', 'stock', 'MSFT', 340.00000000, 'NASDAQ'),
+(10, 'GBP/USD', 'forex', 'GBP/USD', 1.30000000, ''),
+(11, 'Litecoin / U.S. Dollar', 'crypto', 'LTCUSD', 150.00000000, '');
 
 -- --------------------------------------------------------
 
@@ -76,6 +97,16 @@ CREATE TABLE `credit_cards` (
   `expiry_date` varchar(5) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `credit_cards`
+--
+
+INSERT INTO `credit_cards` (`id`, `user_id`, `card_number`, `card_holder`, `expiry_date`, `created_at`) VALUES
+(1, 1, '4111111111111111', 'Zsirke József', '12/26', '2025-03-05 12:19:57'),
+(2, 2, '5500000000000004', 'Horváth Kristóf', '05/25', '2025-03-05 12:19:57'),
+(3, 3, '3400000000000009', 'Teszt User', '09/27', '2025-03-05 12:19:57'),
+(4, 4, '6011000000000004', 'Teszt2 User', '03/26', '2025-03-05 12:19:57');
 
 -- --------------------------------------------------------
 
@@ -118,7 +149,13 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `user_id`, `asset_id`, `order_type`, `trade_type`, `quantity`, `price`, `status`, `created_at`) VALUES
-(1, 1, 3, 'limit', 'buy', 100.00000000, 150.00000000, 'open', '2024-11-22 08:14:38');
+(1, 1, 3, 'limit', 'buy', 100.00000000, 150.00000000, 'open', '2024-11-22 08:14:38'),
+(2, 1, 1, 'market', 'buy', 0.50000000, NULL, 'open', '2025-03-05 12:19:57'),
+(3, 2, 3, 'limit', 'sell', 50.00000000, 230.00000000, 'open', '2025-03-05 12:19:57'),
+(4, 3, 2, 'market', 'buy', 2.00000000, NULL, 'open', '2025-03-05 12:19:57'),
+(5, 4, 5, 'limit', 'sell', 10000.00000000, 1.06000000, 'open', '2025-03-05 12:19:57'),
+(6, 1, 6, 'market', 'buy', 5.00000000, NULL, 'open', '2025-03-05 12:19:57'),
+(7, 2, 4, 'limit', 'buy', 10.00000000, 2750.00000000, 'open', '2025-03-05 12:19:57');
 
 -- --------------------------------------------------------
 
@@ -141,7 +178,17 @@ CREATE TABLE `trades` (
 --
 
 INSERT INTO `trades` (`id`, `user_id`, `asset_id`, `trade_type`, `quantity`, `price`, `created_at`) VALUES
-(1, 1, 1, 'sell', 1.00000000, 35000.00000000, '2024-11-22 08:14:38');
+(1, 1, 1, 'sell', 1.00000000, 35000.00000000, '2024-11-22 08:14:38'),
+(2, 1, 3, 'sell', 6.09000000, 392.01000000, '2025-03-05 12:05:12'),
+(3, 2, 1, 'sell', 1.25000000, 2664.86000000, '2025-03-05 12:05:12'),
+(4, 3, 1, 'sell', 3.59000000, 4610.00000000, '2025-03-05 12:05:12'),
+(5, 4, 4, 'sell', 4.04000000, 3679.12000000, '2025-03-05 12:05:12'),
+(6, 5, 8, 'buy', 3.11000000, 3708.90000000, '2025-03-05 12:05:12'),
+(7, 6, 8, 'buy', 2.96000000, 4182.28000000, '2025-03-05 12:05:12'),
+(8, 7, 11, 'buy', 8.29000000, 2599.94000000, '2025-03-05 12:05:12'),
+(9, 8, 5, 'sell', 2.29000000, 4190.45000000, '2025-03-05 12:05:12'),
+(10, 9, 11, 'buy', 8.00000000, 2761.97000000, '2025-03-05 12:05:12'),
+(11, 10, 1, 'sell', 1.14000000, 2526.34000000, '2025-03-05 12:05:12');
 
 -- --------------------------------------------------------
 
@@ -162,7 +209,17 @@ CREATE TABLE `transactions` (
 --
 
 INSERT INTO `transactions` (`id`, `user_id`, `type`, `amount`, `created_at`) VALUES
-(1, 1, 'deposit', 5000.00, '2024-11-22 08:14:38');
+(1, 1, 'deposit', 5000.00, '2024-11-22 08:14:38'),
+(2, 1, 'withdrawal', 2580.13, '2025-03-05 12:05:12'),
+(3, 2, 'withdrawal', 4014.43, '2025-03-05 12:05:12'),
+(4, 3, 'withdrawal', 3143.47, '2025-03-05 12:05:12'),
+(5, 4, 'deposit', 6965.21, '2025-03-05 12:05:12'),
+(6, 5, 'deposit', 7194.70, '2025-03-05 12:05:12'),
+(7, 6, 'withdrawal', 6878.48, '2025-03-05 12:05:12'),
+(8, 7, 'withdrawal', 1221.25, '2025-03-05 12:05:12'),
+(9, 8, 'withdrawal', 620.16, '2025-03-05 12:05:12'),
+(10, 9, 'withdrawal', 465.51, '2025-03-05 12:05:12'),
+(11, 10, 'withdrawal', 4643.09, '2025-03-05 12:05:12');
 
 -- --------------------------------------------------------
 
@@ -190,7 +247,17 @@ INSERT INTO `users` (`id`, `username`, `display_name`, `email`, `password`, `typ
 (1, 'may', 'may', 'szell.adam-2020@keri.mako.hu', '1234Aa', 'A', '2024-11-22 08:14:38', 0.00, NULL),
 (2, 'zsirke', 'zsirke', 'aranyosi.daniel-2020@keri.mako.hu', '1234Aa', 'A', '2025-02-04 08:34:40', 0.00, NULL),
 (3, 'teszt', 'teszt', 'teszt@gmail.com', '1234Aa', 'U', '2025-02-11 10:36:56', 0.00, NULL),
-(4, 'teszt2', 'teszt2', 'teszt2@gmail.com', '1234Aa', 'U', '2025-02-11 11:01:09', 0.00, NULL);
+(4, 'teszt2', 'teszt2', 'teszt2@gmail.com', '1234Aa', 'U', '2025-02-11 11:01:09', 0.00, NULL),
+(5, 'bkovacs', 'Balázs Kovács', 'bkovacs@example.com', 'hashedpassword1', 'U', '2025-03-05 10:28:43', 41806.49, NULL),
+(6, 'fszabo', 'Ferenc Szabó', 'fszabo@example.com', 'hashedpassword2', 'U', '2025-03-05 10:28:43', 5741.20, NULL),
+(7, 'ktoth', 'Krisztina Tóth', 'ktoth@example.com', 'hashedpassword3', 'U', '2025-03-05 10:28:43', 23277.93, NULL),
+(8, 'nhorvath', 'Nikolett Horváth', 'nhorvath@example.com', 'hashedpassword4', 'U', '2025-03-05 10:28:43', 41136.15, NULL),
+(9, 'pgabor', 'Péter Gábor', 'pgabor@example.com', 'hashedpassword5', 'U', '2025-03-05 10:28:43', 32696.60, NULL),
+(10, 'vegerszegi', 'Viktor Egerszegi', 'vegerszegi@example.com', 'hashedpassword6', 'U', '2025-03-05 10:28:43', 7685.60, NULL),
+(11, 'kdobos', 'Károly Dobos', 'kdobos@example.com', 'hashedpassword7', 'U', '2025-03-05 10:28:43', 23012.11, NULL),
+(12, 'zsuzsanagy', 'Zsuzsanna Nagy', 'zsuzsanagy@example.com', 'hashedpassword8', 'U', '2025-03-05 10:28:43', 20859.48, NULL),
+(13, 'mlaszlo', 'Miklós László', 'mlaszlo@example.com', 'hashedpassword9', 'U', '2025-03-05 10:28:43', 45304.14, NULL),
+(14, 'erikailles', 'Erika Illés', 'erikailles@example.com', 'hashedpassword10', 'U', '2025-03-05 10:28:43', 20919.45, NULL);
 
 -- --------------------------------------------------------
 
@@ -212,7 +279,17 @@ CREATE TABLE `user_assets` (
 --
 
 INSERT INTO `user_assets` (`id`, `user_id`, `asset_id`, `quantity`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 2.00000000, '2024-11-22 08:14:38', '2024-11-22 08:14:38');
+(1, 1, 1, 2.00000000, '2024-11-22 08:14:38', '2024-11-22 08:14:38'),
+(2, 1, 3, 44.13000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(3, 2, 1, 4.49000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(4, 3, 7, 38.46000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(5, 4, 9, 48.33000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(6, 5, 3, 36.72000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(7, 6, 8, 8.35000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(8, 7, 6, 18.19000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(9, 8, 10, 30.72000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(10, 9, 2, 2.29000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11'),
+(11, 10, 9, 27.35000000, '2025-03-05 12:05:11', '2025-03-05 12:05:11');
 
 -- --------------------------------------------------------
 
@@ -226,6 +303,22 @@ CREATE TABLE `watchlist` (
   `asset_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `watchlist`
+--
+
+INSERT INTO `watchlist` (`id`, `user_id`, `asset_id`, `created_at`) VALUES
+(1, 1, 4, '2025-03-05 12:05:12'),
+(2, 2, 6, '2025-03-05 12:05:12'),
+(3, 3, 4, '2025-03-05 12:05:12'),
+(4, 4, 10, '2025-03-05 12:05:12'),
+(5, 5, 1, '2025-03-05 12:05:12'),
+(6, 6, 10, '2025-03-05 12:05:12'),
+(7, 7, 2, '2025-03-05 12:05:12'),
+(8, 8, 5, '2025-03-05 12:05:12'),
+(9, 9, 7, '2025-03-05 12:05:12'),
+(10, 10, 3, '2025-03-05 12:05:12');
 
 --
 -- Indexek a kiírt táblákhoz
@@ -312,19 +405,19 @@ ALTER TABLE `watchlist`
 -- AUTO_INCREMENT a táblához `activity_log`
 --
 ALTER TABLE `activity_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT a táblához `assets`
 --
 ALTER TABLE `assets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `credit_cards`
 --
 ALTER TABLE `credit_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `earnings_calendar`
@@ -336,37 +429,37 @@ ALTER TABLE `earnings_calendar`
 -- AUTO_INCREMENT a táblához `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT a táblához `trades`
 --
 ALTER TABLE `trades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT a táblához `user_assets`
 --
 ALTER TABLE `user_assets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `watchlist`
 --
 ALTER TABLE `watchlist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Megkötések a kiírt táblákhoz
