@@ -21,6 +21,3 @@ npm run dev
 ```
 npm run build
 ```
-
-# Design plans under the *img* folder
-    note that none of the design plans are 100% finished, or won't change
