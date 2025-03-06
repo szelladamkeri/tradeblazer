@@ -1,4 +1,4 @@
-# Tradeblazer
+# TradeBlazer
 
 
 # Trello: 
