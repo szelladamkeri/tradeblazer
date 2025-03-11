@@ -140,6 +140,13 @@ onUnmounted(() => {
   document.removeEventListener('click', closeDropdownOnClickOutside)
   document.removeEventListener('click', closeSearchResultsOnClickOutside)
 })
+
+// Add a debug computed property to help troubleshoot
+const debugIsAdmin = computed(() => {
+  const isAdmin = userStore.isAdmin
+  console.log('isAdmin value:', isAdmin, 'user:', userStore.user)
+  return isAdmin
+})
 </script>
 
 <template>
@@ -594,6 +601,17 @@ onUnmounted(() => {
             </div>
           </transition>
         </header>
+        <!-- Add debug info temporarily (remove after fixing) -->
+        <div v-if="userStore.isAuthenticated" class="hidden">
+          Debug - isAdmin: {{ debugIsAdmin }}, 
+          Role: {{ userStore.user?.role }},
+          Type: {{ userStore.user?.type }}
+        </div>
+        
+        <!-- Add visible admin link if user is admin -->
+        <div v-if="userStore.isAdmin" class="admin-link-indicator">
+          <!-- This will be visible only for debugging -->
+        </div>
       </div>
     </div>
   </div>

@@ -15,16 +15,9 @@ import { usePagination } from '@/composables/usePagination'
 import { handleApiError } from '@/utils/errorHandler'
 import FullPageError from '@/components/FullPageError.vue'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
+import { type User } from '@/types'
 
 const router = useRouter()
-
-interface User {
-  id: number
-  username: string
-  email: string
-  role: string
-  created_at?: string
-}
 
 const users = ref<User[]>([])
 const loading = ref(true)
@@ -711,62 +704,82 @@ onMounted(fetchUsers)
       >
         <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
         <div class="fixed inset-0 flex items-center justify-center p-4">
-          <div
-            class="relative bg-black/90 rounded-xl p-6 border border-green-500/20 max-w-md w-full mx-4"
-          >
-            <h3 class="text-xl font-bold text-white mb-4">
-              Update Avatar for {{ selectedUserForAvatar?.username }}
-            </h3>
-
-            <template v-if="!showCropper">
-              <div v-if="fileError" class="mb-4 text-red-400 text-sm bg-red-500/10 p-3 rounded">
-                {{ fileError }}
+          <div class="bg-white/5 rounded-xl p-6 border border-green-500/20 max-w-md w-full">
+            <div class="flex flex-col items-center text-center">
+              <div class="mb-4 text-3xl text-green-400">
+                <font-awesome-icon icon="user-pen" />
               </div>
-              <input
-                type="file"
-                accept="image/jpeg"
-                @change="handleAvatarChange"
-                class="mb-6 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-600 file:text-white hover:file:bg-green-700 file:cursor-pointer"
-              />
+              
+              <h3 class="text-xl font-bold text-white mb-4">
+                Update Avatar for {{ selectedUserForAvatar?.username }}
+              </h3>
 
-              <div class="flex justify-end gap-3">
-                <button
-                  @click="showAvatarModal = false"
-                  class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </template>
+              <template v-if="!showCropper">
+                <div v-if="fileError" 
+                     class="mb-4 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg w-full">
+                  {{ fileError }}
+                </div>
+                
+                <div class="w-full space-y-4">
+                  <input
+                    type="file"
+                    accept="image/jpeg"
+                    @change="handleAvatarChange"
+                    class="block w-full text-sm text-gray-400
+                           file:mr-4 file:py-2.5 file:px-4 file:rounded-lg
+                           file:border-0 file:text-sm file:font-medium
+                           file:bg-green-600 file:text-white
+                           hover:file:bg-green-700 file:cursor-pointer
+                           file:transition-colors"
+                  />
 
-            <!-- Cropper view -->
-            <template v-else>
-              <div class="h-96 mb-4">
-                <Cropper
-                  ref="cropperRef"
-                  :src="imageUrl"
-                  :stencil-props="{
-                    aspectRatio: 1,
-                  }"
-                  class="cropper"
-                />
-              </div>
+                  <div class="flex justify-end gap-3 pt-4">
+                    <button
+                      @click="showAvatarModal = false"
+                      class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
+                             text-white rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </template>
 
-              <div class="flex justify-end gap-3">
-                <button
-                  @click="cancelCrop"
-                  class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  @click="handleCrop"
-                  class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                >
-                  Apply & Upload
-                </button>
-              </div>
-            </template>
+              <!-- Cropper view -->
+              <template v-else>
+                <div class="w-full mb-6">
+                  <div class="bg-black/30 rounded-xl p-4 mb-4">
+                    <div class="h-72">
+                      <Cropper
+                        ref="cropperRef"
+                        :src="imageUrl"
+                        :stencil-props="{
+                          aspectRatio: 1,
+                        }"
+                        class="cropper"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end gap-3">
+                    <button
+                      @click="cancelCrop"
+                      class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
+                             text-white rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      @click="handleCrop"
+                      class="px-5 py-2.5 bg-green-600 hover:bg-green-700 
+                             text-white rounded-lg transition-colors"
+                    >
+                      Apply & Upload
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
       </div>

@@ -1,16 +1,39 @@
 <script setup lang="ts">
 import '../assets/base.css'
+import { onMounted } from 'vue'
+import { useWindowHeight } from '@/composables/useWindowHeight'
+
+// Initialize window height utility
+useWindowHeight()
+
+onMounted(() => {
+  // Force consistent height on all page-main elements
+  document.querySelectorAll('.page-main').forEach((el) => {
+    el.classList.add('fixed-height')
+  })
+})
 </script>
 
 <template>
   <div class="component-global-wrapper">
-    <main
-      class="page-main bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl"
-    >
+    <main class="page-main fixed-height bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl">
       <slot></slot>
     </main>
   </div>
 </template>
+
+<style>
+/* Global height definition - put in global scope */
+:root {
+  --view-height: 42rem;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --view-height: calc(100vh - 4.5rem);
+  }
+}
+</style>
 
 <style scoped>
 /* Global wrapper class to ensure identical positioning */
@@ -22,12 +45,17 @@ import '../assets/base.css'
   box-sizing: border-box !important;
 }
 
+/* Fixed height class to enforce consistency */
+.fixed-height {
+  height: var(--view-height) !important;
+  min-height: var(--view-height) !important;
+  max-height: var(--view-height) !important;
+}
+
 /* Base styling for the main container */
 .page-main {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
-  /* Use min-height instead of fixed height for better responsiveness */
-  min-height: 42rem;
   width: 1366px !important;
   max-width: 1366px !important;
   margin: 0 auto !important;
@@ -98,9 +126,9 @@ import '../assets/base.css'
 @media (max-width: 640px) {
   .page-main {
     /* Improved height calculation with minimum height safeguard */
-    height: calc(100vh - 4.5rem);
-    min-height: 30rem; /* Minimum height safeguard */
-    max-height: none;
+    height: var(--view-height) !important;
+    min-height: var(--view-height) !important;
+    max-height: var(--view-height) !important;
     width: calc(100vw - 2rem) !important;
     min-width: auto !important;
     max-width: 100% !important;
@@ -154,8 +182,8 @@ import '../assets/base.css'
 
 /* Fix iOS-specific height issues */
 @supports (-webkit-touch-callout: none) {
-  .page-main {
-    height: calc(100vh - 4.5rem - env(safe-area-inset-bottom));
+  .fixed-height {
+    height: calc(var(--view-height) - env(safe-area-inset-bottom)) !important;
   }
 }
 

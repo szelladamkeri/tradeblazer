@@ -1,125 +1,126 @@
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { User, UserState } from '@/types'
 
-interface User {
-  id: number
-  username: string
-  email: string
-  avatar: string | undefined
-  type: string
-  created_at: string
-  displayName?: string
-}
+export const useUserStore = defineStore('user', () => {
+  const user = ref<User | null>(null)
+  const token = ref<string | null>(null)
+  const isAuthenticated = computed(() => !!user.value)
+  const avatarTimestamp = ref<number>(Date.now())
+  const avatar = ref({
+    available: false,
+    loading: false,
+  })
 
-interface AuthState {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
-  avatarTimestamp: number
-  avatar: {
-    available: boolean
-    loading: boolean
-  }
-}
+  // Fix the isAdmin computation to check role (which is what the User interface uses)
+  const isAdmin = computed(() => {
+    // Debug check to help identify the issue
+    console.log('Current user role/type:', user.value?.role, user.value?.type)
+    // Check both role and type fields to ensure compatibility
+    return user.value?.role === 'A' || user.value?.type === 'A'
+  })
 
-export const useUserStore = defineStore('user', {
-  state: (): AuthState => ({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    avatarTimestamp: Date.now(),
-    avatar: {
-      available: false,
-      loading: false,
-    },
-  }),
+  function setUser(userData: User | null, tokenData: string | null = null) {
+    user.value = userData
+    token.value = tokenData
 
-  getters: {
-    isAdmin: (state) => {
-      console.log('User type:', state.user?.type)
-      return state.user?.type === 'A'
-    },
-  },
-
-  actions: {
-    setUser(userData: User | null, token: string | null = null) {
-      this.user = userData
-      this.token = token
-      this.isAuthenticated = !!userData
-
-      if (userData) {
-        localStorage.setItem('user', JSON.stringify({ user: userData }))
-        this.checkAvatar() // Check avatar when setting user
-      } else {
-        this.avatar.available = false
-        this.avatar.loading = false
+    if (userData) {
+      // Ensure role and type are synchronized
+      if (userData.role && !userData.type) {
+        userData.type = userData.role
+      } else if (userData.type && !userData.role) {
+        userData.role = userData.type as 'A' | 'U'
       }
-    },
-
-    logout() {
-      this.user = null
-      this.token = null
-      this.isAuthenticated = false
-      localStorage.removeItem('user')
-    },
-
-    getAuthHeader() {
-      return this.token ? { Authorization: `Bearer ${this.token}` } : {}
-    },
-
-    initializeFromStorage() {
-      const stored = localStorage.getItem('user')
-      if (stored) {
-        try {
-          const data = JSON.parse(stored)
-          this.setUser(data.user)
-        } catch (e) {
-          this.logout()
-        }
-      }
-    },
-
-    async refreshUser() {
-      try {
-        const response = await fetch('http://localhost:3000/api/user/' + this.user?.id)
-        if (!response.ok) throw new Error('Failed to fetch user data')
-
-        const userData = await response.json()
-        if (userData) {
-          this.user = {
-            ...userData,
-            displayName: userData.displayName || userData.username,
-          }
-          this.avatarTimestamp = Date.now()
-          await this.checkAvatar() // Check avatar after user refresh
-          localStorage.setItem('user', JSON.stringify({ user: this.user }))
-        }
-      } catch (error) {
-        console.error('Error refreshing user data:', error)
-      }
-    },
-
-    async checkAvatar() {
-      if (!this.user?.username) return;
       
-      try {
-        const response = await fetch('http://localhost:3000/api/admin/checkfile', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            purpose: 'avatarCheck',
-            username: this.user.username,
-          }),
-        });
+      localStorage.setItem('user', JSON.stringify({ user: userData }))
+      checkAvatar()
+    } else {
+      avatar.value.available = false
+      avatar.value.loading = false
+    }
+  }
 
-        const data = await response.json();
-        this.avatar.available = data.hasAvatar;
-        this.avatarTimestamp = Date.now(); // Force refresh
-      } catch (error) {
-        console.error('Error checking avatar:', error);
-        this.avatar.available = false;
+  function logout() {
+    user.value = null
+    token.value = null
+    localStorage.removeItem('user')
+  }
+
+  function getAuthHeader() {
+    return token.value ? { Authorization: `Bearer ${token.value}` } : {}
+  }
+
+  function initializeFromStorage() {
+    const stored = localStorage.getItem('user')
+    if (stored) {
+      try {
+        const data = JSON.parse(stored)
+        setUser(data.user)
+      } catch (e) {
+        logout()
       }
-    },
-  },
+    }
+  }
+
+  async function refreshUser() {
+    try {
+      const response = await fetch('http://localhost:3000/api/user/' + user.value?.id)
+      if (!response.ok) throw new Error('Failed to fetch user data')
+
+      const userData = await response.json()
+      if (userData) {
+        user.value = {
+          ...userData,
+          displayName: userData.displayName || userData.username,
+          // Ensure both role and type fields are set correctly
+          role: userData.role || userData.type,
+          type: userData.type || userData.role
+        }
+        avatarTimestamp.value = Date.now()
+        await checkAvatar()
+        localStorage.setItem('user', JSON.stringify({ user: user.value }))
+      }
+    } catch (error) {
+      console.error('Error refreshing user data:', error)
+    }
+  }
+
+  async function checkAvatar() {
+    if (!user.value?.username) return;
+    
+    try {
+      const response = await fetch('http://localhost:3000/api/admin/checkfile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          purpose: 'avatarCheck',
+          username: user.value.username,
+        }),
+      });
+
+      const data = await response.json();
+      avatar.value.available = data.hasAvatar;
+      avatarTimestamp.value = Date.now(); // Force refresh
+    } catch (error) {
+      console.error('Error checking avatar:', error);
+      avatar.value.available = false;
+    }
+  }
+
+  return {
+    user,
+    token,
+    isAuthenticated,
+    avatarTimestamp,
+    avatar,
+    isAdmin,
+    setUser,
+    logout,
+    getAuthHeader,
+    initializeFromStorage,
+    refreshUser,
+    checkAvatar,
+  }
 })

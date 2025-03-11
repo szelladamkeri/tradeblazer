@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import HeaderLink from '@/components/HeaderLink.vue'
+import CheckIcon from '@/components/CheckIcon.vue' // Import the new component
 import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
@@ -82,9 +83,8 @@ const handleLogin = async (e: Event) => {
               <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
                 <span>Email or Username</span>
                 <transition name="fade">
-                  <font-awesome-icon
+                  <CheckIcon
                     v-if="email && isEmailOrUsernameValid"
-                    icon="check-circle"
                     class="text-green-400 ml-2"
                   />
                 </transition>
@@ -109,9 +109,8 @@ const handleLogin = async (e: Event) => {
               <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
                 <span>Password</span>
                 <transition name="fade">
-                  <font-awesome-icon
+                  <CheckIcon
                     v-if="password && isPasswordValid"
-                    icon="check-circle"
                     class="text-green-400 ml-2"
                   />
                 </transition>
