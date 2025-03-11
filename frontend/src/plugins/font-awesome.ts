@@ -1,5 +1,6 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { fas } from '@fortawesome/free-solid-svg-icons'
 import {
   faChartLine,
   faChartPie,
@@ -24,11 +25,15 @@ import {
   faHashtag,
   faWrench,
   faPen as faUserPen,
-  faCheck as faCheckCircle,
-  faTriangleExclamation
+  faCheck,
+  faTriangleExclamation,
+  faCircleCheck
 } from '@fortawesome/free-solid-svg-icons'
 
-// Add all icons to the library
+// Add the entire solid icon pack first to ensure all icons are available
+library.add(fas)
+
+// Then add specific icons for explicit usage
 library.add(
   faHome,
   faInfo,
@@ -53,8 +58,9 @@ library.add(
   faHashtag,
   faWrench,
   faUserPen,
-  faCheckCircle,
-  faTriangleExclamation
+  faCheck,
+  faTriangleExclamation,
+  faCircleCheck
 )
 
 export { FontAwesomeIcon }

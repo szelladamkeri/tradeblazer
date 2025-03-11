@@ -18,6 +18,7 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  --view-height: 42rem;
 }
 /* semantic color variables for this project */
 :root {
@@ -39,6 +40,11 @@
     --color-border-hover: var(--vt-c-divider-dark-1);
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
+  }
+}
+@media (max-width: 640px) {
+  :root {
+    --view-height: calc(100vh - 4.5rem);
   }
 }
 *,
@@ -81,4 +87,22 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+/* Force consistent height on all views */
+.admin-view .page-main,
+.home-view .page-main,
+.profile-view .page-main,
+.markets-view .page-main,
+.edit-profile-view .page-main,
+.login-view .page-main,
+.register-view .page-main {
+  height: var(--view-height) !important;
+  min-height: var(--view-height) !important;
+  max-height: var(--view-height) !important;
+}
+/* Fix iOS height issues */
+@supports (-webkit-touch-callout: none) {
+  .page-main {
+    height: calc(var(--view-height) - env(safe-area-inset-bottom)) !important;
+  }
 }
