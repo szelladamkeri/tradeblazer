@@ -1,14 +1,27 @@
 <template>
-  <div class="flex flex-col">
+  <!-- First check API heartbeat status -->
+  <FullPageError
+    v-if="!isApiAvailable && apiError"
+    :message="apiError.message"
+    :error-type="apiError.type"
+    @retry="checkApiHeartbeat"
+  />
+  
+  <!-- Then check for other errors -->
+  <FullPageError
+    v-else-if="error"
+    :message="error.message"
+    :error-type="error.type"
+    @retry="fetchAssetDetails"
+  />
+  
+  <!-- Only render normal page when there's no error -->
+  <div v-else class="flex flex-col">
     <PageHeader class="mb-4" />
     <PageMain>
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <div v-if="loading" class="flex justify-center items-center py-8">
           <LoadingSpinner />
-        </div>
-
-        <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
-          {{ error }}
         </div>
 
         <div v-else-if="asset" class="space-y-6">
@@ -71,6 +84,13 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import axios from 'axios';
+import PageHeader from '@/components/PageHeader.vue';
+import PageMain from '@/components/PageMain.vue';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import ErrorDisplay from '@/components/ErrorDisplay.vue';
+import { handleApiError } from '@/utils/errorHandler';
+import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
+import FullPageError from '@/components/FullPageError.vue'
 
 const route = useRoute();
 const router = useRouter();
@@ -85,16 +105,30 @@ const quantity = ref(1);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const canTrade = computed(() => quantity.value > 0);
 
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price)
+}
+
+// Add API heartbeat check
+const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
+
 async function fetchAssetDetails() {
   loading.value = true;
   error.value = null;
 
   try {
-    const response = await axios.get(`http://localhost:3000/api/assets/data/${route.params.id}`); // Updated endpoint
+    const response = await axios.get(`http://localhost:3000/api/assets/data/${route.params.id}`);
     asset.value = response.data;
   } catch (err) {
     console.error('Error fetching asset:', err);
-    error.value = 'Failed to load asset details';
+    const processedError = handleApiError(err);
+    error.value = {
+      message: processedError.message,
+      type: processedError.type
+    };
   } finally {
     loading.value = false;
   }

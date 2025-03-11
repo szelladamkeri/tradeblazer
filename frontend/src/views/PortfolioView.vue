@@ -7,6 +7,11 @@ import PageMain from '@/components/PageMain.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import FadeIn from '@/components/FadeIn.vue'
 import HeaderLink from '@/components/HeaderLink.vue'
+import { usePagination } from '@/composables/usePagination'
+import ErrorDisplay from '@/components/ErrorDisplay.vue'
+import { handleApiError } from '@/utils/errorHandler'
+import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
+import FullPageError from '@/components/FullPageError.vue'
 
 interface PortfolioData {
   assets: Array<{
@@ -30,7 +35,7 @@ const portfolioData = ref<PortfolioData>({
   balance: 0,
   totalValue: 0
 })
-const error = ref<string | null>(null)
+const error = ref<{ message: string; type: string } | null>(null)
 
 const calculateReturn = (current: number, avg: number) => {
   const returnPct = ((current - avg) / avg) * 100
@@ -55,7 +60,10 @@ const totalPositions = computed(() => portfolioData.value.assets.length)
 
 const fetchPortfolioData = async () => {
   if (!userStore.user?.id) {
-    error.value = 'User not authenticated'
+    error.value = {
+      message: 'User not authenticated',
+      type: 'auth'
+    }
     return
   }
   
@@ -75,13 +83,20 @@ const fetchPortfolioData = async () => {
     console.log('Portfolio response status:', response.status)
     
     if (!response.ok) {
-      const errorData = await response.json()
-      console.error('Portfolio error data:', errorData)
+      let errorData
+      try {
+        errorData = await response.json()
+      } catch {
+        errorData = { message: 'Failed to parse server response' }
+      }
       
       if (response.status === 404) {
-        error.value = 'Portfolio not found: ' + (errorData.message || '')
+        error.value = {
+          message: 'Portfolio not found: ' + (errorData.message || ''),
+          type: 'notFound'
+        }
       } else {
-        error.value = `Error: ${errorData.message || 'Unknown error'}`
+        throw new Error(`Error: ${errorData.message || 'Unknown error'}`)
       }
       return
     }
@@ -91,7 +106,11 @@ const fetchPortfolioData = async () => {
     portfolioData.value = data
   } catch (err) {
     console.error('Portfolio error:', err)
-    error.value = 'Failed to load portfolio data: ' + (err.message || '')
+    const processedError = handleApiError(err)
+    error.value = {
+      message: processedError.message,
+      type: processedError.type
+    }
   } finally {
     loading.value = false
   }
@@ -107,25 +126,62 @@ onMounted(async () => {
 
 // Price formatting to match HomeView
 const formatPrice = (price: number): string => {
-  return price % 1 === 0 ? price.toString() : price.toFixed(2)
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price)
 }
+
+const { 
+  tableContainer,
+  currentPage,
+  paginatedItems: paginatedAssets,
+  totalPages,
+  nextPage,
+  prevPage,
+  visibleItems
+} = usePagination(computed(() => portfolioData.value?.assets || []))
+
+// Add API heartbeat check
+const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
+
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <!-- First check API heartbeat status -->
+  <FullPageError
+    v-if="!isApiAvailable && apiError"
+    :message="apiError.message"
+    :error-type="apiError.type"
+    @retry="checkApiHeartbeat"
+  />
+  
+  <!-- Then check for other errors -->
+  <FullPageError
+    v-else-if="error"
+    :message="error.message"
+    :error-type="error.type"
+    @retry="fetchPortfolioData"
+  />
+  
+  <!-- Only render normal page when there's no error -->
+  <div v-else class="flex flex-col portfolio-view">
     <PageHeader class="mb-4" />
     
     <PageMain>
-      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
+      <div ref="tableContainer" class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <!-- Add the conditional overflow container to match MarketsView -->
         <div class="h-full" :class="{'overflow-y-auto': portfolioData.assets.length > 10}">
           <div v-if="loading" class="flex justify-center items-center py-8">
             <LoadingSpinner />
           </div>
           
-          <div v-else-if="error" class="text-red-500 text-center py-4 animate-bounce-slow">
-            {{ error }}
-          </div>
+          <ErrorDisplay
+            v-else-if="error"
+            :message="error.message"
+            :error-type="error.type"
+            @retry="fetchPortfolioData"
+          />
           
           <div v-else class="space-y-6">
             <!-- Portfolio Summary -->
@@ -181,7 +237,7 @@ const formatPrice = (price: number): string => {
                           No holdings found
                         </td>
                       </tr>
-                      <tr v-for="asset in portfolioData.assets" :key="asset.assetId" 
+                      <tr v-for="asset in paginatedAssets" :key="asset.assetId" 
                           class="hover:bg-white/5 transition-colors">
                         <td class="py-4 px-4">
                           <div class="flex items-center">
@@ -214,6 +270,46 @@ const formatPrice = (price: number): string => {
                       </tr>
                     </tbody>
                   </table>
+
+                  <!-- Replace the pagination section -->
+                  <div class="mt-4 flex items-center justify-between px-4">
+                    <div class="text-sm text-gray-400">
+                      Showing {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to 
+                      {{ Math.min(currentPage * visibleItems, portfolioData.assets?.length || 0) }} of 
+                      {{ portfolioData.assets?.length || 0 }} positions
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        @click="prevPage"
+                        :disabled="currentPage === 1"
+                        class="px-3 py-1 rounded-lg transition-colors"
+                        :class="[
+                          currentPage === 1
+                            ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                            : 'bg-white/10 text-white hover:bg-white/20'
+                        ]"
+                      >
+                        <font-awesome-icon icon="chevron-left" />
+                      </button>
+                      
+                      <span class="text-gray-400">
+                        Page {{ currentPage }} of {{ totalPages }}
+                      </span>
+
+                      <button
+                        @click="nextPage"
+                        :disabled="currentPage === totalPages"
+                        class="px-3 py-1 rounded-lg transition-colors"
+                        :class="[
+                          currentPage === totalPages
+                            ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                            : 'bg-white/10 text-white hover:bg-white/20'
+                        ]"
+                      >
+                        <font-awesome-icon icon="chevron-right" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </FadeIn>
@@ -316,5 +412,22 @@ tbody tr:hover {
 /* Update empty state and error state backgrounds to match */
 .bg-black\/40 {
   background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Add pagination specific styles */
+tr {
+  height: 72px;
+}
+
+.overflow-y-auto {
+  overflow: hidden !important;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-x-auto {
+  scrollbar-width: none;
 }
 </style>

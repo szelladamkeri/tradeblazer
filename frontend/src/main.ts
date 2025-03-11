@@ -47,6 +47,11 @@ import {
   faSackDollar,
   faDollarSign,
   faQuestion,
+  faChevronLeft,
+  faChevronRight,
+  faRotate,
+  faServer,
+  faLock,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -86,6 +91,11 @@ library.add(
   faSackDollar,
   faDollarSign,
   faQuestion,
+  faChevronLeft,
+  faChevronRight,
+  faRotate,
+  faServer,
+  faLock,
 )
 
 const app = createApp(App)

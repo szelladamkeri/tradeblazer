@@ -7,11 +7,17 @@ import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import FadeIn from '@/components/FadeIn.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import ErrorDisplay from '@/components/ErrorDisplay.vue'
+import { handleApiError } from '@/utils/errorHandler'
+import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
+import FullPageError from '@/components/FullPageError.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 
 const refreshTimestamp = ref(Date.now())
+const error = ref<{ message: string; type: string } | null>(null);
+const loading = ref(true);
 
 const checkAvatar = async () => {
   try {
@@ -26,20 +32,39 @@ const checkAvatar = async () => {
       }),
     })
 
+    if (!response.ok) {
+      throw new Error('Failed to check avatar status');
+    }
+
     const data = await response.json()
     avatarAvailable.value = data.hasAvatar
   } catch (error) {
     console.error('Error checking avatar:', error)
-    avatarAvailable.value = false
+    // Just log error, don't show to user - non-critical feature
   }
 }
 
 onMounted(async () => {
+  loading.value = true;
+  error.value = null;
+  
   if (!userStore.isAuthenticated) {
     router.push('/login')
-  } else {
+    return;
+  }
+  
+  try {
     await checkAvatar() // Check avatar on mount
     refreshTimestamp.value = Date.now() // Force refresh
+  } catch (err) {
+    console.error('Profile load error:', err);
+    const processedError = handleApiError(err);
+    error.value = {
+      message: processedError.message,
+      type: processedError.type
+    };
+  } finally {
+    loading.value = false;
   }
 })
 const avatarAvailable = ref(false)
@@ -55,12 +80,20 @@ const handleDeleteConfirm = async () => {
     const response = await fetch(`http://localhost:3000/api/user/${userStore.user?.id}`, {
       method: 'DELETE',
     })
-    if (!response.ok) throw new Error('Failed to delete account')
+    if (!response.ok) {
+      const data = await response.text();
+      throw new Error(`Failed to delete account: ${data}`);
+    }
 
     userStore.logout()
     router.push('/register')
   } catch (err) {
     console.error('Delete account error:', err)
+    const processedError = handleApiError(err);
+    error.value = {
+      message: processedError.message,
+      type: processedError.type
+    };
   } finally {
     showDeleteConfirm.value = false
   }
@@ -88,14 +121,47 @@ const userRoleDisplay = computed(() => {
       return { text: 'User', color: 'text-gray-400' }
   }
 })
+
+// Add API heartbeat check
+const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 </script>
 
 <template>
-  <PageHeader class="mb-4" />
-  <PageMain class="w-full bg-black bg-opacity-70 backdrop-blur-xl rounded-xl max-w-7xl mx-auto">
-    <FadeIn>
-      <div class="w-full max-w-2xl mx-auto p-6 sm:p-8">
-        <div v-if="userStore.user" class="space-y-8">
+  <!-- First check API heartbeat status -->
+  <FullPageError
+    v-if="!isApiAvailable && apiError"
+    :message="apiError.message"
+    :error-type="apiError.type"
+    @retry="checkApiHeartbeat"
+  />
+  
+  <!-- Then check for other errors -->
+  <FullPageError
+    v-else-if="error"
+    :message="error.message"
+    :error-type="error.type"
+    @retry="checkAvatar"
+  />
+  
+  <!-- Only render normal page when there's no error -->
+  <div v-else class="flex flex-col profile-view">
+    <PageHeader class="mb-4" />
+    <PageMain>
+      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
+        <!-- Loading state -->
+        <div v-if="loading" class="flex justify-center items-center py-8">
+          <LoadingSpinner />
+        </div>
+
+        <!-- Error state with better component -->
+        <ErrorDisplay
+          v-else-if="error"
+          :message="error.message"
+          :error-type="error.type"
+          @retry="checkAvatar"
+        />
+      
+        <div v-else-if="userStore.user" class="space-y-8">
           <div class="flex flex-col items-center sm:flex-row sm:items-start gap-6">
             <div class="w-24 h-24 rounded-full overflow-hidden bg-white/10">
               <img
@@ -104,7 +170,7 @@ const userRoleDisplay = computed(() => {
                 class="w-full h-full object-cover"
                 :key="refreshTimestamp"
                 alt="User avatar"
-              />
+              ></img>
               <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
                 <span class="text-white text-3xl font-semibold">{{ firstLetter }}</span>
               </div>
@@ -157,8 +223,8 @@ const userRoleDisplay = computed(() => {
           </div>
         </div>
       </div>
-    </FadeIn>
-  </PageMain>
+    </PageMain>
+  </div>
   <ConfirmDialog
     :show="showDeleteConfirm"
     title="Delete Account"
@@ -189,35 +255,19 @@ const userRoleDisplay = computed(() => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Remove duplicate page-header styles as they're now handled by the PageHeader component */
-/*
-.page-header {
-  height: 4rem;
-  width: 1366px !important;
-  max-width: 1366px !important;
-  margin: 0 auto;
-  margin-bottom: 1rem !important;
+/* Add smooth scrolling */
+.overflow-y-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 1366px !important;
-  }
+/* Update background opacity to match other views */
+.bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-@media (max-width: 1100px) {
-  .page-header {
-    width: 90vw !important;
-    max-width: 1024px !important;
-  }
+/* Ensure consistent hover states */
+.hover\:bg-white\/10:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
-
-@media (max-width: 640px) {
-  .page-header {
-    height: 3.5rem;
-    width: calc(100vw - 2rem) !important;
-  }
-}
-*/
 </style>

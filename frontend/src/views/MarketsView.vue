@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import ErrorDisplay from '@/components/ErrorDisplay.vue'
+import { usePagination } from '@/composables/usePagination'
+import { handleApiError } from '@/utils/errorHandler'
+import FullPageError from '@/components/FullPageError.vue'
+import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 
 interface Asset {
   id: number;
@@ -23,7 +28,7 @@ const userStore = useUserStore()
 // Initialize reactive refs
 const assets = ref<Asset[]>([])
 const loading = ref(true)
-const error = ref<string | null>(null)
+const error = ref<{ message: string; type: string } | null>(null)
 const searchTerm = ref('')
 const selectedType = ref('all')
 
@@ -64,14 +69,24 @@ async function fetchAssets() {
     const response = await fetch('http://localhost:3000/api/assets/data')
     
     if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`)
+      let errorData
+      try {
+        errorData = await response.json()
+      } catch {
+        errorData = await response.text()
+      }
+      throw new Error(`Error ${response.status}: ${errorData.message || errorData}`)
     }
     
     const data = await response.json()
     assets.value = data
   } catch (err) {
     console.error('Error fetching assets:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to load market data'
+    const processedError = handleApiError(err)
+    error.value = {
+      message: processedError.message,
+      type: processedError.type
+    }
   } finally {
     loading.value = false
   }
@@ -80,8 +95,6 @@ async function fetchAssets() {
 // Add missing formatting functions
 const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(price)
@@ -128,20 +141,62 @@ const addToWatchlist = async (assetId: number) => {
   console.log('Adding to watchlist:', assetId)
 }
 
+// Remove the existing pagination refs and computation
+// Remove tableContainer, rowHeight, headerHeight, tableHeaderHeight, visibleItems, currentPage
+
+const { 
+  tableContainer,
+  currentPage,
+  paginatedItems: paginatedAssets,
+  totalPages,
+  nextPage,
+  prevPage,
+  visibleItems // Add this
+} = usePagination(filteredAssets)
+
+// Remove the old paginatedAssets computed property
+
+// Keep the filter reset
+watch([searchTerm, selectedType], () => {
+  currentPage.value = 1
+})
+
+// Simplified onMounted
 onMounted(() => {
   fetchAssets()
 })
+
+// Add API heartbeat check
+const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
+
 </script>
 
 <template>
-  <div class="flex flex-col markets-view">
+  <!-- First check API heartbeat status -->
+  <FullPageError
+    v-if="!isApiAvailable && apiError"
+    :message="apiError.message"
+    :error-type="apiError.type"
+    @retry="checkApiHeartbeat"
+  />
+  
+  <!-- Then check for other errors -->
+  <FullPageError
+    v-else-if="error"
+    :message="error.message"
+    :error-type="error.type"
+    @retry="fetchAssets"
+  />
+  
+  <!-- Only render normal page when there's no error -->
+  <div v-else class="flex flex-col markets-view">
     <PageHeader />
     <PageMain>
-      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
-        <!-- Replace the content-container with updated styling that matches PageMain -->
-        <div class="h-full" :class="{'overflow-y-auto': needsScrolling}">
-          <!-- Header section with improved icons -->
-          <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+      <!-- Add ref to the container -->
+      <div ref="tableContainer" class="w-full h-full px-2 sm:px-4 py-4">
+        <div class="h-full">
+          <!-- Header section with improved icons - hide when error is present -->
+          <div v-if="!error && !loading" class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
@@ -197,15 +252,6 @@ onMounted(() => {
             <LoadingSpinner />
           </div>
 
-          <!-- Error state -->
-          <div v-else-if="error" 
-               class="flex justify-center py-12">
-            <div class="bg-black/40 backdrop-blur-xl rounded-xl p-8 max-w-md text-center border border-red-500/20">
-              <font-awesome-icon icon="triangle-exclamation" class="text-3xl text-red-400 mb-4" />
-              <p class="text-red-400">{{ error }}</p>
-            </div>
-          </div>
-
           <!-- Empty state -->
           <div v-else-if="filteredAssets.length === 0" 
                class="flex justify-center py-12">
@@ -215,8 +261,8 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Content state -->
-          <div v-else>
+          <!-- Content state - Updated to use paginatedAssets -->
+          <div v-if="!loading && !error && filteredAssets.length > 0">
             <div class="bg-white/5 rounded-xl overflow-hidden border border-white/10">
               <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -250,7 +296,7 @@ onMounted(() => {
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/10">
-                    <tr v-for="asset in filteredAssets" 
+                    <tr v-for="asset in paginatedAssets" 
                         :key="asset.id"
                         class="hover:bg-white/5 transition-colors group">
                       <td class="py-4 px-4">
@@ -291,6 +337,46 @@ onMounted(() => {
                     </tr>
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <!-- Replace the existing indicator with pagination controls -->
+            <div class="mt-4 flex items-center justify-between px-4">
+              <div class="text-sm text-gray-400">
+                Showing {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to 
+                {{ Math.min((currentPage * visibleItems), filteredAssets.length) }} of 
+                {{ filteredAssets.length }} assets
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  class="px-3 py-1 rounded-lg transition-colors"
+                  :class="[
+                    currentPage === 1
+                      ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  ]"
+                >
+                  <font-awesome-icon icon="chevron-left" />
+                </button>
+                
+                <span class="text-gray-400">
+                  Page {{ currentPage }} of {{ totalPages }}
+                </span>
+
+                <button
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  class="px-3 py-1 rounded-lg transition-colors"
+                  :class="[
+                    currentPage === totalPages
+                      ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  ]"
+                >
+                  <font-awesome-icon icon="chevron-right" />
+                </button>
               </div>
             </div>
           </div>
@@ -479,5 +565,34 @@ select:focus, input:focus {
       color: white;
     }
   }
+}
+
+/* Remove overflow styles since we don't need them anymore */
+.overflow-y-auto {
+  overflow: hidden !important;
+}
+
+/* Ensure consistent row heights */
+tr {
+  height: 72px; /* Match the rowHeight constant */
+}
+
+/* Remove scrollbar styles since we don't need them */
+::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-x-auto {
+  scrollbar-width: none;
+}
+
+/* Add styles for pagination buttons */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 </style>

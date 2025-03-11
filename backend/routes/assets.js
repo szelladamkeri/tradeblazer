@@ -61,7 +61,7 @@ module.exports = (con, asyncHandler) => {
         WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
         GROUP BY a.id
         ORDER BY trade_count DESC
-        LIMIT 1
+        LIMIT 7
       `;
 
       con.query(query, function (err, result) {
@@ -77,7 +77,7 @@ module.exports = (con, asyncHandler) => {
           return res.json(null); // Return null if no trending asset found
         }
 
-        res.json(result[0]);
+        res.json(result);
       });
     })
   )
