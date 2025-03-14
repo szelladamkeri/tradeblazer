@@ -10,13 +10,15 @@ const port = 3000
 // Read the ini file
 const config = ini.parse(fs.readFileSync('./db/db_config.ini', 'utf-8'))
 
-// Create a MySQL connection
-const con = mysql.createConnection({
+// Create connection pool instead of single connection
+const pool = mysql.createPool({
   host: config.host,
   user: config.user,
   password: config.pass,
   database: config.dbname,
-})
+  connectionLimit: 10,
+  waitForConnections: true
+});
 
 // CORS and middleware configuration
 app.use(
@@ -37,21 +39,34 @@ app.use((req, res, next) => {
 // Add this after other middleware configurations
 app.use('/uploads/avatars', express.static(path.join(__dirname, '../frontend/src/assets/avatars')))
 
-// Database connection test function
+// Test connection function with reconnection logic
 const testConnection = () => {
   return new Promise((resolve, reject) => {
-    con.ping((err) => {
+    pool.getConnection((err, connection) => {
       if (err) {
-        if (err.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR') {
-          reject(new Error('MySQL server is not running. Please start XAMPP MySQL service.'))
+        if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR') {
+          console.error('Database connection lost. Attempting to reconnect...');
+          // Force pool to get a new connection
+          pool.end(() => {
+            pool.getConnection((err, connection) => {
+              if (err) {
+                reject(new Error('MySQL server is not running. Please start XAMPP MySQL service.'));
+              } else {
+                connection.release();
+                resolve();
+              }
+            });
+          });
         } else {
-          reject(err)
+          reject(err);
         }
+      } else {
+        connection.release();
+        resolve();
       }
-      resolve()
-    })
-  })
-}
+    });
+  });
+};
 
 // Helper function for async route handling
 const asyncHandler = (fn) => (req, res, next) => {
@@ -59,7 +74,7 @@ const asyncHandler = (fn) => (req, res, next) => {
 }
 
 // Connect to database
-con.connect(function (err) {
+pool.getConnection(function (err, connection) {
   if (err) {
     if (err.code === 'ECONNREFUSED') {
       console.error('Database connection failed: MySQL server is not running.')
@@ -68,13 +83,14 @@ con.connect(function (err) {
     }
   } else {
     console.log('Connected to the database!')
+    connection.release();
   }
 })
 
 // Routes
-app.use('/api', require('./routes')(con, asyncHandler))
+app.use('/api', require('./routes')(pool, asyncHandler))
 // Update this line to pass the connection to portfolio router
-app.use('/api/portfolio', require('./routes/portfolio')(con, asyncHandler))
+app.use('/api/portfolio', require('./routes/portfolio')(pool, asyncHandler))
 
 // Add API endpoint for search
 app.get('/api/assets/search', (req, res) => {
@@ -91,13 +107,26 @@ app.get('/api/assets/search', (req, res) => {
     LIMIT 10
   `;
 
-  con.query(query, [`%${searchQuery}%`, `%${searchQuery}%`], (err, results) => {
+  pool.query(query, [`%${searchQuery}%`, `%${searchQuery}%`], (err, results) => {
     if (err) {
       console.error('Search error:', err);
       return res.status(500).json({ message: 'Database error' });
     }
     res.json(results);
   });
+});
+
+// Add reconnection endpoint
+app.post('/api/reconnect', async (req, res) => {
+  try {
+    await testConnection();
+    res.json({ success: true, message: 'Database connection restored' });
+  } catch (error) {
+    res.status(503).json({
+      error: 'Database connection error',
+      message: error.message
+    });
+  }
 });
 
 // Error handling middleware

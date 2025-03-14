@@ -1,4 +1,3 @@
-
 // User-related types
 export interface User {
   id: number
@@ -7,7 +6,6 @@ export interface User {
   displayName?: string
   role: 'A' | 'U'  // 'A' for Admin, 'U' for User
   created_at?: string
-  type?: string
 }
 
 // Error-related types

@@ -12,26 +12,13 @@ export const useUserStore = defineStore('user', () => {
     loading: false,
   })
 
-  // Fix the isAdmin computation to check role (which is what the User interface uses)
-  const isAdmin = computed(() => {
-    // Debug check to help identify the issue
-    console.log('Current user role/type:', user.value?.role, user.value?.type)
-    // Check both role and type fields to ensure compatibility
-    return user.value?.role === 'A' || user.value?.type === 'A'
-  })
+  const isAdmin = computed(() => user.value?.role === 'A')
 
   function setUser(userData: User | null, tokenData: string | null = null) {
     user.value = userData
     token.value = tokenData
 
     if (userData) {
-      // Ensure role and type are synchronized
-      if (userData.role && !userData.type) {
-        userData.type = userData.role
-      } else if (userData.type && !userData.role) {
-        userData.role = userData.type as 'A' | 'U'
-      }
-      
       localStorage.setItem('user', JSON.stringify({ user: userData }))
       checkAvatar()
     } else {
@@ -72,7 +59,6 @@ export const useUserStore = defineStore('user', () => {
         user.value = {
           ...userData,
           displayName: userData.displayName || userData.username,
-          // Ensure both role and type fields are set correctly
           role: userData.role || userData.type,
           type: userData.type || userData.role
         }

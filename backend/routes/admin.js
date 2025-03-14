@@ -29,7 +29,7 @@ const upload = multer({
 
 module.exports = (con, asyncHandler) => {
 	router.get('/users', asyncHandler(async (req, res) => {
-		con.query('SELECT id, username, email, type as role, created_at FROM users', (err, result) => {
+		con.query('SELECT id, username, email, role, created_at FROM users', (err, result) => {
 			if (err) {
 				console.error('Database query error:', err)
 				return res.status(500).json({
@@ -68,7 +68,7 @@ module.exports = (con, asyncHandler) => {
 		const { username, email, role } = req.body
 
 		con.query(
-			'UPDATE users SET username = ?, email = ?, type = ? WHERE id = ?',
+			'UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?',
 			[username, email, role, userId],
 			(err, result) => {
 				if (err) {
