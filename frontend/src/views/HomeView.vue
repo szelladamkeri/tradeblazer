@@ -165,6 +165,18 @@ const formatPrice = (price: number): string => {
   }).format(price)
 }
 
+// Add asset type icons mapping
+const typeIcons = {
+  crypto: 'coins',
+  stock: 'chart-line',
+  forex: 'exchange-alt'
+} as const
+
+// Add function to get appropriate icon for asset type
+const getAssetTypeIcon = (type: string) => {
+  return typeIcons[type as keyof typeof typeIcons] || 'question'
+}
+
 </script>
 
 <template>
@@ -255,19 +267,42 @@ const formatPrice = (price: number): string => {
                   <div v-if="trendingAssets.loading" class="flex-1 flex items-center justify-center">
                     <LoadingSpinner class="w-6 h-6" />
                   </div>
-                  <div v-else-if="trendingAssets.error" class="flex-1 flex items-center justify-center text-gray-400">
+                  <div v-else-if="trendingAssets.error" class="flex-1 flex items-center justify-center text-red-400">
+                    <font-awesome-icon icon="triangle-exclamation" class="text-xl mr-2" />
                     {{ trendingAssets.error }}
                   </div>
-                  <div v-else class="flex-1 flex flex-col h-full">
-                    <div class="flex-1 overflow-y-auto">
+                  <div v-else class="flex-1 flex flex-col">
+                    <div class="flex-1 overflow-y-auto scrollbar-thin">
                       <div class="py-2 space-y-2">
                         <div
-                          v-for="(asset, index) in trendingAssets.data"
+                          v-for="asset in trendingAssets.data"
                           :key="asset.id"
                           class="p-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer group"
                           @click="router.push(`/trade/${asset.id}`)"
                         >
-                          <!-- ...existing asset content... -->
+                          <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                              <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
+                              </div>
+                              <div>
+                                <div class="font-medium text-white group-hover:text-green-400 transition-colors">
+                                  {{ asset.symbol }}
+                                </div>
+                                <div class="text-sm text-gray-400">{{ asset.name }}</div>
+                              </div>
+                            </div>
+                            <div class="text-right">
+                              <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
+                              <div :class="[
+                                'text-sm flex items-center gap-1',
+                                asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
+                              ]">
+                                <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
+                                {{ Math.abs(asset.change_24h).toFixed(2) }}%
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -349,4 +384,28 @@ const formatPrice = (price: number): string => {
   margin-right: -0.25rem;
   padding-right: 0.25rem;
 }
+
+/* Add these styles for better scrolling in trending panel */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 </style>

@@ -147,19 +147,30 @@ const debugIsAdmin = computed(() => {
   console.log('isAdmin value:', isAdmin, 'user:', userStore.user)
   return isAdmin
 })
+
+// Add mouse move tracking for the gradient effect
+const handleMouseMove = (event: MouseEvent) => {
+  const header = event.currentTarget as HTMLElement;
+  const rect = header.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  header.style.setProperty('--mouse-x', `${x}%`);
+  header.style.setProperty('--mouse-y', `${y}%`);
+};
 </script>
 
 <template>
   <div class="component-global-wrapper">
     <div class="page-header-wrapper">
       <div class="page-header">
-        <header class="w-full bg-black/70 rounded-xl relative z-[50]">
+        <header class="w-full bg-black/70 rounded-xl relative z-[50]" @mousemove="handleMouseMove">
           <div class="px-2 sm:px-4 py-3">
             <!-- Adjusted padding -->
             <div class="flex items-center justify-between gap-2">
               <!-- Added gap -->
               <!-- Logo - made more compact on mobile -->
-              <div class="flex items-center shrink-0">
+              <div class="flex items-center shrink-0 logo-container">
                 <font-awesome-icon
                   icon="chart-line"
                   class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2"
@@ -1187,6 +1198,163 @@ input:focus {
 @media (min-width: 768px) and (max-width: 1024px) {
   .component-global-wrapper .page-header {
     max-width: 90vw !important;
+  }
+}
+
+/* Base header styling */
+header {
+  @apply relative overflow-hidden;
+  background: linear-gradient(
+    165deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Animated gradient border */
+header::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 197, 94, 0.5),  /* green-500 */
+    rgba(255, 255, 255, 0.2),
+    rgba(34, 197, 94, 0.5)   /* green-500 */
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+  border-radius: 0.75rem;
+  animation: borderAnimation 4s linear infinite;
+}
+
+/* Animated background element */
+header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(34, 197, 94, 0.1) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+header:hover::after {
+  opacity: 1;
+}
+
+/* Logo hover effect */
+.logo-container {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: translateY(-1px);
+}
+
+.logo-container::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #22c55e, transparent);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover::after {
+  transform: scaleX(1);
+}
+
+/* Button hover effects */
+button, a {
+  transition: all 0.2s ease;
+}
+
+button:hover, a:hover {
+  transform: translateY(-1px);
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+/* Animated gradient border keyframes */
+@keyframes borderAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 130% 50%;
+  }
+}
+
+/* Hover effect for navigation items */
+nav a, button {
+  position: relative;
+  overflow: hidden;
+}
+
+nav a::before, button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+nav a:hover::before, button:hover::before {
+  left: 100%;
+}
+
+/* Add subtle floating animation to the header */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.page-header {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  header {
+    backdrop-filter: blur(12px) saturate(150%);
+  }
+
+  .page-header {
+    animation: none; /* Disable floating on mobile */
+  }
+
+  /* Improve touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 </style>
