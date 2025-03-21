@@ -1,15 +1,107 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HomeView from './views/HomeView.vue'
+import AnimatedBackground from './components/AnimatedBackground.vue'
 </script>
 
 <template>
-  <div class="app-container w-full min-h-screen flex items-center justify-center">
-    <RouterView class="w-full" />
+  <div class="app-container relative h-screen">
+    <AnimatedBackground />
+    <RouterView class="w-full relative z-10" />
   </div>
 </template>
 
+<style>
+/* Global overrides for full-width layout with proper gradient */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.95), rgba(8, 11, 22, 0.98)) !important;
+  background-attachment: fixed !important;
+  color: white;
+}
+
+/* Override #app constraints */
+#app {
+  max-width: none !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+/* Make sure all content is full width by default */
+.router-view, main, header {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* Override any remaining bordered containers */
+.page-main, .component-global-wrapper, .page-header, .page-header-wrapper {
+  border-radius: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure consistent layout and width for both main and header */
+.page-header-wrapper, .page-main-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.page-header, .page-main {
+  width: 100% !important;
+  max-width: 1366px !important;
+  min-width: auto !important; /* Remove any fixed min-width */
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 1400px) {
+  .page-header, .page-main {
+    width: 95vw !important;
+    max-width: 1366px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header, .page-main {
+    width: 95vw !important;
+    max-width: 1024px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header, .page-main {
+    width: calc(100vw - 2rem) !important;
+    max-width: 100% !important;
+  }
+}
+</style>
+
 <style scoped>
+/* Centered app container - updated for full width */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100% !important;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -95,11 +187,12 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100vh;
   width: 100%;
-  max-width: 100vw;
-  padding: 1rem 0;
+  max-width: 100% !important;
+  padding: 0;
+  margin: 0;
 }
 
 @media (max-width: 640px) {
@@ -199,5 +292,20 @@ html, body {
   .app-container {
     padding: 0;
   }
+}
+
+/* Add gradient background to the entire app */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: #051224 !important; /* Dark blue for trading platform */
+  background-attachment: fixed !important;
+  overflow-x: hidden;
+}
+
+/* Remove background image if it exists */
+body[style*="background-image"] {
+  background-image: none !important;
 }
 </style>

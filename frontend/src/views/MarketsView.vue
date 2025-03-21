@@ -169,6 +169,17 @@ onMounted(() => {
 // Add API heartbeat check
 const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 
+// Add mouse move tracking for the header gradient effect - copied from HomeView
+const handleHeaderMouseMove = (event: MouseEvent) => {
+  const header = event.currentTarget as HTMLElement;
+  const rect = header.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  header.style.setProperty('--mouse-x', `${x}%`);
+  header.style.setProperty('--mouse-y', `${y}%`);
+};
+
 </script>
 
 <template>
@@ -189,81 +200,96 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
   />
   
   <!-- Only render normal page when there's no error -->
-  <div v-else class="flex flex-col markets-view">
-    <PageHeader />
-    <PageMain>
-      <!-- Add ref to the container -->
-      <div ref="tableContainer" class="w-full h-full px-2 sm:px-4 py-4">
-        <div class="h-full">
-          <!-- Header section with improved icons - hide when error is present -->
-          <div v-if="!error && !loading" class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
-              </div>
-              <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white">Markets</h1>
-                <p class="text-gray-400 mt-1">Browse and trade available assets on our platform</p>
-              </div>
+  <div v-else class="home-view">
+    <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
+
+    <div class="w-full pt-12 pb-8 px-4">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header section with improved icons -->
+        <div v-if="!error && !loading" class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+              <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
+            </div>
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-white">Markets</h1>
+              <p class="text-gray-400 mt-1">Browse and trade available assets on our platform</p>
+            </div>
+          </div>
+          
+          <!-- Controls -->
+          <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div class="relative w-full sm:w-auto">
+              <input
+                type="text"
+                v-model="searchTerm"
+                placeholder="Search assets..."
+                class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200"
+              />
+              <font-awesome-icon icon="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
             
-            <!-- Controls -->
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <div class="relative w-full sm:w-auto">
-                <input
-                  type="text"
-                  v-model="searchTerm"
-                  placeholder="Search assets..."
-                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200"
-                />
-                <font-awesome-icon icon="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <!-- Improved custom dropdown -->
+            <div class="relative flex items-center gap-2 w-full sm:w-auto">
+              <div class="custom-select-wrapper w-full">
+                <select
+                  v-model="selectedType"
+                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200"
+                >
+                  <option value="all">
+                    <font-awesome-icon icon="layer-group" /> All Assets
+                  </option>
+                  <option value="stock">
+                    <font-awesome-icon icon="chart-line" /> Stocks
+                  </option>
+                  <option value="crypto">
+                    <font-awesome-icon icon="coins" /> Crypto
+                  </option>
+                  <option value="forex">
+                    <font-awesome-icon icon="exchange-alt" /> Forex
+                  </option>
+                </select>
+                <span class="custom-select-icon">
+                  <font-awesome-icon icon="chevron-down" class="text-gray-400" />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div v-if="loading" class="flex justify-center items-center py-12">
+          <LoadingSpinner />
+        </div>
+
+        <!-- Empty state -->
+        <div v-else-if="filteredAssets.length === 0" 
+              class="grid grid-cols-1 gap-6">
+          <div class="dashboard-panel">
+            <div class="panel-inner flex items-center justify-center p-8 max-w-md text-center">
+              <div class="flex flex-col items-center">
+                <font-awesome-icon icon="search" class="text-3xl text-gray-400 mb-4 panel-icon-lg" />
+                <p class="text-gray-400">No assets found matching your search criteria.</p>
+              </div>
+            </div>
+            <div class="corner-decor top-left"></div>
+            <div class="corner-decor top-right"></div>
+            <div class="corner-decor bottom-left"></div>
+            <div class="corner-decor bottom-right"></div>
+          </div>
+        </div>
+
+        <!-- Content state - Using grid layout like HomeView -->
+        <div v-if="!loading && !error && filteredAssets.length > 0" class="grid grid-cols-1 gap-6">
+          <div class="dashboard-panel">
+            <div class="panel-inner">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
+                  <font-awesome-icon icon="list" class="panel-icon" />
+                  Market Assets
+                </h2>
               </div>
               
-              <!-- Improved custom dropdown -->
-              <div class="relative flex items-center gap-2 w-full sm:w-auto">
-                <div class="custom-select-wrapper w-full">
-                  <select
-                    v-model="selectedType"
-                    class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200"
-                  >
-                    <option value="all">
-                      <font-awesome-icon icon="layer-group" /> All Assets
-                    </option>
-                    <option value="stock">
-                      <font-awesome-icon icon="chart-line" /> Stocks
-                    </option>
-                    <option value="crypto">
-                      <font-awesome-icon icon="coins" /> Crypto
-                    </option>
-                    <option value="forex">
-                      <font-awesome-icon icon="exchange-alt" /> Forex
-                    </option>
-                  </select>
-                  <span class="custom-select-icon">
-                    <font-awesome-icon icon="chevron-down" class="text-gray-400" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Loading state -->
-          <div v-if="loading" class="flex justify-center items-center py-12">
-            <LoadingSpinner />
-          </div>
-
-          <!-- Empty state -->
-          <div v-else-if="filteredAssets.length === 0" 
-               class="flex justify-center py-12">
-            <div class="bg-black/40 backdrop-blur-xl rounded-xl p-8 max-w-md text-center border border-white/10">
-              <font-awesome-icon icon="search" class="text-3xl text-gray-400 mb-4" />
-              <p class="text-gray-400">No assets found matching your search criteria.</p>
-            </div>
-          </div>
-
-          <!-- Content state - Updated to use paginatedAssets -->
-          <div v-if="!loading && !error && filteredAssets.length > 0">
-            <div class="bg-white/5 rounded-xl overflow-hidden border border-white/10">
               <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                   <thead>
@@ -339,8 +365,12 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
                 </table>
               </div>
             </div>
+            <div class="corner-decor top-left"></div>
+            <div class="corner-decor top-right"></div>
+            <div class="corner-decor bottom-left"></div>
+            <div class="corner-decor bottom-right"></div>
 
-            <!-- Replace the existing indicator with pagination controls -->
+            <!-- Pagination controls -->
             <div class="mt-4 flex items-center justify-between px-4">
               <div class="text-sm text-gray-400">
                 Showing {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to 
@@ -382,7 +412,7 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
           </div>
         </div>
       </div>
-    </PageMain>
+    </div>
   </div>
 </template>
 
@@ -399,6 +429,16 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Add smooth scrolling */
+.overflow-y-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Table styles */
@@ -428,171 +468,99 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
   }
 }
 
-/* Add table hover effect */
-tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+/* Add dashboard panel styling from HomeView */
+.dashboard-panel {
+  @apply relative overflow-hidden;
+  border-radius: 0.75rem;
+  height: auto;
 }
 
-/* Clean up table borders */
-.border-collapse {
-  border-collapse: collapse;
-}
-
-/* Improve table cell spacing */
-td, th {
-  white-space: nowrap;
-}
-
-/* Update background opacity */
-.bg-black\/40 {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Update background opacity to match AdminView */
-.bg-white\/5 {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Ensure consistent hover states */
-tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Update empty state and error state backgrounds to match */
-.bg-black\/40 {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Fix dropdown visibility */
-.custom-select-wrapper {
+.panel-inner {
+  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
+  transition: all 0.4s ease;
+  border-radius: 0.75rem;
   position: relative;
-  display: inline-block;
-  width: 100%;
+  overflow: hidden;
 }
 
-.custom-select-icon {
+.panel-inner::before {
+  content: '';
   position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.panel-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 60%
+  );
   pointer-events: none;
-  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
 }
 
-/* Add explicit styling for dropdown options */
-select option {
-  background-color: #1f2937;
-  color: white;
-  padding: 8px;
+.panel-inner:hover::after {
+  opacity: 1;
 }
 
-/* Fix dropdown appearance in different browsers */
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: none;
-  cursor: pointer;
+.panel-inner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
 }
 
-/* Handle select styles in Firefox */
-@-moz-document url-prefix() {
-  select {
-    color: white;
-    background-color: rgba(0, 0, 0, 0.4);
-    text-indent: 0.01px;
-    text-overflow: '';
-    padding-right: 2rem;
-  }
-  
-  select:focus {
-    border-color: #22c55e !important;
-    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
-  }
-  
-  select option {
-    background-color: #1f2937;
-    color: white;
-  }
+/* Decorative corner elements */
+.corner-decor {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  z-index: 20;
 }
 
-/* Handle select styles in Chrome/Safari */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  select {
-    padding-right: 2rem;
-  }
-  
-  select:focus {
-    border-color: #22c55e !important;
-    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
-  }
-  
-  select option {
-    background-color: #1f2937;
-    color: white;
-  }
+.corner-decor.top-left {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
 }
 
-/* Consistent focus states across browsers */
-select:focus, input:focus {
-  border-color: #22c55e !important; /* green-500 */
-  --tw-ring-color: rgba(34, 197, 94, 0.5) !important; /* green-500 with opacity */
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+.corner-decor.top-right {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
 }
 
-/* Mobile optimization for dropdown */
-@media (max-width: 640px) {
-  select, input, button {
-    font-size: 16px; /* Prevents iOS zoom */
-    height: 44px; /* Larger touch target */
-    width: 100%;
-  }
-  
-  .custom-select-wrapper {
-    width: 100%;
-  }
-  
-  .custom-select-icon {
-    right: 16px;
-  }
+.corner-decor.bottom-left {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
 }
 
-/* Safari-specific fixes */
-@media not all and (min-resolution:.001dpcm) { 
-  @supports (-webkit-appearance:none) {
-    select {
-      background-color: rgba(0, 0, 0, 0.4);
-      color: white;
-    }
-  }
+.corner-decor.bottom-right {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
 }
 
-/* Remove overflow styles since we don't need them anymore */
-.overflow-y-auto {
-  overflow: hidden !important;
-}
-
-/* Ensure consistent row heights */
-tr {
-  height: 72px; /* Match the rowHeight constant */
-}
-
-/* Remove scrollbar styles since we don't need them */
-::-webkit-scrollbar {
-  display: none;
-}
-
-.overflow-x-auto {
-  scrollbar-width: none;
-}
-
-/* Add styles for pagination buttons */
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-button:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
+/* Remove all the animation effects previously added */
 </style>

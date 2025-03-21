@@ -163,8 +163,21 @@ const handleMouseMove = (event: MouseEvent) => {
 <template>
   <div class="component-global-wrapper">
     <div class="page-header-wrapper">
-      <div class="page-header">
-        <header class="w-full bg-black/70 rounded-xl relative z-[50]" @mousemove="handleMouseMove">
+      <header class="page-header w-full z-[50]" @mousemove="handleMouseMove">
+        <!-- Add decorative corner elements to match HomeView cards -->
+        <div class="corner-decor top-left"></div>
+        <div class="corner-decor top-right"></div>
+        <div class="corner-decor bottom-left"></div>
+        <div class="corner-decor bottom-right"></div>
+        
+        <!-- Add corner accents to match PageMain -->
+        <div class="corner-accent top-left"></div>
+        <div class="corner-accent top-right"></div>
+        <div class="corner-accent bottom-left"></div>
+        <div class="corner-accent bottom-right"></div>
+        
+        <!-- Content container to maintain readable width -->
+        <div class="content-container">
           <div class="px-2 sm:px-4 py-3">
             <!-- Adjusted padding -->
             <div class="flex items-center justify-between gap-2">
@@ -435,112 +448,138 @@ const handleMouseMove = (event: MouseEvent) => {
               </div>
             </div>
           </div>
-          
-          <!-- Mobile menu content - Improved styling and transitions -->
-          <transition
-            name="mobile-menu"
-            enter-active-class="transition duration-300 ease-out"
-            enter-from-class="opacity-0 -translate-y-4"
-            enter-to-class="opacity-100 translate-y-0"
-            leave-active-class="transition duration-200 ease-in"
-            leave-from-class="opacity-100 translate-y-0"
-            leave-to-class="opacity-0 -translate-y-4"
-          >
-            <div v-if="isMenuOpen" class="sm:hidden fixed inset-x-0 top-[3.5rem] pb-4 bg-black/95 backdrop-blur-md border-b border-white/10 z-[70] max-h-[80vh] overflow-y-auto">
-              <div class="mb-4 px-3 pt-3">
-                <!-- Improved mobile search -->
-                <div class="relative">
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Search assets..."
-                    class="w-full px-3 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200"
+        </div>
+        
+        <!-- Mobile menu content - Improved styling and transitions -->
+        <transition
+          name="mobile-menu"
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-y-4"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-4"
+        >
+          <div v-if="isMenuOpen" class="sm:hidden fixed inset-x-0 top-[3.5rem] pb-4 bg-black/95 backdrop-blur-md border-b border-white/10 z-[70] max-h-[80vh] overflow-y-auto">
+            <div class="mb-4 px-3 pt-3">
+              <!-- Improved mobile search -->
+              <div class="relative">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Search assets..."
+                  class="w-full px-3 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200"
+                />
+                <div 
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
+                >
+                  <font-awesome-icon
+                    v-if="searchLoading"
+                    icon="spinner"
+                    class="text-gray-400 animate-spin"
                   />
-                  <div 
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
-                  >
-                    <font-awesome-icon
-                      v-if="searchLoading"
-                      icon="spinner"
-                      class="text-gray-400 animate-spin"
-                    />
-                    <font-awesome-icon
-                      v-else-if="searchQuery && searchQuery.length > 0"
-                      @click="searchQuery = ''"
-                      icon="times-circle"
-                      class="text-gray-400 cursor-pointer hover:text-white"
-                    />
-                    <font-awesome-icon
-                      v-else
-                      icon="search"
-                      class="text-gray-400"
-                    />
-                  </div>
+                  <font-awesome-icon
+                    v-else-if="searchQuery && searchQuery.length > 0"
+                    @click="searchQuery = ''"
+                    icon="times-circle"
+                    class="text-gray-400 cursor-pointer hover:text-white"
+                  />
+                  <font-awesome-icon
+                    v-else
+                    icon="search"
+                    class="text-gray-400"
+                  />
                 </div>
               </div>
+            </div>
 
-              <!-- Mobile search results - Improved positioning -->
-              <transition 
-                name="fade"
-                enter-active-class="transition ease-out duration-200"
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="transition ease-in duration-150"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
+            <!-- Mobile search results - Improved positioning -->
+            <transition 
+              name="fade"
+              enter-active-class="transition ease-out duration-200"
+              enter-from-class="opacity-0"
+              enter-to-class="opacity-100"
+              leave-active-class="transition ease-in duration-150"
+              leave-from-class="opacity-100"
+              leave-to-class="opacity-0"
+            >
+              <div
+                v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+                class="border-t border-white/10 shadow-lg overflow-y-auto mx-2 mb-3"
               >
-                <div
-                  v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
-                  class="border-t border-white/10 shadow-lg overflow-y-auto mx-2 mb-3"
-                >
-                  <!-- Loading State -->
-                  <div v-if="searchLoading" class="py-4 px-4 text-center">
-                    <LoadingSpinner class="h-6 w-6 mx-auto" />
-                    <p class="mt-2 text-gray-400">Searching...</p>
-                  </div>
+                <!-- Loading State -->
+                <div v-if="searchLoading" class="py-4 px-4 text-center">
+                  <LoadingSpinner class="h-6 w-6 mx-auto" />
+                  <p class="mt-2 text-gray-400">Searching...</p>
+                </div>
 
-                  <!-- Error State -->
-                  <div v-else-if="searchError" class="py-4 px-4 text-center">
-                    <p class="text-red-400">{{ searchError }}</p>
-                  </div>
+                <!-- Error State -->
+                <div v-else-if="searchError" class="py-4 px-4 text-center">
+                  <p class="text-red-400">{{ searchError }}</p>
+                </div>
 
-                  <!-- Results -->
-                  <div v-else>
-                    <div
-                      v-for="result in searchResults"
-                      :key="result.id"
-                      @click="goToAsset(result.id)"
-                      class="p-3 hover:bg-white/10 transition-colors cursor-pointer border-b border-white/10 last:border-b-0"
-                    >
-                      <div class="flex justify-between items-center">
-                        <div>
-                          <div class="font-medium text-white">{{ result.symbol }}</div>
-                          <div class="text-sm text-gray-400 truncate max-w-[200px]">{{ result.name }}</div>
-                        </div>
-                        <div class="text-green-400 font-medium">
-                          ${{ result.price }}
-                        </div>
+                <!-- Results -->
+                <div v-else>
+                  <div
+                    v-for="result in searchResults"
+                    :key="result.id"
+                    @click="goToAsset(result.id)"
+                    class="p-3 hover:bg-white/10 transition-colors cursor-pointer border-b border-white/10 last:border-b-0"
+                  >
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <div class="font-medium text-white">{{ result.symbol }}</div>
+                        <div class="text-sm text-gray-400 truncate max-w-[200px]">{{ result.name }}</div>
+                      </div>
+                      <div class="text-green-400 font-medium">
+                        ${{ result.price }}
                       </div>
                     </div>
                   </div>
-
-                  <!-- No results -->
-                  <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-4 px-4 text-center">
-                    <p class="text-gray-400">No results found</p>
-                  </div>
                 </div>
-              </transition>
 
-              <!-- Improved mobile navigation menu with better spacing -->
-              <nav class="flex flex-col gap-2 px-3">
+                <!-- No results -->
+                <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-4 px-4 text-center">
+                  <p class="text-gray-400">No results found</p>
+                </div>
+              </div>
+            </transition>
+
+            <!-- Improved mobile navigation menu with better spacing -->
+            <nav class="flex flex-col gap-2 px-3">
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="chart-line" class="mr-2" />
+                    <span>Dashboard</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <HeaderLink @click="closeMenu">
+                <template #icon>
+                  <router-link
+                    to="/markets"
+                    class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                  >
+                    <font-awesome-icon icon="chart-pie" class="mr-2" />
+                    <span>Markets</span>
+                  </router-link>
+                </template>
+              </HeaderLink>
+
+              <template v-if="userStore.isAuthenticated">
                 <HeaderLink @click="closeMenu">
                   <template #icon>
                     <router-link
-                      to="/"
+                      to="/portfolio"
                       class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
                     >
-                      <font-awesome-icon icon="chart-line" class="mr-2" />
-                      <span>Dashboard</span>
+                      <font-awesome-icon icon="wallet" class="mr-2" />
+                      <span>Portfolio</span>
                     </router-link>
                   </template>
                 </HeaderLink>
@@ -548,82 +587,45 @@ const handleMouseMove = (event: MouseEvent) => {
                 <HeaderLink @click="closeMenu">
                   <template #icon>
                     <router-link
-                      to="/markets"
+                      to="/profile"
                       class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
                     >
-                      <font-awesome-icon icon="chart-pie" class="mr-2" />
-                      <span>Markets</span>
+                      <font-awesome-icon icon="user-circle" class="mr-2" />
+                      <span>Profile</span>
                     </router-link>
                   </template>
                 </HeaderLink>
 
-                <template v-if="userStore.isAuthenticated">
-                  <HeaderLink @click="closeMenu">
-                    <template #icon>
-                      <router-link
-                        to="/portfolio"
-                        class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                      >
-                        <font-awesome-icon icon="wallet" class="mr-2" />
-                        <span>Portfolio</span>
-                      </router-link>
-                    </template>
-                  </HeaderLink>
+                <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
+                  <template #icon>
+                    <router-link
+                      to="/admin"
+                      class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                    >
+                      <font-awesome-icon icon="shield" class="mr-2" />
+                      <span>Admin</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+              </template>
 
-                  <HeaderLink @click="closeMenu">
-                    <template #icon>
-                      <router-link
-                        to="/profile"
-                        class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                      >
-                        <font-awesome-icon icon="user-circle" class="mr-2" />
-                        <span>Profile</span>
-                      </router-link>
-                    </template>
-                  </HeaderLink>
-
-                  <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
-                    <template #icon>
-                      <router-link
-                        to="/admin"
-                        class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                      >
-                        <font-awesome-icon icon="shield" class="mr-2" />
-                        <span>Admin</span>
-                      </router-link>
-                    </template>
-                  </HeaderLink>
-                </template>
-
-                <template v-else>
-                  <HeaderLink @click="closeMenu">
-                    <template #icon>
-                      <router-link
-                        to="/login"
-                        class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
-                      >
-                        <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-                        <span>Login</span>
-                      </router-link>
-                    </template>
-                  </HeaderLink>
-                </template>
-              </nav>
-            </div>
-          </transition>
-        </header>
-        <!-- Add debug info temporarily (remove after fixing) -->
-        <div v-if="userStore.isAuthenticated" class="hidden">
-          Debug - isAdmin: {{ debugIsAdmin }}, 
-          Role: {{ userStore.user?.role }},
-          Type: {{ userStore.user?.type }}
-        </div>
-        
-        <!-- Add visible admin link if user is admin -->
-        <div v-if="userStore.isAdmin" class="admin-link-indicator">
-          <!-- This will be visible only for debugging -->
-        </div>
-      </div>
+              <template v-else>
+                <HeaderLink @click="closeMenu">
+                  <template #icon>
+                    <router-link
+                      to="/login"
+                      class="flex items-center p-2 w-full rounded hover:text-green-400 transition-colors"
+                    >
+                      <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                      <span>Login</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+              </template>
+            </nav>
+          </div>
+        </transition>
+      </header>
     </div>
   </div>
 </template>
@@ -1017,8 +1019,6 @@ header {
     width: 95vw !important;
     min-width: auto !important;
     max-width: 1366px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
   }
 }
 
@@ -1027,8 +1027,6 @@ header {
     width: 95vw !important;
     min-width: auto !important;
     max-width: 1024px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
   }
 }
 
@@ -1356,5 +1354,306 @@ nav a:hover::before, button:hover::before {
     min-height: 44px;
     min-width: 44px;
   }
+}
+
+/* Futuristic header styling */
+header {
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.8));
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(74, 222, 128, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 100;
+}
+
+/* Add a subtle animated glow line at bottom */
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(74, 222, 128, 0),
+    rgba(74, 222, 128, 0.5),
+    rgba(74, 222, 128, 0)
+  );
+  animation: glowPulse 3s infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Enhanced button styling */
+button {
+  position: relative;
+  overflow: hidden;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: left 0.5s;
+}
+
+button:hover::after {
+  left: 100%;
+}
+
+/* Make active links more prominent */
+.router-link-active {
+  @apply text-green-400;
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+/* Enhance dropdown menus */
+.bg-black\/70 {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(8, 11, 22, 0.95));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(74, 222, 128, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Add accents to user icons and avatars */
+:deep(.w-8.h-8) {
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.3), 0 0 8px rgba(74, 222, 128, 0.2);
+}
+
+/* Replace the existing header styling with this to match PageMain */
+.futuristic-bg {
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add subtle glow effect that follows the mouse - just like PageMain */
+.futuristic-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(34, 197, 94, 0.05) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+}
+
+.futuristic-bg:hover::after {
+  opacity: 1;
+}
+
+/* Replace animated border with subtle top gradient like PageMain */
+.futuristic-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.2), transparent);
+  /* Remove any conflicting styles */
+  mask: none;
+  -webkit-mask: none;
+  mask-composite: normal;
+  -webkit-mask-composite: normal;
+  padding: 0;
+  animation: none;
+  inset: unset;
+}
+
+/* Add corner accents to match PageMain */
+.corner-accent {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  z-index: 2;
+  opacity: 0.6;
+}
+
+.corner-accent.top-left {
+  top: 12px;
+  left: 12px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-accent.top-right {
+  top: 12px;
+  right: 12px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-accent.bottom-left {
+  bottom: 12px;
+  left: 12px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-accent.bottom-right {
+  bottom: 12px;
+  right: 12px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Remove conflicting header styles */
+header {
+  border-radius: 0.75rem;
+  width: 100%;
+}
+
+/* Remove existing animated glow line at bottom */
+header::after {
+  content: none;
+}
+
+/* Disable old animation keyframes */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0; }
+}
+
+@keyframes borderAnimation {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 0; }
+}
+
+/* Content container to maintain readable width */
+.content-container {
+  width: 100%;
+  max-width: 1366px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1400px) {
+  .content-container {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 1100px) {
+  .content-container {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    border-radius: 0; /* Remove border radius on mobile for full-width effect */
+  }
+}
+
+/* Global wrapper class to ensure identical positioning */
+.component-global-wrapper {
+  width: 100% !important; 
+  display: flex !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  margin: 0 0 1rem 0 !important;
+}
+
+/* Update header container styles */
+.page-header-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+header {
+  width: 100% !important;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-radius: 0 !important; /* Remove border radius for true full width */
+}
+
+/* Content container to maintain readable width */
+.content-container {
+  width: 100%;
+  max-width: 1366px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  header {
+    border-radius: 0 !important;
+  }
+  
+  .component-global-wrapper {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Add decorative corner elements to match HomeView */
+.corner-decor {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  z-index: 20;
+}
+
+.corner-decor.top-left {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-decor.top-right {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-decor.bottom-left {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-decor.bottom-right {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Make sure header has position relative for absolute positioning */
+header {
+  position: relative;
+  overflow: hidden;
 }
 </style>

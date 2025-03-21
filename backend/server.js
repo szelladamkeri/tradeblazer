@@ -31,10 +31,44 @@ app.use(
 )
 
 app.use(express.json())
+
+// Update the middleware that logs requests
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}:`, req.body)
-  next()
-})
+  const requestStartTime = new Date();
+  const formattedStartTime = requestStartTime.toISOString();
+  
+  // Save the original end method to hook into it
+  const originalEnd = res.end;
+  
+  // Override the end method to log after response is sent
+  res.end = function() {
+    const responseEndTime = new Date();
+    const duration = responseEndTime.getTime() - requestStartTime.getTime();
+    const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    
+    // Format log output with better readability
+    console.log('\n' + '-'.repeat(40));
+    console.log(`[${formattedStartTime}]`);
+    console.log(`${req.method} ${req.originalUrl}`);
+    console.log(`Status: ${res.statusCode} | Duration: ${duration}ms`);
+    
+    // Only print body data for POST/PUT requests
+    if ((req.method === 'POST' || req.method === 'PUT') && req.body && Object.keys(req.body).length > 0) {
+      try {
+        console.log('Body:');
+        console.log(JSON.stringify(req.body, null, 2)); // Pretty print
+      } catch (e) {
+        console.log('Body: [Circular structure]');
+      }
+    }
+    console.log('-'.repeat(40));
+    
+    // Call the original end method
+    return originalEnd.apply(this, arguments);
+  };
+  
+  next();
+});
 
 // Add this after other middleware configurations
 app.use('/uploads/avatars', express.static(path.join(__dirname, '../frontend/src/assets/avatars')))

@@ -29,7 +29,7 @@ const marketStats = ref({
   totalVolume: 0,
   activeAssets: 0,
   loading: true,
-  error: null
+  error: null as string | null
 })
 
 const dashboardPanels = ref([
@@ -126,7 +126,11 @@ const defaultTrendingAssets = [
 ]
 
 // Update trendingAssets initialization
-const trendingAssets = ref({
+const trendingAssets = ref<{
+  data: typeof defaultTrendingAssets,
+  loading: boolean,
+  error: string | null
+}>({
   data: defaultTrendingAssets, // Initialize with default data
   loading: false,
   error: null
@@ -177,130 +181,118 @@ const getAssetTypeIcon = (type: string) => {
   return typeIcons[type as keyof typeof typeIcons] || 'question'
 }
 
+// Add mouse move tracking for the header gradient effect
+const handleHeaderMouseMove = (event: MouseEvent) => {
+  const header = event.currentTarget as HTMLElement;
+  const rect = header.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  header.style.setProperty('--mouse-x', `${x}%`);
+  header.style.setProperty('--mouse-y', `${y}%`);
+};
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <PageHeader>
-      <div class="flex-1 overflow-x-auto py-2">
-        <!-- Panel toggle buttons -->
-        <div class="flex items-center gap-2 px-2 min-w-max">
-          <button 
-            v-for="panel in dashboardPanels"
-            :key="panel.id"
-            @click="togglePanel(panel.id)"
-            class="px-4 py-2 rounded-lg text-sm transition-all duration-200"
-            :class="panel.visible ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'"
-          >
-            <font-awesome-icon :icon="panel.icon" class="mr-2" />
-            {{ panel.title }}
-          </button>
-        </div>
-      </div>
+  <div class="home-view">
+    <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header">
+      <!-- ...existing code... -->
     </PageHeader>
 
-    <PageMain>
-      <div class="w-full h-full overflow-y-auto px-4 py-4">
-        <div class="h-full">
-          <!-- Welcome Section -->
-          <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome to TradeBlazer</h1>
-            <p class="text-gray-400">Your personalized trading dashboard</p>
-          </div>
+    <div class="w-full pt-12 pb-8 px-4">
+      <div class="max-w-7xl mx-auto">
+        <!-- Panels Grid - Now directly on the gradient background -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div 
+            v-for="panel in dashboardPanels" 
+            :key="panel.id"
+            v-show="panel.visible" 
+            class="dashboard-panel"
+          >
+            <div class="panel-inner">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
+                  <font-awesome-icon :icon="panel.icon" class="panel-icon" />
+                  {{ panel.title }}
+                </h2>
+              </div>
 
-          <!-- Panels Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div 
-              v-for="panel in dashboardPanels" 
-              :key="panel.id"
-              v-show="panel.visible" 
-              class="dashboard-panel"
-            >
-              <div class="panel-inner">
-                <div class="flex items-center justify-between mb-4">
-                  <h2 class="text-lg font-medium text-white flex items-center gap-2">
-                    <font-awesome-icon :icon="panel.icon" class="panel-icon" />
-                    {{ panel.title }}
-                  </h2>
+              <!-- Market Statistics Panel -->
+              <div v-if="panel.id === 'market-stats'" class="flex-1">
+                <div v-if="marketStats.loading" class="flex-1 flex items-center justify-center">
+                  <LoadingSpinner class="w-6 h-6" />
                 </div>
-
-                <!-- Market Statistics Panel -->
-                <div v-if="panel.id === 'market-stats'" class="flex-1">
-                  <div v-if="marketStats.loading" class="flex-1 flex items-center justify-center">
-                    <LoadingSpinner class="w-6 h-6" />
-                  </div>
-                  <div v-else-if="marketStats.error" class="flex-1 flex items-center justify-center text-red-400">
-                    {{ marketStats.error }}
-                  </div>
-                  <div v-else class="h-full flex flex-col gap-3">
-                    <!-- Top row - larger stats -->
-                    <div class="flex gap-3 flex-1">
-                      <div class="flex-1 bg-white/5 rounded-lg p-3">
-                        <div class="text-sm text-gray-400">24h Volume</div>
-                        <div class="text-xl text-white font-medium mt-1">
-                          ${{ marketStats.totalVolume.toLocaleString() }}
-                        </div>
-                      </div>
-                      <div class="flex-1 bg-white/5 rounded-lg p-3">
-                        <div class="text-sm text-gray-400">Total Trades</div>
-                        <div class="text-xl text-white font-medium mt-1">
-                          {{ marketStats.totalTrades.toLocaleString() }}
-                        </div>
+                <div v-else-if="marketStats.error" class="flex-1 flex items-center justify-center text-red-400">
+                  {{ marketStats.error }}
+                </div>
+                <div v-else class="h-full flex flex-col gap-3">
+                  <!-- Top row - larger stats -->
+                  <div class="flex gap-3 flex-1">
+                    <div class="flex-1 bg-white/5 rounded-lg p-3">
+                      <div class="text-sm text-gray-400">24h Volume</div>
+                      <div class="text-xl text-white font-medium mt-1">
+                        ${{ marketStats.totalVolume.toLocaleString() }}
                       </div>
                     </div>
-                    <!-- Bottom row - smaller stats -->
-                    <div class="flex gap-3">
-                      <div class="flex-1 bg-green-500/10 rounded-lg p-2 flex items-center justify-between">
-                        <span class="text-sm text-gray-400">Market Status</span>
-                        <span class="text-sm text-green-400 font-medium">Open</span>
-                      </div>
-                      <div class="flex-1 bg-white/5 rounded-lg p-2 flex items-center justify-between">
-                        <span class="text-sm text-gray-400">Active Assets</span>
-                        <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
+                    <div class="flex-1 bg-white/5 rounded-lg p-3">
+                      <div class="text-sm text-gray-400">Total Trades</div>
+                      <div class="text-xl text-white font-medium mt-1">
+                        {{ marketStats.totalTrades.toLocaleString() }}
                       </div>
                     </div>
                   </div>
+                  <!-- Bottom row - smaller stats -->
+                  <div class="flex gap-3">
+                    <div class="flex-1 bg-green-500/10 rounded-lg p-2 flex items-center justify-between">
+                      <span class="text-sm text-gray-400">Market Status</span>
+                      <span class="text-sm text-green-400 font-medium">Open</span>
+                    </div>
+                    <div class="flex-1 bg-white/5 rounded-lg p-2 flex items-center justify-between">
+                      <span class="text-sm text-gray-400">Active Assets</span>
+                      <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
+                    </div>
+                  </div>
                 </div>
+              </div>
 
-                <!-- Trending Assets Panel -->
-                <div v-else-if="panel.id === 'trending'" class="flex-1 flex flex-col">
-                  <div v-if="trendingAssets.loading" class="flex-1 flex items-center justify-center">
-                    <LoadingSpinner class="w-6 h-6" />
-                  </div>
-                  <div v-else-if="trendingAssets.error" class="flex-1 flex items-center justify-center text-red-400">
-                    <font-awesome-icon icon="triangle-exclamation" class="text-xl mr-2" />
-                    {{ trendingAssets.error }}
-                  </div>
-                  <div v-else class="flex-1 flex flex-col">
-                    <div class="flex-1 overflow-y-auto scrollbar-thin">
-                      <div class="py-2 space-y-2">
-                        <div
-                          v-for="asset in trendingAssets.data"
-                          :key="asset.id"
-                          class="p-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer group"
-                          @click="router.push(`/trade/${asset.id}`)"
-                        >
-                          <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                              <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                                <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
-                              </div>
-                              <div>
-                                <div class="font-medium text-white group-hover:text-green-400 transition-colors">
-                                  {{ asset.symbol }}
-                                </div>
-                                <div class="text-sm text-gray-400">{{ asset.name }}</div>
-                              </div>
+              <!-- Trending Assets Panel -->
+              <div v-else-if="panel.id === 'trending'" class="flex-1 flex flex-col">
+                <div v-if="trendingAssets.loading" class="flex-1 flex items-center justify-center">
+                  <LoadingSpinner class="w-6 h-6" />
+                </div>
+                <div v-else-if="trendingAssets.error" class="flex-1 flex items-center justify-center text-red-400">
+                  <font-awesome-icon icon="triangle-exclamation" class="text-xl mr-2" />
+                  {{ trendingAssets.error }}
+                </div>
+                <div v-else class="flex-1 flex flex-col">
+                  <div class="flex-1 trending-container">
+                    <div class="trending-items-wrapper">
+                      <div
+                        v-for="asset in trendingAssets.data"
+                        :key="asset.id"
+                        class="trending-item"
+                        @click="router.push(`/trade/${asset.id}`)"
+                      >
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                              <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
                             </div>
-                            <div class="text-right">
-                              <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
-                              <div :class="[
-                                'text-sm flex items-center gap-1',
-                                asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
-                              ]">
-                                <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
-                                {{ Math.abs(asset.change_24h).toFixed(2) }}%
+                            <div>
+                              <div class="font-medium text-white group-hover:text-green-400 transition-colors">
+                                {{ asset.symbol }}
                               </div>
+                              <div class="text-sm text-gray-400">{{ asset.name }}</div>
+                            </div>
+                          </div>
+                          <div class="text-right">
+                            <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
+                            <div :class="[
+                              'text-sm flex items-center gap-1',
+                              asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
+                            ]">
+                              <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
+                              {{ Math.abs(asset.change_24h).toFixed(2) }}%
                             </div>
                           </div>
                         </div>
@@ -308,58 +300,173 @@ const getAssetTypeIcon = (type: string) => {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Placeholder for other panels -->
-                <div v-else class="flex-1 flex flex-col items-center justify-center">
-                  <font-awesome-icon :icon="panel.icon" class="panel-icon-lg mb-3" />
-                  <p class="text-center text-gray-400">{{ panel.title }} content coming soon</p>
-                </div>
+              <!-- Placeholder for other panels -->
+              <div v-else class="flex-1 flex flex-col items-center justify-center">
+                <font-awesome-icon :icon="panel.icon" class="panel-icon-lg mb-3 pulse-animate" />
+                <p class="text-center text-gray-400">{{ panel.title }} content coming soon</p>
               </div>
             </div>
+            <!-- Decorative corner elements for futuristic look -->
+            <div class="corner-decor top-left"></div>
+            <div class="corner-decor top-right"></div>
+            <div class="corner-decor bottom-left"></div>
+            <div class="corner-decor bottom-right"></div>
           </div>
         </div>
       </div>
-    </PageMain>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .dashboard-panel {
   @apply relative overflow-hidden;
-  height: 260px; /* Increase height slightly to accommodate all items */
+  height: 290px; /* Increased height to fit all trending items */
+  border-radius: 0.75rem;
 }
 
 .panel-inner {
-  @apply p-4 h-full flex flex-col bg-white/5 rounded-xl border border-white/10;
-  background: linear-gradient(165deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.panel-inner:hover {
-  @apply border-green-500/30;
-  background: linear-gradient(165deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
+  transition: all 0.4s ease;
+  border-radius: 0.75rem;
+  height: 100%;
+  width: 100%;
 }
 
 .panel-inner::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 15%; /* Match the bottom line's left margin */
+  right: 15%; /* Match the bottom line's right margin */
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.panel-inner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
+}
+
+@keyframes animatedBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.panel-inner {
+  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
+  transition: all 0.4s ease;
+  border-radius: 0.75rem;
+}
+
+/* Enhanced hover effects */
+.panel-inner:hover {
+  @apply border-green-500/30;
+  background: linear-gradient(135deg, rgba(30, 38, 57, 0.9) 0%, rgba(13, 16, 27, 0.95) 100%);
+  box-shadow: 0 12px 36px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(74, 222, 128, 0.2) inset;
+  transform: translateY(-2px);
+}
+
+/* Futuristic border/line effects */
+.panel-inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.panel-inner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
+}
+
+/* Glowing text and icons */
+.glow-text {
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
 }
 
 .panel-icon {
   @apply text-green-400 text-xl;
-  filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.5));
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.7));
 }
 
 .panel-icon-lg {
-  @apply text-6xl text-white/10;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+  @apply text-6xl text-green-400/20;
+  filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.3));
+}
+
+/* Decorative corner elements */
+.corner-decor {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  z-index: 20;
+}
+
+.corner-decor.top-left {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-decor.top-right {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-decor.bottom-left {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-decor.bottom-right {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Animation effects */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-animate {
+  animation: pulse 4s infinite ease-in-out;
 }
 
 /* Update scrollbar styles */
@@ -408,4 +515,225 @@ const getAssetTypeIcon = (type: string) => {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Trending assets specific styling */
+.trending-container {
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.trending-items-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
+.trending-item {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.trending-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.trending-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Remove the existing scrollbar styles that might be causing issues */
+.scrollbar-thin {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  display: none;
+}
+
+/* Add centering styles */
+.max-w-7xl {
+  max-width: 1280px;
+}
+
+/* Make the home view take the full browser height */
+.home-view {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Match header container width to card container width */
+.page-header .max-w-7xl {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Ensure dashboard panel borders animate */
+.dashboard-panel .panel-inner::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    90deg, 
+    rgba(74, 222, 128, 0.1),
+    rgba(74, 222, 128, 0.5), 
+    rgba(74, 222, 128, 0.1)
+  );
+  z-index: -1;
+  animation: animatedBorder 3s linear infinite;
+  background-size: 300% 100%;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+  border-radius: 0.85rem; /* Slightly larger than the inner border radius */
+}
+
+/* Animation for moving the gradient */
+@keyframes animatedBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Match header width to card container width */
+:deep(.page-header) {
+  width: 100% !important;
+  max-width: 1280px !important; /* Same as max-w-7xl */
+  min-width: auto !important; /* Remove fixed min width */
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Match max-w-7xl from the cards container */
+:deep(.page-header-wrapper),
+:deep(.component-global-wrapper) {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+/* Make sure there's no conflicting padding */
+:deep(.page-header) .content-container {
+  width: 100% !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Keep the media queries for responsiveness */
+@media (max-width: 1400px) {
+  :deep(.page-header) {
+    max-width: 95% !important;
+    width: 95% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  :deep(.page-header) {
+    max-width: calc(100vw - 2rem) !important;
+    width: calc(100vw - 2rem) !important;
+  }
+}
+
+/* Make header match PageMain theme */
+:deep(.custom-header header) {
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+}
+
+/* Add subtle glow effect to header that follows mouse - just like PageMain */
+:deep(.custom-header header::after) {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(34, 197, 94, 0.05) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+}
+
+:deep(.custom-header header:hover::after) {
+  opacity: 1;
+}
+
+/* Add subtle top border with gradient to match PageMain */
+:deep(.custom-header header::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.2), transparent);
+  /* Ensure it doesn't conflict with existing styles */
+  mask: none !important;
+  -webkit-mask: none !important;
+  animation: none !important;
+}
+
+/* Add corner accents to header to match PageMain */
+:deep(.custom-header .corner-accent) {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  z-index: 2;
+  opacity: 0.6;
+}
+
+/* Override any existing animation */
+:deep(.custom-header header) {
+  animation: none !important;
+}
+
+/* Override any conflicting PageHeader styles */
+:deep(.custom-header header) {
+  border-radius: 0.75rem !important;
+}
+
+/* Remove corner accent elements from header */
+:deep(.custom-header .corner-accent) {
+  display: none !important;
+}
+
+/* Remove border from the header */
+:deep(.custom-header header) {
+  border: none !important;
+}
+
+/* Remove the top gradient line */
+:deep(.custom-header header::before) {
+  content: none !important;
+}
+
+/* Add more spacing between header and content */
+.home-view {
+  padding-top: 1.5rem;
+}
+
+/* Adjust the panel section spacing */
+.home-view > .w-full {
+  padding-top: 2rem !important;
+}
 </style>
