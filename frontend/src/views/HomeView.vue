@@ -580,28 +580,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   padding-right: 1rem;
 }
 
-/* Ensure dashboard panel borders animate */
-.dashboard-panel .panel-inner::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(
-    90deg, 
-    rgba(74, 222, 128, 0.1),
-    rgba(74, 222, 128, 0.5), 
-    rgba(74, 222, 128, 0.1)
-  );
-  z-index: -1;
-  animation: animatedBorder 3s linear infinite;
-  background-size: 300% 100%;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
-  -webkit-mask-composite: xor;
-  padding: 1px;
-  border-radius: 0.85rem; /* Slightly larger than the inner border radius */
-}
-
 /* Animation for moving the gradient */
 @keyframes animatedBorder {
   0% { background-position: 0% 50%; }
@@ -720,11 +698,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 /* Remove border from the header */
 :deep(.custom-header header) {
   border: none !important;
-}
-
-/* Remove the top gradient line */
-:deep(.custom-header header::before) {
-  content: none !important;
 }
 
 /* Add more spacing between header and content */
