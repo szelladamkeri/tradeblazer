@@ -394,9 +394,9 @@ const handleMouseMove = (event: MouseEvent) => {
                 <!-- Avatar button and dropdown container -->
                 <div class="relative">
                   <button
-                    @click="showProfileDropdown = !showProfileDropdown"
+                    @click.stop="showProfileDropdown = !showProfileDropdown"
                     :class="[
-                      'w-8 h-8 rounded-full overflow-hidden transition-all relative z-[102] flex items-center justify-center cursor-pointer',
+                      'w-8 h-8 rounded-full overflow-hidden transition-all z-30 flex items-center justify-center cursor-pointer',
                       $route.path === '/profile'
                         ? 'bg-green-500/20 ring-2 ring-green-400/50'
                         : 'bg-white/10 hover:ring-2 hover:ring-green-400/50',
@@ -415,35 +415,33 @@ const handleMouseMove = (event: MouseEvent) => {
                   </button>
 
                   <!-- Profile Dropdown -->
-                  <Transition name="scale">
+                  <div
+                    v-show="showProfileDropdown"
+                    class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-50"
+                  >
+                    <!-- Connecting triangle -->
                     <div
-                      v-show="showProfileDropdown"
-                      class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[201]"
-                    >
-                      <!-- Connecting triangle -->
-                      <div
-                        class="absolute -top-2 right-2 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45"
-                      ></div>
+                      class="absolute -top-2 right-2 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45"
+                    ></div>
 
-                      <router-link
-                        to="/profile"
-                        class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200 relative z-[102]"
-                        @click="showProfileDropdown = false"
-                        active-class="text-green-400 bg-white/5"
-                      >
-                        <font-awesome-icon icon="user-circle" class="mr-2" />
-                        Profile
-                      </router-link>
-                      <div class="w-full h-px bg-white/10 my-1"></div>
-                      <button
-                        @click="handleSignOut"
-                        class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 hover:text-red-300 transition-all duration-200 relative z-[102]"
-                      >
-                        <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-                        Sign out
-                      </button>
-                    </div>
-                  </Transition>
+                    <router-link
+                      to="/profile"
+                      class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200"
+                      @click="showProfileDropdown = false"
+                      active-class="text-green-400 bg-white/5"
+                    >
+                      <font-awesome-icon icon="user-circle" class="mr-2" />
+                      Profile
+                    </router-link>
+                    <div class="w-full h-px bg-white/10 my-1"></div>
+                    <button
+                      @click="handleSignOut"
+                      class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 hover:text-red-300 transition-all duration-200"
+                    >
+                      <font-awesome-icon icon="right-from-bracket" class="mr-2" />
+                      Sign out
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1158,5 +1156,176 @@ header > .content-container > div {
   .page-header-wrapper {
     padding-top: 0.5rem !important;
   }
+}
+
+/* IMPORTANT: Fix avatar dropdown z-index issues */
+.z-30 {
+  z-index: 30 !important;
+}
+
+.z-50 {
+  z-index: 50 !important;
+}
+
+/* Ensure dropdown appears above other elements */
+div[v-show="showProfileDropdown"] {
+  z-index: 9999 !important; /* Force very high z-index */
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Fix profile dropdown styling */
+.absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 0.5rem) !important;
+  z-index: 9999 !important;
+}
+
+/* Fix dropdown to be clickable */
+button, 
+.router-link,
+.absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
+  pointer-events: auto !important;
+}
+
+/* Ensure avatar and dropdown are correctly positioned */
+.relative {
+  position: relative !important;
+}
+
+.page-header {
+  overflow: visible !important; /* Allow dropdowns to be visible outside header */
+  z-index: 50 !important; /* Ensure header is above other content */
+}
+
+/* Reset any problematic hover styles */
+[class*='hover:bg'] {
+  transition: background-color 0.2s ease !important;
+}
+
+/* Reset router link hover styles to ensure they work */
+router-link:hover,
+.router-link:hover,
+.block.px-4.py-2:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgb(74, 222, 128) !important;
+}
+
+/* Reset button hover styles */
+button:hover {
+  transform: translateY(-1px) !important;
+  color: rgb(74, 222, 128) !important;
+}
+
+/* Ensure PageHeader matches HomeView styling */
+.page-header {
+  width: 100% !important;
+  max-width: 1280px !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: visible !important; /* Allow dropdowns to be visible */
+  position: relative !important;
+  z-index: 50 !important;
+}
+
+/* Panel styling to match HomeView */
+.panel-inner {
+  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
+  transition: all 0.4s ease;
+  border-radius: 0.75rem;
+}
+
+/* Futuristic border effects from HomeView */
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
+}
+
+/* Corner decoration styling from HomeView */
+.corner-decor {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(74, 222, 128, 0.3);
+  z-index: 1;
+}
+
+.corner-decor.top-left {
+  top: 8px;
+  left: 8px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.corner-decor.top-right {
+  top: 8px;
+  right: 8px;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+.corner-decor.bottom-left {
+  bottom: 8px;
+  left: 8px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.corner-decor.bottom-right {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Consistent scrollbar styling across components */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgba(74, 222, 128, 0.4), rgba(34, 211, 238, 0.4));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgba(74, 222, 128, 0.6), rgba(34, 211, 238, 0.6));
+}
+
+/* Add consistent hover effects */
+.panel-inner:hover,
+button:hover,
+a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
 }
 </style>

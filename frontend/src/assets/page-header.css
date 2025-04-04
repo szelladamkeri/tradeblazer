@@ -17,7 +17,9 @@
   border: 1px solid rgba(74, 222, 128, 0.08);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
   border-radius: 0.75rem;
-  overflow: hidden;
+  overflow: visible !important; /* Allow dropdowns to be visible */
+  position: relative !important;
+  z-index: 50 !important;
 }
 
 /* Add consistent wrapper spacing */
@@ -28,12 +30,31 @@
   box-sizing: border-box !important;
   padding-top: 1rem !important;
   margin-bottom: 1rem !important;
+  position: relative !important;
+  z-index: 50 !important;
 }
 
 .page-header-wrapper {
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
+  overflow: visible !important;
+}
+
+/* Fix avatar dropdown z-index */
+.relative {
+  position: relative !important;
+}
+
+[v-show*="showProfileDropdown"] {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+button {
+  position: relative !important;
+  z-index: 60 !important;
+  pointer-events: auto !important;
 }
 
 /* Keep the media queries for responsiveness */

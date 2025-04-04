@@ -1,12 +1,30 @@
 const express = require('express')
 const router = express.Router()
 
-module.exports = (con, asyncHandler) => {
-  router.use('/auth', require('./auth')(con, asyncHandler))
-  router.use('/admin', require('./admin')(con, asyncHandler))
-  router.use('/user', require('./user')(con, asyncHandler))
-  router.use('/assets', require('./assets')(con, asyncHandler))
+/**
+ * Main routes module
+ * Configures all API routes
+ */
+module.exports = (pool, asyncHandler) => {
+  // Authentication routes
+  router.use('/auth', require('./auth')(pool, asyncHandler))
+  
+  // Admin routes
+  router.use('/admin', require('./admin')(pool, asyncHandler))
+  
+  // User routes
+  router.use('/user', require('./user')(pool, asyncHandler))
+  
+  // Assets routes
+  router.use('/assets', require('./assets')(pool, asyncHandler))
+  
+  // Orders routes
+  router.use('/orders', require('./orders')(pool, asyncHandler))
 
+  /**
+   * API Health Check
+   * Returns current API status
+   */
   router.get('/health', (req, res) => {
     res.json({
       status: 'ok',

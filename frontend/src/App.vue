@@ -164,6 +164,29 @@ header::before,
 header::after {
   display: none !important;
 }
+
+/* Fix z-index issues for dropdowns */
+.page-header {
+  z-index: 50 !important;
+  overflow: visible !important; /* Allow dropdowns to be visible */
+  position: relative !important;
+}
+
+/* Reset any problematic pointer-events styles */
+body * {
+  pointer-events: auto !important;
+}
+
+/* Fix avatar dropdown positioning */
+[v-show*="showProfileDropdown"] {
+  z-index: 100 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure all headers allow dropdowns to overflow */
+header, .page-header, .page-header-wrapper {
+  overflow: visible !important;
+}
 </style>
 
 <style scoped>
