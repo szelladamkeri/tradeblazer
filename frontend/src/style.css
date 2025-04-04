@@ -2,6 +2,8 @@
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.3s ease-out; /* Longer for more dramatic effect */
+  position: absolute;
+  width: 100%;
 }
 
 .page-enter-from,
@@ -13,6 +15,20 @@
 html {
   scroll-behavior: smooth;
   scroll-padding: 2rem;
+  overflow-y: scroll !important;
+  height: 100% !important;
+}
+
+body {
+  background: linear-gradient(145deg, #0a1121 0%, #020617 100%) !important;
+  background-size: 200% 200% !important;
+  animation: gradientAnimation 15s ease infinite !important;
+  background-attachment: fixed !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  overflow-x: hidden !important; /* Prevent horizontal scrolling */
 }
 
 /* Optimize animations for users who prefer reduced motion */
@@ -98,13 +114,6 @@ textarea {
   }
 }
 
-body {
-  background: linear-gradient(145deg, #0a1121 0%, #020617 100%) !important;
-  background-size: 200% 200% !important;
-  animation: gradientAnimation 15s ease infinite !important;
-  background-attachment: fixed !important;
-}
-
 /* Add subtle particle overlay to increase depth perception */
 body::before {
   content: '';
@@ -119,6 +128,9 @@ body::before {
   pointer-events: none;
 }
 
+/* Import the global page header styles */
+@import './assets/page-header.css';
+
 /* Override main.css constraints for full-width layout */
 #app {
   max-width: none !important;
@@ -128,6 +140,7 @@ body::before {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
+  min-height: 100vh !important; /* Ensure app fills at least full viewport height */
 }
 
 /* Full viewport background with gradient */
@@ -135,10 +148,12 @@ html, body {
   margin: 0 !important;
   padding: 0 !important;
   min-height: 100vh !important;
+  height: 100% !important; /* Add explicit height */
   width: 100% !important;
   background: linear-gradient(135deg, #0f172a 0%, #020617 100%) !important;
   background-image: none !important;
   background-attachment: fixed !important;
+  overflow-x: hidden !important; /* Prevent horizontal scrolling */
 }
 
 /* Override any bordered views or containers */
@@ -159,30 +174,81 @@ html, body {
   padding: 0 !important;
 }
 
+/* Fix view container to prevent jumping */
+.view-container {
+  width: 100% !important;
+  min-height: 100vh !important; /* Ensure full viewport height */
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important; /* Add flex grow/shrink behavior */
+  position: relative !important;
+  isolation: isolate !important;
+  padding-top: 0 !important; /* Remove space at top of page */
+}
+
+/* Ensure PageMain has consistent sizing */
+.page-main {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important; /* Allow it to shrink if needed */
+  overflow: hidden !important; /* Contain the overflow */
+}
+
+/* Ensure content scrolling happens in appropriate containers */
+.page-main > div {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* View content should also flex and scroll appropriately */
+.view-content {
+  flex: 1 1 auto !important;
+  overflow: visible !important; /* Let children handle overflow */
+}
+
+/* Fix existing height styles that might be causing jumps */
+.admin-view, .home-view, .profile-view, 
+.markets-view, .edit-profile-view, .portfolio-view {
+  height: auto !important; /* Auto height based on content */
+}
+
 /* Ensure consistent align for both header and main content */
 .page-header, .page-main {
   width: 100% !important;
-  max-width: 1366px !important;
+  max-width: 1280px !important; /* Make consistent with max-w-7xl */
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-sizing: border-box !important;
 }
 
 @media (max-width: 1400px) {
   .page-header, .page-main {
     width: 95vw !important;
-    max-width: 1366px !important;
+    max-width: 95vw !important;
   }
 }
 
 @media (max-width: 1100px) {
   .page-header, .page-main {
     width: 95vw !important;
-    max-width: 1024px !important;
+    max-width: 95vw !important;
   }
 }
 
 @media (max-width: 640px) {
   .page-header, .page-main {
     width: calc(100vw - 2rem) !important;
-    max-width: 100% !important;
+    max-width: calc(100vw - 2rem) !important;
+    box-sizing: border-box !important;
   }
   
   .content-container {
@@ -191,41 +257,32 @@ html, body {
 }
 
 /* Ensure consistent alignment and width for both header and main content */
-.page-header-wrapper, .page-main-wrapper {
+.page-header-wrapper, .page-main-wrapper, .component-global-wrapper {
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
-  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.component-global-wrapper {
+  padding-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.page-main-wrapper {
+  padding-top: 0 !important; /* No extra padding for main wrapper */
+}
+
+.page-header-wrapper {
+  padding-top: 1rem !important; /* Add spacing at top of header */
 }
 
 .page-header, .page-main {
   width: 100% !important;
-  max-width: 1366px !important;
+  max-width: 1280px !important; /* Consistent width */
   min-width: auto !important; /* Remove any fixed min-width */
   margin: 0 auto !important;
   box-sizing: border-box !important;
-}
-
-/* Adjust widths at different breakpoints */
-@media (max-width: 1400px) {
-  .page-header, .page-main {
-    width: 95vw !important;
-    max-width: 1366px !important;
-  }
-}
-
-@media (max-width: 1100px) {
-  .page-header, .page-main {
-    width: 95vw !important;
-    max-width: 1024px !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .page-header, .page-main {
-    width: calc(100vw - 2rem) !important;
-    max-width: 100% !important;
-  }
 }
 
 /* Add 3D depth to the page content */
@@ -1519,15 +1576,6 @@ button:hover,
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(99, 102, 241, 0.95)) !important;
-  border-color: rgba(139, 92, 246, 0.4) !important;
-}
-
-/* Form inputs with cosmic styling */
-input, 
-select, 
-textarea {
-  background: rgba(17, 24, 39, 0.6) !important;
   border: 1px solid rgba(139, 92, 246, 0.2) !important;
   border-radius: 6px !important;
   color: rgba(255, 255, 255, 0.9) !important;

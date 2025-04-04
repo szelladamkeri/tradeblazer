@@ -145,6 +145,17 @@ const {
 // Add API heartbeat check
 const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 
+// Add mouse move tracking for the header gradient effect
+const handleHeaderMouseMove = (event: MouseEvent) => {
+  const header = event.currentTarget as HTMLElement;
+  const rect = header.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  header.style.setProperty('--mouse-x', `${x}%`);
+  header.style.setProperty('--mouse-y', `${y}%`);
+};
+
 </script>
 
 <template>
@@ -165,11 +176,11 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
   />
   
   <!-- Only render normal page when there's no error -->
-  <div v-else class="flex flex-col portfolio-view">
-    <PageHeader class="mb-4" />
+  <div v-else class="portfolio-view view-container">
+    <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
     
     <PageMain>
-      <div ref="tableContainer" class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
+      <div ref="tableContainer" class="w-full h-full overflow-auto px-2 sm:px-4 py-4">
         <!-- Add the conditional overflow container to match MarketsView -->
         <div class="h-full" :class="{'overflow-y-auto': portfolioData.assets.length > 10}">
           <div v-if="loading" class="flex justify-center items-center py-8">
@@ -345,27 +356,7 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
   -webkit-overflow-scrolling: touch;
 }
 
-/* Media query adjustments for smaller screens */
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 1366px !important;
-  }
-}
-
-@media (max-width: 1100px) {
-  .page-header {
-    width: 90vw !important;
-    max-width: 1024px !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .page-header {
-    height: 3.5rem;
-    width: calc(100vw - 2rem) !important;
-  }
-}
+/* Remove any conflicting page-header styles */
 
 /* Table styles */
 .overflow-x-auto {
@@ -429,5 +420,31 @@ tr {
 
 .overflow-x-auto {
   scrollbar-width: none;
+}
+
+/* Ensure PageMain has consistent height */
+:deep(.page-main) {
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important; /* Contain overflow */
+}
+
+/* Set explicit sizing for main container */
+.portfolio-view {
+  padding-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: auto !important; /* Remove fixed height */
+}
+
+/* Fix scrolling container */
+[ref="tableContainer"] {
+  height: auto !important;
+  min-height: 200px;
+  overflow: auto !important;
+  flex: 1;
 }
 </style>

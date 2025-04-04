@@ -124,6 +124,17 @@ const userRoleDisplay = computed(() => {
 
 // Add API heartbeat check
 const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
+
+// Add mouse move tracking for the header gradient effect
+const handleHeaderMouseMove = (event: MouseEvent) => {
+  const header = event.currentTarget as HTMLElement;
+  const rect = header.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  header.style.setProperty('--mouse-x', `${x}%`);
+  header.style.setProperty('--mouse-y', `${y}%`);
+};
 </script>
 
 <template>
@@ -144,10 +155,10 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
   />
   
   <!-- Only render normal page when there's no error -->
-  <div v-else class="flex flex-col profile-view">
-    <PageHeader class="mb-4" />
+  <div v-else class="profile-view view-container">
+    <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
     <PageMain>
-      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
+      <div class="w-full h-full overflow-auto px-2 sm:px-4 py-4">
         <!-- Loading state -->
         <div v-if="loading" class="flex justify-center items-center py-8">
           <LoadingSpinner />
@@ -256,9 +267,12 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 }
 
 /* Add smooth scrolling */
-.overflow-y-auto {
+.overflow-auto {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  overflow: auto !important;
+  flex: 1;
+  min-height: 200px;
 }
 
 /* Update background opacity to match other views */
@@ -269,5 +283,23 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 /* Ensure consistent hover states */
 .hover\:bg-white\/10:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Override PageMain height */
+:deep(.page-main) {
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important; /* Contain overflow */
+}
+
+/* Set explicit sizing for view container */
+.profile-view {
+  padding-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: auto !important; /* Remove fixed height */
 }
 </style>

@@ -21,6 +21,15 @@ html, body {
   background: linear-gradient(135deg, rgba(25, 33, 52, 0.95), rgba(8, 11, 22, 0.98)) !important;
   background-attachment: fixed !important;
   color: white;
+  height: 100%;
+  overflow-x: hidden !important;
+}
+
+/* Reset padding and margin for top-level elements */
+body, html {
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 100vh !important;
 }
 
 /* Override #app constraints */
@@ -60,31 +69,100 @@ html, body {
 
 .page-header, .page-main {
   width: 100% !important;
-  max-width: 1366px !important;
-  min-width: auto !important; /* Remove any fixed min-width */
+  max-width: 1280px !important;
   margin: 0 auto !important;
   box-sizing: border-box !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: hidden;
 }
 
 @media (max-width: 1400px) {
   .page-header, .page-main {
     width: 95vw !important;
-    max-width: 1366px !important;
+    max-width: 95vw !important;
   }
 }
 
 @media (max-width: 1100px) {
   .page-header, .page-main {
     width: 95vw !important;
-    max-width: 1024px !important;
+    max-width: 95vw !important;
   }
 }
 
 @media (max-width: 640px) {
   .page-header, .page-main {
     width: calc(100vw - 2rem) !important;
-    max-width: 100% !important;
+    max-width: calc(100vw - 2rem) !important;
   }
+  
+  .page-header-wrapper {
+    padding-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .mx-auto {
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* Centered app container - updated for full width */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100% !important;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  padding-top: 0.5rem !important; /* Add space at top of app */
+}
+
+/* Add bottom padding to ensure content isn't flush with the bottom */
+.mx-auto {
+  padding-bottom: 1.5rem !important;
+}
+
+@media (max-width: 640px) {
+  .mx-auto {
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* Force consistent styling for all views */
+.page-header, .page-main {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-sizing: border-box !important;
+}
+
+/* Ensure wrapper consistency */
+.component-global-wrapper {
+  padding-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Reset any decorative elements that might conflict */
+.page-header header::before,
+.page-header header::after,
+header::before,
+header::after {
+  display: none !important;
 }
 </style>
 

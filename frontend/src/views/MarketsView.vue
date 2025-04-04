@@ -169,7 +169,7 @@ onMounted(() => {
 // Add API heartbeat check
 const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 
-// Add mouse move tracking for the header gradient effect - copied from HomeView
+// Add mouse move tracking for the header gradient effect
 const handleHeaderMouseMove = (event: MouseEvent) => {
   const header = event.currentTarget as HTMLElement;
   const rect = header.getBoundingClientRect();
@@ -200,10 +200,10 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   />
   
   <!-- Only render normal page when there's no error -->
-  <div v-else class="home-view">
+  <div v-else class="markets-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
 
-    <div class="w-full pt-12 pb-8 px-4">
+    <div class="w-full pt-12 pb-8 px-4 view-content">
       <div class="max-w-7xl mx-auto">
         <!-- Header section with improved icons -->
         <div v-if="!error && !loading" class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
@@ -472,7 +472,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 .dashboard-panel {
   @apply relative overflow-hidden;
   border-radius: 0.75rem;
-  height: auto;
+  height: auto !important; /* Let content determine height */
+  min-height: 200px; /* Provide a sensible minimum */
 }
 
 .panel-inner {
@@ -563,4 +564,39 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 }
 
 /* Remove all the animation effects previously added */
+
+/* Fix layout issues */
+.markets-view {
+  padding-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Override height constraints */
+.dashboard-panel {
+  height: auto !important; /* Let content determine height */
+  min-height: 200px; /* Provide a sensible minimum */
+}
+
+/* Ensure padding is consistent */
+.markets-view > .w-full {
+  padding-top: 1rem !important;
+}
+
+/* Ensure content overflow is handled properly */
+.view-content {
+  flex: 1;
+  overflow: visible;
+}
+
+/* Remove any conflicting style overrides */
+.markets-view {
+  padding-top: 0 !important;
+}
+
+/* Ensure padding is consistent */
+.markets-view > .w-full {
+  padding-top: 1rem !important;
+}
 </style>

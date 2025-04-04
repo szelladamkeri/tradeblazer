@@ -194,12 +194,12 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 </script>
 
 <template>
-  <div class="home-view">
+  <div class="home-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header">
       <!-- ...existing code... -->
     </PageHeader>
 
-    <div class="w-full pt-12 pb-8 px-4">
+    <div class="w-full pt-12 pb-8 px-4 view-content">
       <div class="max-w-7xl mx-auto">
         <!-- Panels Grid - Now directly on the gradient background -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -323,7 +323,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 <style scoped>
 .dashboard-panel {
   @apply relative overflow-hidden;
-  height: 290px; /* Increased height to fit all trending items */
+  height: 290px; /* Fixed height to prevent jumping */
   border-radius: 0.75rem;
 }
 
@@ -571,6 +571,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   width: 100%;
   display: flex;
   flex-direction: column;
+  padding-top: 0 !important;
+  height: auto !important; /* Remove fixed height */
 }
 
 /* Match header container width to card container width */
@@ -580,133 +582,14 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   padding-right: 1rem;
 }
 
-/* Animation for moving the gradient */
-@keyframes animatedBorder {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Match header width to card container width */
-:deep(.page-header) {
-  width: 100% !important;
-  max-width: 1280px !important; /* Same as max-w-7xl */
-  min-width: auto !important; /* Remove fixed min width */
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* Match max-w-7xl from the cards container */
-:deep(.page-header-wrapper),
-:deep(.component-global-wrapper) {
-  display: flex !important;
-  justify-content: center !important;
-  width: 100% !important;
-}
-
-/* Make sure there's no conflicting padding */
-:deep(.page-header) .content-container {
-  width: 100% !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* Keep the media queries for responsiveness */
-@media (max-width: 1400px) {
-  :deep(.page-header) {
-    max-width: 95% !important;
-    width: 95% !important;
-  }
-}
-
-@media (max-width: 640px) {
-  :deep(.page-header) {
-    max-width: calc(100vw - 2rem) !important;
-    width: calc(100vw - 2rem) !important;
-  }
-}
-
-/* Make header match PageMain theme */
-:deep(.custom-header header) {
-  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(74, 222, 128, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
-}
-
-/* Add subtle glow effect to header that follows mouse - just like PageMain */
-:deep(.custom-header header::after) {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(34, 197, 94, 0.05) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  z-index: 1;
-}
-
-:deep(.custom-header header:hover::after) {
-  opacity: 1;
-}
-
-/* Add subtle top border with gradient to match PageMain */
-:deep(.custom-header header::before) {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.2), transparent);
-  /* Ensure it doesn't conflict with existing styles */
-  mask: none !important;
-  -webkit-mask: none !important;
-  animation: none !important;
-}
-
-/* Add corner accents to header to match PageMain */
-:deep(.custom-header .corner-accent) {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 1px solid rgba(74, 222, 128, 0.15);
-  z-index: 2;
-  opacity: 0.6;
-}
-
-/* Override any existing animation */
-:deep(.custom-header header) {
-  animation: none !important;
-}
-
-/* Override any conflicting PageHeader styles */
-:deep(.custom-header header) {
-  border-radius: 0.75rem !important;
-}
-
-/* Remove corner accent elements from header */
-:deep(.custom-header .corner-accent) {
-  display: none !important;
-}
-
-/* Remove border from the header */
-:deep(.custom-header header) {
-  border: none !important;
-}
-
-/* Add more spacing between header and content */
-.home-view {
-  padding-top: 1.5rem;
+/* Ensure content overflow is handled properly */
+.view-content {
+  flex: 1;
+  overflow: visible;
 }
 
 /* Adjust the panel section spacing */
 .home-view > .w-full {
-  padding-top: 2rem !important;
+  padding-top: 1rem !important;
 }
 </style>

@@ -14,57 +14,56 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="page-main fixed-height w-full relative">
-    <!-- Simple trading platform container -->
-    <div class="trading-container">
+  <div class="page-main-wrapper">
+    <main class="page-main">
       <slot></slot>
-    </div>
-  </main>
+    </main>
+  </div>
 </template>
 
 <style scoped>
-/* Trading platform styling */
+.page-main-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
 .page-main {
   width: 100% !important;
-  max-width: 1366px !important;
+  max-width: 1280px !important; /* Match max-w-7xl */
   margin: 0 auto !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: hidden;
   position: relative;
-  z-index: 10;
-  background: transparent !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex: 1;
 }
 
-/* Trading container */
-.trading-container {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  position: relative;
-  padding: 1rem;
+@media (max-width: 1400px) {
+  .page-main {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
 }
 
-/* Fixed height class */
-.fixed-height {
-  height: var(--view-height) !important;
-  min-height: var(--view-height) !important;
-  max-height: var(--view-height) !important;
-}
-
-/* Global variables */
-:root {
-  --view-height: calc(100vh - 4rem);
+@media (max-width: 1100px) {
+  .page-main {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
 }
 
 @media (max-width: 640px) {
-  :root {
-    --view-height: calc(100vh - 4.5rem);
-  }
-  
-  .trading-container {
-    padding: 0.5rem;
+  .page-main {
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
   }
 }
 </style>

@@ -230,6 +230,17 @@ const handleSubmit = async () => {
 
 // Add API heartbeat check
 const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
+
+// Add mouse move tracking for the header gradient effect
+const handleHeaderMouseMove = (event: MouseEvent) => {
+  const header = event.currentTarget as HTMLElement;
+  const rect = header.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  header.style.setProperty('--mouse-x', `${x}%`);
+  header.style.setProperty('--mouse-y', `${y}%`);
+};
 </script>
 
 <template>
@@ -250,11 +261,10 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
   />
   
   <!-- Only render normal page when there's no error -->
-  <div class="flex flex-col edit-profile-view">
-    <PageHeader class="mb-4" />
+  <div class="edit-profile-view view-container">
+    <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
     <PageMain>
-      <!-- No overflow-y-auto to prevent scrolling -->
-      <div class="w-full h-full px-2 sm:px-4 py-3 flex flex-col">
+      <div class="w-full h-full overflow-auto px-2 sm:px-4 py-3">
         <div class="max-w-4xl mx-auto w-full flex-1 flex flex-col">
           <div class="flex items-center gap-3 mb-3">
             <font-awesome-icon icon="user-pen" class="text-green-400 text-2xl" />
@@ -460,7 +470,6 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
     </PageMain>
 
     <!-- Image Cropper Modal -->
-    <!-- Image Cropper Modal -->
     <div v-if="showCropper" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div class="bg-white/5 rounded-xl p-6 border border-white/10 max-w-xl w-full backdrop-blur-xl">
         <h3 class="text-xl font-bold text-white mb-4">Crop Profile Picture</h3>
@@ -513,6 +522,31 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 .cropper {
   width: 100%;
   height: 100%;
+}
+
+/* Set explicit sizing for view container */
+.edit-profile-view {
+  padding-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: auto !important; /* Remove fixed height */
+}
+
+/* Fix overflow handling */
+.overflow-auto {
+  overflow: auto !important;
+  flex: 1;
+  min-height: 200px;
+}
+
+/* Override PageMain height */
+:deep(.page-main) {
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important; /* Contain overflow */
 }
 
 /* Hide browser's password reveal button */
@@ -575,14 +609,17 @@ input {
 }
 
 /* Make proper use of available vertical space */
-.edit-profile-view .page-main {
-  display: flex;
-  flex-direction: column;
+:deep(.page-main) {
+  min-height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
 }
 
-/* Ensure grid maintains proper height */
-.grid {
-  min-height: 0;
+/* Remove height property that causes jumping */
+.edit-profile-view {
+  height: auto !important;
+  min-height: 100vh !important;
 }
 
 /* Make this view take up all available space */

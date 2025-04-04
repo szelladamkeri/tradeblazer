@@ -658,6 +658,82 @@ h3 {
   @apply text-green-400;
 }
 
+/* CRITICAL: Match exactly PageMain's styling */
+.page-header {
+  width: 100% !important;
+  max-width: 1280px !important; 
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Remove all conflicting background/border styles from header element */
+header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Prevent any additional styling that would override */
+header::before, header::after {
+  display: none !important;
+}
+
+/* The wrapper element needs appropriate spacing */
+.component-global-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding-top: 1rem !important; 
+  margin-bottom: 1rem !important;
+  box-sizing: border-box !important;
+}
+
+.page-header-wrapper {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix media queries to match PageMain exactly */
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+  }
+  
+  .component-global-wrapper {
+    padding-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Cleanup conflicting styles */
+.futuristic-bg, .corner-accent, .corner-decor {
+  display: none !important;
+}
+
 /* Add proper backdrop filter */
 header {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
@@ -1008,652 +1084,79 @@ header {
 
 /* Add consistent width styling for the header wrapper that exactly matches PageMain */
 .page-header {
-  width: 1366px !important;
-  min-width: 1366px !important;
-  max-width: 1366px !important;
+  width: 1280px !important;
+  max-width: 1280px !important;
   margin: 0 auto !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(74, 222, 128, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset !important;
+  border-radius: 0.75rem !important;
+}
+
+.component-global-wrapper,
+.page-header-wrapper {
+  width: 100% !important; 
+  display: flex !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  margin-bottom: 1rem !important;
+}
+
+.page-header-wrapper {
+  padding-top: 1rem !important; 
+}
+
+.content-container {
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+header {
+  width: 100% !important;
+  border-radius: 0.75rem !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+header > .content-container > div {
+  padding: 0.75rem 1rem !important;
 }
 
 @media (max-width: 1400px) {
   .page-header {
     width: 95vw !important;
-    min-width: auto !important;
-    max-width: 1366px !important;
+    max-width: 95vw !important;
   }
 }
 
 @media (max-width: 1100px) {
   .page-header {
     width: 95vw !important;
-    min-width: auto !important;
-    max-width: 1024px !important;
+    max-width: 95vw !important;
   }
 }
 
-/* REMOVE ALL PREVIOUS MOBILE MEDIA QUERIES AND REPLACE WITH THIS SINGLE ONE */
 @media (max-width: 640px) {
-  /* Add explicit margin to the wrapper itself */
-  .page-header-wrapper {
-    width: 100%;
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    margin-top: 0;
-    margin-bottom: 1rem !important; /* Explicit 1rem bottom margin = Tailwind's mb-4 */
-  }
-  
   .page-header {
     width: calc(100vw - 2rem) !important;
-    min-width: auto !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-  }
-  
-  header {
-    height: 3.5rem;
-    border-radius: 0.75rem;
-    width: 100% !important;
-  }
-  
-  /* Mobile menu styling */
-  .mobile-menu-enter-active,
-  .mobile-menu-leave-active {
-    transition: all 0.3s ease;
-  }
-  
-  .mobile-menu-enter-from,
-  .mobile-menu-leave-to {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  
-  /* Better tap targets */
-  button[aria-label="Toggle menu"] {
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    max-width: calc(100vw - 2rem) !important;
   }
 
-  /* Mobile search experience */
-  input[type="text"], 
-  input[type="search"] {
-    font-size: 16px;
-    height: 48px;
-  }
-  
-  /* Fixed menu */
-  .fixed.inset-x-0 {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  /* Menu item spacing */
-  nav.flex.flex-col.gap-2 > * {
-    margin-bottom: 0.25rem;
-  }
-  
-  /* Nav items */
-  .mobile-nav-item,
-  nav a,
-  nav button {
-    display: flex;
-    align-items: center;
-    min-height: 48px;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-  }
-  
-  /* iOS safe areas if needed */
-  @supports (padding: max(0px)) {
-    .page-header-wrapper {
-      padding-left: max(0, env(safe-area-inset-left));
-      padding-right: max(0, env(safe-area-inset-right));
-    }
-  }
-}
-
-/* REMOVE ALL OTHER MOBILE MEDIA QUERIES */
-
-/* Tablet-specific fixes for asymmetric margins */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .page-header-wrapper {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    padding: 0 !important;
-  }
-  
-  .page-header {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: 95vw !important;
-  }
-}
-
-/* Match the border radius to be consistent with PageMain */
-header {
-  border-radius: 0.75rem;
-  width: 100%;
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-/* Better mobile menu styling */
-@media (max-width: 640px) {
-  .mobile-menu-enter-active,
-  .mobile-menu-leave-active {
-    transition: all 0.3s ease;
-    transform-origin: top;
-  }
-  
-  .mobile-menu-enter-from,
-  .mobile-menu-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-
-/* Consistent focus states */
-input:focus {
-  border-color: #22c55e !important; /* green-500 */
-  --tw-ring-color: rgba(34, 197, 94, 0.5) !important; /* green-500 with opacity */
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
-  outline: none;
-}
-
-/* Global wrapper class to match PageMain exactly */
-.component-global-wrapper {
-  width: 100% !important; 
-  display: flex !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  margin-bottom: 1rem !important; /* MB-4 equivalent */
-  box-sizing: border-box !important;
-}
-
-/* Improved tablet-specific styles with highest specificity for consistent centering */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .component-global-wrapper {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    padding: 0 1rem !important;
-    box-sizing: border-box !important;
-  }
-  
-  .component-global-wrapper .page-header {
-    width: 100% !important;
-    max-width: 95vw !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-}
-
-/* Additional breakpoint to handle the transition better */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .component-global-wrapper .page-header {
-    max-width: 90vw !important;
-  }
-}
-
-/* Base header styling */
-header {
-  @apply relative overflow-hidden;
-  background: linear-gradient(
-    165deg,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.8) 100%
-  );
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
-}
-
-/* Animated gradient border */
-header::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  background: linear-gradient(
-    90deg,
-    rgba(34, 197, 94, 0.5),  /* green-500 */
-    rgba(255, 255, 255, 0.2),
-    rgba(34, 197, 94, 0.5)   /* green-500 */
-  );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
-  -webkit-mask-composite: xor;
-  padding: 1px;
-  border-radius: 0.75rem;
-  animation: borderAnimation 4s linear infinite;
-}
-
-/* Animated background element */
-header::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(34, 197, 94, 0.1) 0%,
-    transparent 60%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-header:hover::after {
-  opacity: 1;
-}
-
-/* Logo hover effect */
-.logo-container {
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.logo-container:hover {
-  transform: translateY(-1px);
-}
-
-.logo-container::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #22c55e, transparent);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.logo-container:hover::after {
-  transform: scaleX(1);
-}
-
-/* Button hover effects */
-button, a {
-  transition: all 0.2s ease;
-}
-
-button:hover, a:hover {
-  transform: translateY(-1px);
-  text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-}
-
-/* Animated gradient border keyframes */
-@keyframes borderAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 130% 50%;
-  }
-}
-
-/* Hover effect for navigation items */
-nav a, button {
-  position: relative;
-  overflow: hidden;
-}
-
-nav a::before, button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-nav a:hover::before, button:hover::before {
-  left: 100%;
-}
-
-/* Add subtle floating animation to the header */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-.page-header {
-  animation: float 6s ease-in-out infinite;
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  header {
-    backdrop-filter: blur(12px) saturate(150%);
-  }
-
-  .page-header {
-    animation: none; /* Disable floating on mobile */
-  }
-
-  /* Improve touch targets */
-  button, a {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* Futuristic header styling */
-header {
-  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.8));
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-bottom: 1px solid rgba(74, 222, 128, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  position: relative;
-  z-index: 100;
-}
-
-/* Add a subtle animated glow line at bottom */
-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    rgba(74, 222, 128, 0),
-    rgba(74, 222, 128, 0.5),
-    rgba(74, 222, 128, 0)
-  );
-  animation: glowPulse 3s infinite;
-}
-
-@keyframes glowPulse {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-/* Enhanced button styling */
-button {
-  position: relative;
-  overflow: hidden;
-}
-
-button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: left 0.5s;
-}
-
-button:hover::after {
-  left: 100%;
-}
-
-/* Make active links more prominent */
-.router-link-active {
-  @apply text-green-400;
-  text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
-}
-
-/* Enhance dropdown menus */
-.bg-black\/70 {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(8, 11, 22, 0.95));
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(74, 222, 128, 0.1);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-/* Add accents to user icons and avatars */
-:deep(.w-8.h-8) {
-  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.3), 0 0 8px rgba(74, 222, 128, 0.2);
-}
-
-/* Replace the existing header styling with this to match PageMain */
-.futuristic-bg {
-  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(74, 222, 128, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add subtle glow effect that follows the mouse - just like PageMain */
-.futuristic-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(34, 197, 94, 0.05) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  z-index: 1;
-}
-
-.futuristic-bg:hover::after {
-  opacity: 1;
-}
-
-/* Replace animated border with subtle top gradient like PageMain */
-.futuristic-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.2), transparent);
-  /* Remove any conflicting styles */
-  mask: none;
-  -webkit-mask: none;
-  mask-composite: normal;
-  -webkit-mask-composite: normal;
-  padding: 0;
-  animation: none;
-  inset: unset;
-}
-
-/* Add corner accents to match PageMain */
-.corner-accent {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 1px solid rgba(74, 222, 128, 0.15);
-  z-index: 2;
-  opacity: 0.6;
-}
-
-.corner-accent.top-left {
-  top: 12px;
-  left: 12px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.corner-accent.top-right {
-  top: 12px;
-  right: 12px;
-  border-left: none;
-  border-bottom: none;
-}
-
-.corner-accent.bottom-left {
-  bottom: 12px;
-  left: 12px;
-  border-right: none;
-  border-top: none;
-}
-
-.corner-accent.bottom-right {
-  bottom: 12px;
-  right: 12px;
-  border-left: none;
-  border-top: none;
-}
-
-/* Remove conflicting header styles */
-header {
-  border-radius: 0.75rem;
-  width: 100%;
-}
-
-/* Remove existing animated glow line at bottom */
-header::after {
-  content: none;
-}
-
-/* Disable old animation keyframes */
-@keyframes glowPulse {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0; }
-}
-
-@keyframes borderAnimation {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 0; }
-}
-
-/* Content container to maintain readable width */
-.content-container {
-  width: 100%;
-  max-width: 1366px;
-  margin: 0 auto;
-}
-
-@media (max-width: 1400px) {
-  .content-container {
-    max-width: 95%;
-  }
-}
-
-@media (max-width: 1100px) {
-  .content-container {
-    max-width: 90%;
-  }
-}
-
-@media (max-width: 640px) {
-  header {
-    border-radius: 0; /* Remove border radius on mobile for full-width effect */
-  }
-}
-
-/* Global wrapper class to ensure identical positioning */
-.component-global-wrapper {
-  width: 100% !important; 
-  display: flex !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  margin: 0 0 1rem 0 !important;
-}
-
-/* Update header container styles */
-.page-header-wrapper {
-  width: 100% !important;
-  display: flex !important;
-  justify-content: center !important;
-}
-
-header {
-  width: 100% !important;
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border-radius: 0 !important; /* Remove border radius for true full width */
-}
-
-/* Content container to maintain readable width */
-.content-container {
-  width: 100%;
-  max-width: 1366px;
-  margin: 0 auto;
-}
-
-@media (max-width: 640px) {
-  header {
-    border-radius: 0 !important;
-  }
-  
   .component-global-wrapper {
     margin-bottom: 0.5rem !important;
   }
-}
-
-/* Add decorative corner elements to match HomeView */
-.corner-decor {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 1px solid rgba(74, 222, 128, 0.3);
-  z-index: 20;
-}
-
-.corner-decor.top-left {
-  top: 8px;
-  left: 8px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.corner-decor.top-right {
-  top: 8px;
-  right: 8px;
-  border-left: none;
-  border-bottom: none;
-}
-
-.corner-decor.bottom-left {
-  bottom: 8px;
-  left: 8px;
-  border-right: none;
-  border-top: none;
-}
-
-.corner-decor.bottom-right {
-  bottom: 8px;
-  right: 8px;
-  border-left: none;
-  border-top: none;
-}
-
-/* Make sure header has position relative for absolute positioning */
-header {
-  position: relative;
-  overflow: hidden;
+  
+  .page-header-wrapper {
+    padding-top: 0.5rem !important;
+  }
 }
 </style>
