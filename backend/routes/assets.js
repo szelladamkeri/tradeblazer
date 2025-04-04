@@ -1,7 +1,15 @@
 const express = require('express')
 const router = express.Router()
 
+/**
+ * Assets routes module
+ * Handles asset data retrieval and manipulation
+ */
 module.exports = (pool, asyncHandler) => {
+  /**
+   * Get All Assets
+   * Returns the complete list of assets
+   */
   router.get('/data', asyncHandler(async (req, res) => {
     pool.query('SELECT * FROM assets', function (err, result) {
       if (err) {
@@ -21,9 +29,12 @@ module.exports = (pool, asyncHandler) => {
 
       res.json(result)
     })
-  })
-  )
-
+  }))
+  
+  /**
+   * Get Asset Types
+   * Returns the distinct types of assets
+   */
   router.get('/types', asyncHandler(async (req, res) => {
     pool.query('SELECT DISTINCT type FROM assets', function (err, result) {
       if (err) {
@@ -44,9 +55,12 @@ module.exports = (pool, asyncHandler) => {
       const types = result.map((row) => row.type)
       res.json(types)
     })
-  })
-  )
+  }))
 
+  /**
+   * Get Trending Assets
+   * Returns a list of assets with recent trading activity
+   */
   router.get('/trending', asyncHandler(async (req, res) => {
     const query = `
       SELECT 
@@ -60,17 +74,17 @@ module.exports = (pool, asyncHandler) => {
       LEFT JOIN trades t ON a.id = t.asset_id 
       WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
       GROUP BY a.id
-      ORDER BY RAND() /* Temporary: Replace with actual trending logic */
+      ORDER BY RAND()
       LIMIT 3
-    `;
-
+    `
+    
     pool.query(query, function (err, result) {
       if (err) {
-        console.error('Database query error:', err);
+        console.error('Database query error:', err)
         return res.status(500).json({
           error: 'Database query error',
           message: err.message,
-        });
+        })
       }
 
       // If no results, return sample data
@@ -79,13 +93,17 @@ module.exports = (pool, asyncHandler) => {
           { id: 1, symbol: 'BTC/USD', name: 'Bitcoin', price: 43123.45, change_24h: 2.45, type: 'crypto' },
           { id: 2, symbol: 'ETH/USD', name: 'Ethereum', price: 2234.56, change_24h: -1.23, type: 'crypto' },
           { id: 3, symbol: 'AAPL', name: 'Apple Inc.', price: 187.45, change_24h: 0.89, type: 'stock' }
-        ]);
+        ])
       }
 
-      res.json(result);
-    });
-  }));
-
+      res.json(result)
+    })
+  }))
+  
+  /**
+   * Get Asset Statistics
+   * Returns trade count, volume, and active assets
+   */
   router.get('/stats', asyncHandler(async (req, res) => {
     const query = `
       SELECT 
@@ -96,15 +114,15 @@ module.exports = (pool, asyncHandler) => {
       LEFT JOIN trades t ON a.id = t.asset_id 
       WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
         OR t.created_at IS NULL
-    `;
+    `
 
     pool.query(query, function (err, result) {
       if (err) {
-        console.error('Database query error:', err);
+        console.error('Database query error:', err)
         return res.status(500).json({
           error: 'Database query error',
           message: err.message,
-        });
+        })
       }
 
       // If no results or empty data, return default values
@@ -113,16 +131,16 @@ module.exports = (pool, asyncHandler) => {
           totalTrades: 0,
           totalVolume: 0,
           activeAssets: 0
-        });
+        })
       }
 
       res.json({
         totalTrades: result[0].totalTrades || 0,
         totalVolume: result[0].totalVolume || 0,
         activeAssets: result[0].activeAssets || 0
-      });
-    });
-  }));
+      })
+    })
+  }))
 
   return router
 }

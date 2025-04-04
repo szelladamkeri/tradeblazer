@@ -226,10 +226,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
             <!-- Holdings List -->
             <FadeIn>
               <div class="w-full">
-                <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
-                  <font-awesome-icon icon="coins" class="text-yellow-500 mr-2" />
-                  Holdings
-                </h2>
+                <div class="flex items-center mb-4">
+                  <font-awesome-icon
+                    icon="wallet"
+                    class="mr-2 text-green-400"
+                  />
+                  <h1 class="text-2xl font-bold">Holdings</h1>
+                </div>
                 <div class="overflow-x-auto bg-white/5 rounded-xl p-4 border border-white/10">
                   <table class="min-w-full divide-y divide-white/10">
                     <thead>
