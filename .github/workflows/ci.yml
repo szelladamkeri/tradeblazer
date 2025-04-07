@@ -1,0 +1,52 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Allow empty password for root
+          MYSQL_DATABASE: my_database
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+        ports:
+          - 3306:3306
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Wait for MySQL to be ready
+      run: |
+        until mysqladmin ping -h "127.0.0.1" -u root --silent; do
+          echo "Waiting for MySQL..."
+          sleep 3
+        done
+
+    - name: Import SQL schema
+      run: |
+        mysql -h 127.0.0.1 -u root my_database < ./backend/db/tradeblazer.sql
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run backend and frontend
+      run: npm run dev
+      env:
+        DB_HOST: 127.0.0.1
+        DB_USER: root
+        DB_PASS: ""  # Empty password for root
+        DB_NAME: my_database
