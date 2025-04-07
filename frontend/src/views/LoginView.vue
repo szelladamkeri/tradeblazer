@@ -59,102 +59,115 @@ const handleLogin = async (e: Event) => {
     loading.value = false
   }
 }
+
+// Add mouse move tracking for the gradient effect
+const handleMouseMove = (event: MouseEvent) => {
+  const main = event.currentTarget as HTMLElement;
+  const rect = main.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  main.style.setProperty('--mouse-x', `${x}%`);
+  main.style.setProperty('--mouse-y', `${y}%`);
+};
 </script>
 
 <template>
-  <PageHeader class="mb-4" />
-  <PageMain>
-    <div class="w-full h-[calc(100vh-12rem)] flex items-center justify-center">
-      <div class="max-w-md w-full px-4 py-8 sm:px-6">
-        <div class="space-y-8">
-          <div class="text-center">
-            <h2 class="text-white text-2xl sm:text-3xl font-bold mb-2">Login to TradeBlazer</h2>
-            <p class="text-gray-400">Enter your credentials to access your account</p>
-          </div>
+  <div class="login-view view-container">
+    <PageHeader @mousemove="handleMouseMove" class="custom-header" />
+    <PageMain @mousemove="handleMouseMove">
+      <div class="w-full h-[calc(100vh-12rem)] flex items-center justify-center">
+        <div class="max-w-md w-full px-4 py-8 sm:px-6">
+          <div class="space-y-8">
+            <div class="text-center">
+              <h2 class="text-white text-2xl sm:text-3xl font-bold mb-2">Login to TradeBlazer</h2>
+              <p class="text-gray-400">Enter your credentials to access your account</p>
+            </div>
 
-          <form @submit="handleLogin" class="space-y-6">
-            <div class="min-h-[48px] transition-all duration-200" v-if="error">
-              <div class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
-                {{ error }}
+            <form @submit="handleLogin" class="space-y-6">
+              <div class="min-h-[48px] transition-all duration-200" v-if="error">
+                <div class="bg-red-500 bg-opacity-20 text-red-200 p-3 rounded-lg">
+                  {{ error }}
+                </div>
               </div>
-            </div>
 
-            <div class="space-y-2">
-              <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
-                <span>Email or Username</span>
-                <transition name="fade">
-                  <CheckIcon
-                    v-if="email && isEmailOrUsernameValid"
-                    class="text-green-400 ml-2"
-                  />
-                </transition>
-              </label>
-              <input
-                type="text"
-                v-model="email"
-                required
+              <div class="space-y-2">
+                <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
+                  <span>Email or Username</span>
+                  <transition name="fade">
+                    <CheckIcon
+                      v-if="email && isEmailOrUsernameValid"
+                      class="text-green-400 ml-2"
+                    />
+                  </transition>
+                </label>
+                <input
+                  type="text"
+                  v-model="email"
+                  required
+                  :class="[
+                    'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
+                    email
+                      ? isEmailOrUsernameValid
+                        ? 'border-green-500'
+                        : 'border-red-500'
+                      : 'border-gray-600',
+                  ]"
+                  placeholder="Enter your email or username"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
+                  <span>Password</span>
+                  <transition name="fade">
+                    <CheckIcon
+                      v-if="password && isPasswordValid"
+                      class="text-green-400 ml-2"
+                    />
+                  </transition>
+                </label>
+                <input
+                  type="password"
+                  v-model="password"
+                  required
+                  :class="[
+                    'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
+                    password
+                      ? isPasswordValid
+                        ? 'border-green-500'
+                        : 'border-red-500'
+                      : 'border-gray-600',
+                  ]"
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              <button
+                type="submit"
+                :disabled="!isFormValid || loading"
                 :class="[
-                  'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
-                  email
-                    ? isEmailOrUsernameValid
-                      ? 'border-green-500'
-                      : 'border-red-500'
-                    : 'border-gray-600',
+                  'w-full p-3 rounded-lg text-white font-medium transition-all duration-200',
+                  isFormValid
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-gray-600 cursor-not-allowed opacity-50',
                 ]"
-                placeholder="Enter your email or username"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
-                <span>Password</span>
-                <transition name="fade">
-                  <CheckIcon
-                    v-if="password && isPasswordValid"
-                    class="text-green-400 ml-2"
-                  />
-                </transition>
-              </label>
-              <input
-                type="password"
-                v-model="password"
-                required
-                :class="[
-                  'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
-                  password
-                    ? isPasswordValid
-                      ? 'border-green-500'
-                      : 'border-red-500'
-                    : 'border-gray-600',
-                ]"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            <button
-              type="submit"
-              :disabled="!isFormValid || loading"
-              :class="[
-                'w-full p-3 rounded-lg text-white font-medium transition-all duration-200',
-                isFormValid
-                  ? 'bg-green-600 hover:bg-green-700'
-                  : 'bg-gray-600 cursor-not-allowed opacity-50',
-              ]"
-            >
-              {{ loading ? 'Logging in...' : 'Login' }}
-            </button>
-
-            <div class="text-center text-gray-400">
-              <span>Don't have an account? </span>
-              <router-link to="/register" class="text-green-500 hover:text-green-400"
-                >Register</router-link
               >
-            </div>
-          </form>
+                {{ loading ? 'Logging in...' : 'Login' }}
+              </button>
+
+              <div class="text-center text-gray-400">
+                <span>Don't have an account? </span>
+                <router-link to="/register" class="text-green-500 hover:text-green-400"
+                  >Register</router-link
+                >
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
-  </PageMain>
+    </PageMain>
+  </div>
 </template>
 
 <style scoped>
@@ -173,6 +186,27 @@ const handleLogin = async (e: Event) => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Add interactive gradient effect */
+:deep(.page-main)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+  border-radius: 0.75rem;
+}
+
+:deep(.page-main):hover::after {
+  opacity: 1;
 }
 </style>
 

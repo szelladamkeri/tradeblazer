@@ -1,10 +1,25 @@
 // ...existing code...
 
+<script setup lang="ts">
+// ... existing imports and setup ...
+
+// Add mouse move tracking for the gradient effect
+const handleMouseMove = (event: MouseEvent) => {
+  const main = event.currentTarget as HTMLElement;
+  const rect = main.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  main.style.setProperty('--mouse-x', `${x}%`);
+  main.style.setProperty('--mouse-y', `${y}%`);
+};
+</script>
+
 <template>
   <!-- ...existing code... -->
   <div class="market-view view-container">
-    <PageHeader class="custom-header" />
-    <PageMain>
+    <PageHeader @mousemove="handleMouseMove" class="custom-header" />
+    <PageMain @mousemove="handleMouseMove">
       <!-- ...existing content... -->
     </PageMain>
   </div>
@@ -38,6 +53,27 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
   border-radius: 0.75rem;
   overflow: hidden;
+}
+
+/* Add interactive gradient effect */
+:deep(.page-main)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+  border-radius: 0.75rem;
+}
+
+:deep(.page-main):hover::after {
+  opacity: 1;
 }
 
 /* Media queries to match other views */

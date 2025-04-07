@@ -321,6 +321,22 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 </template>
 
 <style scoped>
+/* Dashboard Gradient Effect Implementation
+ * This view serves as the reference implementation for the interactive gradient effect
+ * used across all views in the application. Key features:
+ * 
+ * 1. Mouse tracking for dynamic gradient positioning
+ * 2. Consistent z-index hierarchy (see App.vue for global z-index variables)
+ * 3. Hardware-accelerated animations using transform and opacity
+ * 4. Mobile optimization by disabling effects on smaller screens
+ * 
+ * Implementation pattern:
+ * - Add mousemove event handlers to both PageHeader and PageMain
+ * - Use CSS custom properties --mouse-x and --mouse-y for positioning
+ * - Apply radial gradient with theme-consistent colors
+ * - Handle z-index properly to avoid conflicts with dropdowns
+ */
+
 .dashboard-panel {
   @apply relative overflow-hidden;
   height: 290px; /* Fixed height to prevent jumping */

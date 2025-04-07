@@ -46,6 +46,7 @@
   position: relative !important;
 }
 
+/* Ensure proper z-index for dropdown menus */
 [v-show*="showProfileDropdown"] {
   z-index: 9999 !important;
   pointer-events: auto !important;
@@ -89,4 +90,9 @@ button {
 .custom-header header::before,
 .custom-header header::after {
   display: none !important;
+}
+
+/* Keep z-index consistency */
+.page-header header {
+  z-index: 50 !important;
 }

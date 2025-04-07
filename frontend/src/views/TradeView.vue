@@ -17,8 +17,8 @@
   
   <!-- Only render normal page when there's no error -->
   <div v-else class="flex flex-col">
-    <PageHeader class="mb-4" />
-    <PageMain>
+    <PageHeader class="mb-4" @mousemove="handleMouseMove" />
+    <PageMain @mousemove="handleMouseMove">
       <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
         <div v-if="loading" class="flex justify-center items-center py-8">
           <LoadingSpinner />
@@ -79,7 +79,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
@@ -155,6 +155,17 @@ async function executeTrade() {
 onMounted(() => {
   fetchAssetDetails();
 });
+
+// Add mouse move tracking for the gradient effect
+const handleMouseMove = (event: MouseEvent) => {
+  const main = event.currentTarget as HTMLElement;
+  const rect = main.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  main.style.setProperty('--mouse-x', `${x}%`);
+  main.style.setProperty('--mouse-y', `${y}%`);
+};
 </script>
 
 <style scoped>
@@ -225,5 +236,26 @@ onMounted(() => {
   color: #d32f2f;
   border-radius: 8px;
   margin: 20px 0;
+}
+
+/* Add interactive gradient effect */
+:deep(.page-main)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+  border-radius: 0.75rem;
+}
+
+:deep(.page-main):hover::after {
+  opacity: 1;
 }
 </style>

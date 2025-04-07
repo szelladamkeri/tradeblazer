@@ -6,6 +6,17 @@ import { useWindowHeight } from '@/composables/useWindowHeight'
 // Initialize window height utility
 useWindowHeight()
 
+// Add mouse move tracking for the gradient effect
+const handleMouseMove = (event: MouseEvent) => {
+  const main = event.currentTarget as HTMLElement;
+  const rect = main.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  main.style.setProperty('--mouse-x', `${x}%`);
+  main.style.setProperty('--mouse-y', `${y}%`);
+};
+
 onMounted(() => {
   document.querySelectorAll('.page-main').forEach((el) => {
     el.classList.add('fixed-height')
@@ -15,7 +26,7 @@ onMounted(() => {
 
 <template>
   <div class="page-main-wrapper">
-    <main class="page-main">
+    <main class="page-main" @mousemove="handleMouseMove">
       <slot></slot>
     </main>
   </div>
@@ -44,8 +55,31 @@ onMounted(() => {
   overflow: hidden;
   position: relative;
   flex: 1;
+  z-index: 10; /* Lower than header's z-index of 50 */
 }
 
+/* Interactive gradient effect */
+.page-main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+  border-radius: 0.75rem;
+}
+
+.page-main:hover::after {
+  opacity: 1;
+}
+
+/* Consistent responsive breakpoints */
 @media (max-width: 1400px) {
   .page-main {
     width: 95vw !important;

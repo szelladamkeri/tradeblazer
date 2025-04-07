@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
-    <PageHeader class="mb-4" />
-    <PageMain>
+    <PageHeader @mousemove="handleMouseMove" class="mb-4" />
+    <PageMain @mousemove="handleMouseMove">
       <div class="watchlist-container">
         <h1>Your Watchlist</h1>
         
@@ -60,7 +60,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import axios from 'axios';
@@ -102,6 +102,17 @@ async function removeFromWatchlist(watchlistId) {
 function goToTrade(assetId) {
   router.push(`/trade/${assetId}`);
 }
+
+// Add mouse move tracking for the gradient effect
+const handleMouseMove = (event: MouseEvent) => {
+  const main = event.currentTarget as HTMLElement;
+  const rect = main.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  main.style.setProperty('--mouse-x', `${x}%`);
+  main.style.setProperty('--mouse-y', `${y}%`);
+};
 
 onMounted(() => {
   if (isLoggedIn.value) {
@@ -267,5 +278,26 @@ onMounted(() => {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Add interactive gradient effect */
+:deep(.page-main)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+  border-radius: 0.75rem;
+}
+
+:deep(.page-main):hover::after {
+  opacity: 1;
 }
 </style>
