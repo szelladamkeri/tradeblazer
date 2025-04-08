@@ -42,7 +42,8 @@ module.exports = (pool, asyncHandler) => {
    * Returns a list of all users for admin management
    */
   router.get('/users', asyncHandler(async (req, res) => {
-    const query = 'SELECT id, username, email, role, created_at FROM users'
+    // Changed from 'role' to 'type' to match the database schema
+    const query = 'SELECT id, username, email, type, created_at FROM users'
     
     pool.query(query, (err, result) => {
       if (err) {
@@ -52,7 +53,14 @@ module.exports = (pool, asyncHandler) => {
           message: err.message,
         })
       }
-      res.json(result)
+      
+      // Map the results to include both type and role for compatibility
+      const users = result.map(user => ({
+        ...user,
+        role: user.type // Add role field for backward compatibility
+      }))
+      
+      res.json(users)
     })
   }))
 
@@ -91,8 +99,8 @@ module.exports = (pool, asyncHandler) => {
     const userId = req.params.id
     const { username, email, role } = req.body
     
-    // Update user information
-    const query = 'UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?'
+    // Change 'role' to 'type' in the UPDATE query
+    const query = 'UPDATE users SET username = ?, email = ?, type = ? WHERE id = ?'
     
     pool.query(query, [username, email, role, userId], (err, result) => {
       if (err) {
@@ -104,7 +112,13 @@ module.exports = (pool, asyncHandler) => {
       
       res.json({
         success: true,
-        user: { id: userId, username, email, role },
+        user: { 
+          id: userId, 
+          username, 
+          email, 
+          type: role,
+          role: role // Include both for consistency
+        },
       })
     })
   }))

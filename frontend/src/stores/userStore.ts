@@ -12,18 +12,39 @@ export const useUserStore = defineStore('user', () => {
     loading: false,
   })
 
-  const isAdmin = computed(() => user.value?.role === 'A')
+  // Add debug logging to isAdmin computed
+  const isAdmin = computed(() => {
+    // Check for type since that's what's in the database
+    const result = user.value?.type === 'A'
+    console.log('isAdmin check:', {
+      hasUser: !!user.value,
+      userType: user.value?.type,
+      isAdmin: result
+    })
+    return result
+  })
 
   function setUser(userData: User | null, tokenData: string | null = null) {
-    user.value = userData
-    token.value = tokenData
-
     if (userData) {
-      localStorage.setItem('user', JSON.stringify({ user: userData }))
+      // Use type instead of role since that's what's in the database
+      user.value = {
+        ...userData,
+        type: userData.type || 'U',
+        role: userData.type || 'U' // Keep role for backward compatibility
+      }
+      token.value = tokenData
+
+      localStorage.setItem('user', JSON.stringify({
+        user: user.value,
+        token: tokenData
+      }))
       checkAvatar()
     } else {
+      user.value = null
+      token.value = null
       avatar.value.available = false
       avatar.value.loading = false
+      localStorage.removeItem('user')
     }
   }
 
@@ -39,11 +60,14 @@ export const useUserStore = defineStore('user', () => {
 
   function initializeFromStorage() {
     const stored = localStorage.getItem('user')
+    console.log('Initializing from storage:', stored)
     if (stored) {
       try {
         const data = JSON.parse(stored)
-        setUser(data.user)
+        console.log('Parsed storage data:', data)
+        setUser(data.user, data.token)
       } catch (e) {
+        console.error('Storage parse error:', e)
         logout()
       }
     }

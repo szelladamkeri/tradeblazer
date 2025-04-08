@@ -154,10 +154,32 @@ const handleMouseMove = (event: MouseEvent) => {
   const rect = header.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
-  
+
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
+
+// Add debugging for admin status
+const debugAdminStatus = computed(() => {
+  console.log('Admin status check:', {
+    isAdmin: userStore.isAdmin,
+    userRole: userStore.user?.role,
+    fullUser: userStore.user
+  })
+  return userStore.isAdmin
+})
+
+// Force check admin status on mount
+onMounted(() => {
+  console.log('Initial admin status:', {
+    isAdmin: userStore.isAdmin,
+    userRole: userStore.user?.role,
+    fullUser: userStore.user
+  })
+})
+
+console.log("userstore:");
+console.log(userStore);
 </script>
 
 <template>
@@ -169,13 +191,13 @@ const handleMouseMove = (event: MouseEvent) => {
         <div class="corner-decor top-right"></div>
         <div class="corner-decor bottom-left"></div>
         <div class="corner-decor bottom-right"></div>
-        
+
         <!-- Add corner accents to match PageMain -->
         <div class="corner-accent top-left"></div>
         <div class="corner-accent top-right"></div>
         <div class="corner-accent bottom-left"></div>
         <div class="corner-accent bottom-right"></div>
-        
+
         <!-- Content container to maintain readable width -->
         <div class="content-container">
           <div class="px-2 sm:px-4 py-3">
@@ -184,61 +206,30 @@ const handleMouseMove = (event: MouseEvent) => {
               <!-- Added gap -->
               <!-- Logo - made more compact on mobile -->
               <div class="flex items-center shrink-0 logo-container">
-                <font-awesome-icon
-                  icon="chart-line"
-                  class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2"
-                />
+                <font-awesome-icon icon="chart-line" class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2" />
                 <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
               </div>
 
               <!-- Search Bar - Centered and optimized -->
-              <div 
-                ref="searchContainerRef" 
-                class="relative flex-1 mx-3 md:mx-8 max-w-md hidden lg:block"
-              >
+              <div ref="searchContainerRef" class="relative flex-1 mx-3 md:mx-8 max-w-md hidden lg:block">
                 <div class="relative group">
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Search assets..."
-                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200 group-hover:bg-white/15"
-                  />
-                  <div 
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center"
-                  >
-                    <font-awesome-icon
-                      v-if="searchLoading"
-                      icon="spinner"
-                      class="text-gray-400 animate-spin"
-                    />
-                    <font-awesome-icon
-                      v-else-if="searchQuery && searchQuery.length > 0"
-                      @click="searchQuery = ''"
-                      icon="times-circle"
-                      class="text-gray-400 cursor-pointer hover:text-white"
-                    />
-                    <font-awesome-icon
-                      v-else
-                      icon="search"
-                      class="text-gray-400"
-                    />
+                  <input v-model="searchQuery" type="text" placeholder="Search assets..."
+                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200 group-hover:bg-white/15" />
+                  <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                    <font-awesome-icon v-if="searchLoading" icon="spinner" class="text-gray-400 animate-spin" />
+                    <font-awesome-icon v-else-if="searchQuery && searchQuery.length > 0" @click="searchQuery = ''"
+                      icon="times-circle" class="text-gray-400 cursor-pointer hover:text-white" />
+                    <font-awesome-icon v-else icon="search" class="text-gray-400" />
                   </div>
                 </div>
 
                 <!-- Search Results Dropdown -->
-                <transition 
-                  name="fade"
-                  enter-active-class="transition ease-out duration-200"
-                  enter-from-class="opacity-0 translate-y-1"
-                  enter-to-class="opacity-100 translate-y-0"
-                  leave-active-class="transition ease-in duration-150"
-                  leave-from-class="opacity-100 translate-y-0"
-                  leave-to-class="opacity-0 translate-y-1"
-                >
-                  <div
-                    v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
-                    class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-xl backdrop-saturate-150 rounded-lg border border-white/10 shadow-lg max-h-96 overflow-y-auto z-[60]"
-                  >
+                <transition name="fade" enter-active-class="transition ease-out duration-200"
+                  enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0"
+                  leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0"
+                  leave-to-class="opacity-0 translate-y-1">
+                  <div v-show="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+                    class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-xl backdrop-saturate-150 rounded-lg border border-white/10 shadow-lg max-h-96 overflow-y-auto z-[60]">
                     <!-- Loading State -->
                     <div v-if="searchLoading" class="py-4 px-4 text-center">
                       <LoadingSpinner class="h-6 w-6 mx-auto" />
@@ -253,12 +244,8 @@ const handleMouseMove = (event: MouseEvent) => {
 
                     <!-- Results -->
                     <div v-else class="py-1">
-                      <div
-                        v-for="result in searchResults"
-                        :key="result.id"
-                        @click="goToAsset(result.id)"
-                        class="px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer group"
-                      >
+                      <div v-for="result in searchResults" :key="result.id" @click="goToAsset(result.id)"
+                        class="px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer group">
                         <div class="flex justify-between items-center">
                           <div>
                             <div class="font-medium text-white flex items-center">
@@ -271,18 +258,17 @@ const handleMouseMove = (event: MouseEvent) => {
                           </div>
                           <div class="text-green-400 font-medium group-hover:translate-x-0.5 transition-transform">
                             ${{ result.price }}
-                            <font-awesome-icon icon="arrow-right" class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <font-awesome-icon icon="arrow-right"
+                              class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
                         </div>
                       </div>
 
                       <!-- View all results link -->
-                      <div v-if="searchResults.length > 0" class="mt-1 pt-2 border-t border-white/10 px-4 py-2 text-center">
-                        <a 
-                          @click="closeSearchResults"
-                          href="#" 
-                          class="text-green-400 hover:text-green-300 text-sm transition-colors"
-                        >
+                      <div v-if="searchResults.length > 0"
+                        class="mt-1 pt-2 border-t border-white/10 px-4 py-2 text-center">
+                        <a @click="closeSearchResults" href="#"
+                          class="text-green-400 hover:text-green-300 text-sm transition-colors">
                           <font-awesome-icon icon="list" class="mr-1" />
                           View all results
                         </a>
@@ -290,7 +276,8 @@ const handleMouseMove = (event: MouseEvent) => {
                     </div>
 
                     <!-- No results -->
-                    <div v-if="searchResults.length === 0 && !searchLoading && !searchError" class="py-6 px-4 text-center">
+                    <div v-if="searchResults.length === 0 && !searchLoading && !searchError"
+                      class="py-6 px-4 text-center">
                       <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
                       <p class="text-gray-400">No results found</p>
                     </div>
@@ -299,12 +286,9 @@ const handleMouseMove = (event: MouseEvent) => {
               </div>
 
               <!-- Mobile menu button - Enhanced styling -->
-              <button
-                @click="toggleMenu"
+              <button @click="toggleMenu"
                 class="lg:hidden p-2 text-gray-300 hover:text-green-400 transition-all duration-200 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                aria-label="Toggle menu"
-                :aria-expanded="isMenuOpen"
-              >
+                aria-label="Toggle menu" :aria-expanded="isMenuOpen">
                 <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-2xl" />
               </button>
 
@@ -322,10 +306,7 @@ const handleMouseMove = (event: MouseEvent) => {
 
                 <HeaderLink>
                   <template #icon>
-                    <router-link
-                      to="/markets"
-                      class="text-gray-300 hover:text-green-400 flex items-center"
-                    >
+                    <router-link to="/markets" class="text-gray-300 hover:text-green-400 flex items-center">
                       <font-awesome-icon icon="chart-pie" class="mr-2" />
                       <span>Markets</span>
                     </router-link>
@@ -335,22 +316,20 @@ const handleMouseMove = (event: MouseEvent) => {
                 <template v-if="userStore.isAuthenticated">
                   <HeaderLink>
                     <template #icon>
-                      <router-link
-                        to="/portfolio"
-                        class="text-gray-300 hover:text-green-400 flex items-center"
-                      >
+                      <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 flex items-center">
                         <font-awesome-icon icon="wallet" class="mr-2" />
                         <span>Portfolio</span>
                       </router-link>
                     </template>
                   </HeaderLink>
 
+                  <!-- Add admin link with proper condition -->
                   <HeaderLink v-if="userStore.isAdmin">
                     <template #icon>
-                      <router-link
-                        to="/admin"
-                        class="text-gray-300 hover:text-green-400 flex items-center"
-                      >
+                      <router-link to="/admin" :class="[
+                        'text-gray-300 hover:text-green-400 flex items-center',
+                        $route.path === '/admin' ? 'text-green-400' : ''
+                      ]">
                         <font-awesome-icon icon="shield" class="mr-2" />
                         <span>Admin</span>
                       </router-link>
@@ -361,10 +340,7 @@ const handleMouseMove = (event: MouseEvent) => {
                 <template v-else>
                   <HeaderLink>
                     <template #icon>
-                      <router-link
-                        to="/login"
-                        class="text-gray-300 hover:text-green-400 flex items-center"
-                      >
+                      <router-link to="/login" class="text-gray-300 hover:text-green-400 flex items-center">
                         <font-awesome-icon icon="right-to-bracket" class="mr-2" />
                         <span>Login</span>
                       </router-link>
@@ -374,70 +350,50 @@ const handleMouseMove = (event: MouseEvent) => {
               </nav>
 
               <!-- User Profile Section -->
-              <div
-                v-if="userStore.isAuthenticated"
-                class="relative flex items-center"
-                ref="dropdownRef"
-              >
+              <div v-if="userStore.isAuthenticated" class="relative flex items-center" ref="dropdownRef">
                 <!-- Replace displayName with username -->
                 <div class="hidden sm:block">
-                  <span
-                    :class="[
-                      'mr-3 transition-colors',
-                      $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
-                    ]"
-                  >
+                  <span :class="[
+                    'mr-3 transition-colors',
+                    $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
+                  ]">
                     {{ userStore.user?.username }}
                   </span>
                 </div>
 
                 <!-- Avatar button and dropdown container -->
                 <div class="relative">
-                  <button
-                    @click.stop="showProfileDropdown = !showProfileDropdown"
-                    :class="[
-                      'w-8 h-8 rounded-full overflow-hidden transition-all z-30 flex items-center justify-center cursor-pointer',
-                      $route.path === '/profile'
-                        ? 'bg-green-500/20 ring-2 ring-green-400/50'
-                        : 'bg-white/10 hover:ring-2 hover:ring-green-400/50',
-                    ]"
-                  >
-                    <img
-                      v-if="avatarAvailable"
+                  <button @click.stop="showProfileDropdown = !showProfileDropdown" :class="[
+                    'w-8 h-8 rounded-full overflow-hidden transition-all z-30 flex items-center justify-center cursor-pointer',
+                    $route.path === '/profile'
+                      ? 'bg-green-500/20 ring-2 ring-green-400/50'
+                      : 'bg-white/10 hover:ring-2 hover:ring-green-400/50',
+                  ]">
+                    <img v-if="avatarAvailable"
                       :src="`http://localhost:3000/uploads/avatars/${userStore.user?.username}.jpg?t=${avatarTimestamp}`"
-                      :key="avatarTimestamp"
-                      class="w-full h-full object-cover pointer-events-none"
-                      alt="Profile"
-                    />
+                      :key="avatarTimestamp" class="w-full h-full object-cover pointer-events-none" alt="Profile" />
                     <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
                       <span class="text-white text-sm font-medium">{{ firstLetter }}</span>
                     </div>
                   </button>
 
                   <!-- Profile Dropdown -->
-                  <div
-                    v-show="showProfileDropdown"
-                    class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-50"
-                  >
+                  <div v-show="showProfileDropdown"
+                    class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-50">
                     <!-- Connecting triangle -->
                     <div
-                      class="absolute -top-2 right-2 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45"
-                    ></div>
+                      class="absolute -top-2 right-2 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
+                    </div>
 
-                    <router-link
-                      to="/profile"
+                    <router-link to="/profile"
                       class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200"
-                      @click="showProfileDropdown = false"
-                      active-class="text-green-400 bg-white/5"
-                    >
+                      @click="showProfileDropdown = false" active-class="text-green-400 bg-white/5">
                       <font-awesome-icon icon="user-circle" class="mr-2" />
                       Profile
                     </router-link>
                     <div class="w-full h-px bg-white/10 my-1"></div>
-                    <button
-                      @click="handleSignOut"
-                      class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 hover:text-red-300 transition-all duration-200"
-                    >
+                    <button @click="handleSignOut"
+                      class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 hover:text-red-300 transition-all duration-200">
                       <font-awesome-icon icon="right-from-bracket" class="mr-2" />
                       Sign out
                     </button>
@@ -447,67 +403,88 @@ const handleMouseMove = (event: MouseEvent) => {
             </div>
           </div>
         </div>
-        
+
         <!-- Enhanced Mobile Menu -->
-        <transition
-          enter-active-class="transition duration-200 ease-out"
-          enter-from-class="opacity-0 -translate-y-4"
-          enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition duration-150 ease-in"
-          leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 -translate-y-4"
-        >
-          <div 
-            v-if="isMenuOpen" 
-            class="mobile-menu lg:hidden fixed inset-x-0 top-[4.5rem] z-[70]"
-          >
+        <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 -translate-y-4"
+          enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-150 ease-in"
+          leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-4">
+          <div v-if="isMenuOpen" class="mobile-menu lg:hidden fixed inset-x-0 top-[4.5rem] z-[70]">
             <!-- Backdrop with blur and gradient -->
-            <div class="absolute inset-0 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 -z-10"></div>
-            
+            <div
+              class="absolute inset-0 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 -z-10">
+            </div>
+
             <div class="relative z-10 px-4 pt-4 pb-6 border-t border-b border-white/10">
               <!-- Enhanced mobile search -->
               <div class="mb-4">
                 <div class="relative">
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Search assets..."
-                    class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all duration-200"
-                  />
+                  <input v-model="searchQuery" type="text" placeholder="Search assets..."
+                    class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all duration-200" />
                   <div class="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                    <font-awesome-icon
-                      v-if="searchLoading"
-                      icon="spinner"
-                      class="text-gray-400 animate-spin"
-                    />
-                    <font-awesome-icon
-                      v-else-if="searchQuery"
-                      @click="searchQuery = ''"
-                      icon="times-circle"
-                      class="text-gray-400 cursor-pointer hover:text-white transition-colors"
-                    />
-                    <font-awesome-icon
-                      v-else
-                      icon="search"
-                      class="text-gray-400"
-                    />
+                    <font-awesome-icon v-if="searchLoading" icon="spinner" class="text-gray-400 animate-spin" />
+                    <font-awesome-icon v-else-if="searchQuery" @click="searchQuery = ''" icon="times-circle"
+                      class="text-gray-400 cursor-pointer hover:text-white transition-colors" />
+                    <font-awesome-icon v-else icon="search" class="text-gray-400" />
                   </div>
                 </div>
 
                 <!-- Mobile Search Results -->
-                <transition 
-                  enter-active-class="transition duration-200 ease-out"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition duration-150 ease-in"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95"
-                >
-                  <div
-                    v-if="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
-                    class="absolute inset-x-4 mt-2 bg-black/70 backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/10 shadow-lg overflow-hidden max-h-[60vh] overflow-y-auto"
-                  >
-                    <!-- ...existing search results content... -->
+                <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
+                  enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
+                  leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+                  <div v-if="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+                    class="absolute inset-x-4 mt-2 bg-black/70 backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/10 shadow-lg overflow-hidden max-h-[60vh] overflow-y-auto">
+                    <!-- Loading State -->
+                    <div v-if="searchLoading" class="py-4 px-4 text-center">
+                      <LoadingSpinner class="h-6 w-6 mx-auto" />
+                      <p class="mt-2 text-gray-400">Searching...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="searchError" class="py-4 px-4 text-center">
+                      <font-awesome-icon icon="triangle-exclamation" class="text-red-400 text-xl mb-2" />
+                      <p class="text-red-400">{{ searchError }}</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div v-else class="py-1">
+                      <div v-for="result in searchResults" :key="result.id" @click="goToAsset(result.id)"
+                        class="px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer group">
+                        <div class="flex justify-between items-center">
+                          <div>
+                            <div class="font-medium text-white flex items-center">
+                              {{ result.symbol }}
+                              <span class="ml-2 px-2 py-0.5 text-xs bg-white/10 rounded-full text-gray-400">
+                                {{ result.type }}
+                              </span>
+                            </div>
+                            <div class="text-sm text-gray-400 truncate max-w-[220px]">{{ result.name }}</div>
+                          </div>
+                          <div class="text-green-400 font-medium group-hover:translate-x-0.5 transition-transform">
+                            ${{ result.price }}
+                            <font-awesome-icon icon="arrow-right"
+                              class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- View all results link -->
+                      <div v-if="searchResults.length > 0"
+                        class="mt-1 pt-2 border-t border-white/10 px-4 py-2 text-center">
+                        <a @click="closeSearchResults" href="#"
+                          class="text-green-400 hover:text-green-300 text-sm transition-colors">
+                          <font-awesome-icon icon="list" class="mr-1" />
+                          View all results
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- No results -->
+                    <div v-if="searchResults.length === 0 && !searchLoading && !searchError"
+                      class="py-6 px-4 text-center">
+                      <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
+                      <p class="text-gray-400">No results found</p>
+                    </div>
                   </div>
                 </transition>
               </div>
@@ -516,18 +493,96 @@ const handleMouseMove = (event: MouseEvent) => {
               <nav class="space-y-1 max-h-[calc(100vh-12rem)] overflow-y-auto">
                 <HeaderLink @click="closeMenu">
                   <template #icon>
-                    <router-link
-                      to="/"
+                    <router-link to="/"
                       class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
-                      :class="$route.path === '/' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'"
-                    >
+                      :class="$route.path === '/' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
                       <font-awesome-icon icon="chart-line" class="text-lg mr-3" />
                       <span class="font-medium">Dashboard</span>
                     </router-link>
                   </template>
                 </HeaderLink>
 
-                <!-- ...similar pattern for other navigation links... -->
+                <HeaderLink @click="closeMenu">
+                  <template #icon>
+                    <router-link to="/markets"
+                      class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                      :class="$route.path.startsWith('/markets') ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                      <font-awesome-icon icon="chart-pie" class="text-lg mr-3" />
+                      <span class="font-medium">Markets</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
+                <template v-if="userStore.isAuthenticated">
+                  <HeaderLink @click="closeMenu">
+                    <template #icon>
+                      <router-link to="/portfolio"
+                        class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                        :class="$route.path === '/portfolio' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                        <font-awesome-icon icon="wallet" class="text-lg mr-3" />
+                        <span class="font-medium">Portfolio</span>
+                      </router-link>
+                    </template>
+                  </HeaderLink>
+
+                  <HeaderLink v-if="userStore.isAdmin" @click="closeMenu">
+                    <template #icon>
+                      <router-link to="/admin"
+                        class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                        :class="$route.path === '/admin' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                        <font-awesome-icon icon="shield" class="text-lg mr-3" />
+                        <span class="font-medium">Admin</span>
+                      </router-link>
+                    </template>
+                  </HeaderLink>
+
+                  <div class="w-full h-px bg-white/10 my-1"></div>
+
+                  <HeaderLink @click="closeMenu">
+                    <template #icon>
+                      <router-link to="/profile"
+                        class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                        :class="$route.path === '/profile' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                        <font-awesome-icon icon="user-circle" class="text-lg mr-3" />
+                        <span class="font-medium">Profile</span>
+                      </router-link>
+                    </template>
+                  </HeaderLink>
+
+                  <HeaderLink @click="handleSignOut(); closeMenu();">
+                    <template #icon>
+                      <button
+                        class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200 text-red-400 text-left">
+                        <font-awesome-icon icon="right-from-bracket" class="text-lg mr-3" />
+                        <span class="font-medium">Sign out</span>
+                      </button>
+                    </template>
+                  </HeaderLink>
+                </template>
+
+                <template v-else>
+                  <HeaderLink @click="closeMenu">
+                    <template #icon>
+                      <router-link to="/login"
+                        class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                        :class="$route.path === '/login' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                        <font-awesome-icon icon="right-to-bracket" class="text-lg mr-3" />
+                        <span class="font-medium">Login</span>
+                      </router-link>
+                    </template>
+                  </HeaderLink>
+
+                  <HeaderLink @click="closeMenu">
+                    <template #icon>
+                      <router-link to="/register"
+                        class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                        :class="$route.path === '/register' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                        <font-awesome-icon icon="user-plus" class="text-lg mr-3" />
+                        <span class="font-medium">Register</span>
+                      </router-link>
+                    </template>
+                  </HeaderLink>
+                </template>
               </nav>
             </div>
 
@@ -561,6 +616,7 @@ h3 {
 }
 
 @media (min-width: 1024px) {
+
   .greetings h1,
   .greetings h3 {
     text-align: left;
@@ -574,7 +630,7 @@ h3 {
 /* CRITICAL: Match exactly PageMain's styling */
 .page-header {
   width: 100% !important;
-  max-width: 1280px !important; 
+  max-width: 1280px !important;
   margin: 0 auto !important;
   box-sizing: border-box !important;
   background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
@@ -596,7 +652,8 @@ header {
 }
 
 /* Prevent any additional styling that would override */
-header::before, header::after {
+header::before,
+header::after {
   display: none !important;
 }
 
@@ -605,7 +662,7 @@ header::before, header::after {
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
-  padding-top: 1rem !important; 
+  padding-top: 1rem !important;
   margin-bottom: 1rem !important;
   box-sizing: border-box !important;
 }
@@ -635,7 +692,7 @@ header::before, header::after {
     width: calc(100vw - 2rem) !important;
     max-width: calc(100vw - 2rem) !important;
   }
-  
+
   .component-global-wrapper {
     padding-top: 0.5rem !important;
     margin-bottom: 0.5rem !important;
@@ -643,7 +700,9 @@ header::before, header::after {
 }
 
 /* Cleanup conflicting styles */
-.futuristic-bg, .corner-accent, .corner-decor {
+.futuristic-bg,
+.corner-accent,
+.corner-decor {
   display: none !important;
 }
 
@@ -657,12 +716,15 @@ header {
 
 nav {
   flex-shrink: 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 nav::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* Adjust breakpoint for mobile menu */
@@ -670,6 +732,7 @@ nav::-webkit-scrollbar {
   .sm\:hidden {
     display: block;
   }
+
   .sm\:flex {
     display: none;
   }
@@ -679,6 +742,7 @@ nav::-webkit-scrollbar {
   .sm\:hidden {
     display: none;
   }
+
   .sm\:flex {
     display: flex;
   }
@@ -924,10 +988,12 @@ button:hover {
 
 /* Add bounce animation for notifications or updates */
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-2px);
   }
@@ -1065,7 +1131,7 @@ header {
 
 .component-global-wrapper,
 .page-header-wrapper {
-  width: 100% !important; 
+  width: 100% !important;
   display: flex !important;
   justify-content: center !important;
   padding: 0 !important;
@@ -1074,7 +1140,7 @@ header {
 }
 
 .page-header-wrapper {
-  padding-top: 1rem !important; 
+  padding-top: 1rem !important;
 }
 
 .content-container {
@@ -1093,7 +1159,7 @@ header {
   -webkit-backdrop-filter: none !important;
 }
 
-header > .content-container > div {
+header>.content-container>div {
   padding: 0.75rem 1rem !important;
 }
 
@@ -1120,7 +1186,7 @@ header > .content-container > div {
   .component-global-wrapper {
     margin-bottom: 0.5rem !important;
   }
-  
+
   .page-header-wrapper {
     padding-top: 0.5rem !important;
   }
@@ -1137,7 +1203,8 @@ header > .content-container > div {
 
 /* Ensure dropdown appears above other elements */
 div[v-show="showProfileDropdown"] {
-  z-index: 9999 !important; /* Force very high z-index */
+  z-index: 9999 !important;
+  /* Force very high z-index */
   position: absolute !important;
   pointer-events: auto !important;
 }
@@ -1151,7 +1218,7 @@ div[v-show="showProfileDropdown"] {
 }
 
 /* Fix dropdown to be clickable */
-button, 
+button,
 .router-link,
 .absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
   pointer-events: auto !important;
@@ -1163,8 +1230,10 @@ button,
 }
 
 .page-header {
-  overflow: visible !important; /* Allow dropdowns to be visible outside header */
-  z-index: 50 !important; /* Ensure header is above other content */
+  overflow: visible !important;
+  /* Allow dropdowns to be visible outside header */
+  z-index: 50 !important;
+  /* Ensure header is above other content */
 }
 
 /* Reset any problematic hover styles */
@@ -1197,7 +1266,8 @@ button:hover {
   border: 1px solid rgba(74, 222, 128, 0.08);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
   border-radius: 0.75rem;
-  overflow: visible !important; /* Allow dropdowns to be visible */
+  overflow: visible !important;
+  /* Allow dropdowns to be visible */
   position: relative !important;
   z-index: 50 !important;
 }
@@ -1319,11 +1389,9 @@ a:hover {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(74, 222, 128, 0.08) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(74, 222, 128, 0.08) 0%,
+      transparent 60%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.6s ease;
@@ -1446,6 +1514,7 @@ a:hover {
 
 /* Hover effect improvements */
 @media (hover: hover) {
+
   .mobile-menu :deep(a:hover),
   .mobile-menu :deep(button:hover) {
     @apply bg-white/10;

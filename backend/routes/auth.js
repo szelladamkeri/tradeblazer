@@ -82,7 +82,7 @@ module.exports = (pool, asyncHandler) => {
 
     // Find user by email or username
     pool.query(
-      `SELECT id, username, email, role, created_at FROM users 
+      `SELECT id, username, email, type, created_at FROM users 
        WHERE email = ? OR username = ? LIMIT 1`,
       [emailOrUsername, emailOrUsername],
       (err, result) => {
@@ -123,7 +123,7 @@ module.exports = (pool, asyncHandler) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-                role: user.role,
+                type: user.type,  // FIXED: Return type instead of role
                 created_at: user.created_at,
               },
             })

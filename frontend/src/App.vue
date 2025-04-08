@@ -29,7 +29,8 @@ import AnimatedBackground from './components/AnimatedBackground.vue'
 }
 
 /* Base layout resets */
-html, body {
+html,
+body {
   margin: 0 !important;
   padding: 0 !important;
   min-height: 100vh !important;
@@ -44,7 +45,7 @@ html, body {
 
 /* Core app layout */
 #app {
-  width: 100% !important; 
+  width: 100% !important;
   padding: 0 !important;
   margin: 0 !important;
   display: flex !important;
@@ -64,7 +65,8 @@ html, body {
 }
 
 /* Page layout */
-.page-header, .page-main {
+.page-header,
+.page-main {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
@@ -79,21 +81,27 @@ html, body {
 
 /* Responsive breakpoints */
 @media (max-width: 1400px) {
-  .page-header, .page-main {
+
+  .page-header,
+  .page-main {
     width: 95vw;
     max-width: 95vw;
   }
 }
 
 @media (max-width: 1100px) {
-  .page-header, .page-main {
+
+  .page-header,
+  .page-main {
     width: 95vw;
     max-width: 95vw;
   }
 }
 
 @media (max-width: 640px) {
-  .page-header, .page-main {
+
+  .page-header,
+  .page-main {
     width: calc(100vw - 2rem);
     max-width: calc(100vw - 2rem);
   }
@@ -101,7 +109,46 @@ html, body {
 
 /* iOS specific fixes */
 @supports (-webkit-touch-callout: none) {
-  .app-container { height: -webkit-fill-available; }
+  .app-container {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Core layout */
+#app {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.95), rgba(8, 11, 22, 0.98)) !important;
+}
+
+/* Page layout containers */
+.view-container {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 0 1rem !important;
+  box-sizing: border-box !important;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1400px) {
+  .view-container {
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .view-container {
+    padding: 0 0.5rem !important;
+  }
 }
 </style>
 

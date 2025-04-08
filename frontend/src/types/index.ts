@@ -4,7 +4,8 @@ export interface User {
   username: string
   email: string
   displayName?: string
-  role: 'A' | 'U'  // 'A' for Admin, 'U' for User
+  type: 'A' | 'U'  // Changed from role to type to match database
+  role?: 'A' | 'U' // Keep for backward compatibility
   created_at?: string
 }
 

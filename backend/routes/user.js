@@ -51,8 +51,8 @@ module.exports = (pool, asyncHandler) => {
       })
     }
 
-    // Verify current password
-    const verifyQuery = 'SELECT id FROM users WHERE id = ? AND password = ?'
+    // Verify current password and get current role
+    const verifyQuery = 'SELECT id, role FROM users WHERE id = ? AND password = ?'
     
     pool.query(verifyQuery, [id, currentPassword], (err, result) => {
       if (err || !result || result.length === 0) {
@@ -89,6 +89,7 @@ module.exports = (pool, asyncHandler) => {
           success: true,
           message: 'Profile updated successfully',
           avatar: req.file ? true : false,
+          role: result[0].role // Include role in response
         })
       })
     })

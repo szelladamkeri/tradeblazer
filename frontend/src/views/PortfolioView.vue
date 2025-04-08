@@ -51,7 +51,7 @@ function calculateReturnPercentage(initialValue, currentValue) {
   if (!initialValue || initialValue < 0.0001) {
     return 'N/A'; // Return "N/A" instead of infinity
   }
-  
+
   const percentage = ((currentValue - initialValue) / initialValue) * 100;
   return `${percentage.toFixed(2)}%`;
 }
@@ -66,12 +66,12 @@ const fetchPortfolioData = async () => {
     }
     return
   }
-  
+
   try {
     loading.value = true
     const userId = userStore.user.id
     console.log('Fetching portfolio for user:', userId)
-    
+
     const response = await fetch(`http://localhost:3000/api/portfolio/${userId}`, {
       credentials: 'include',
       headers: {
@@ -79,9 +79,9 @@ const fetchPortfolioData = async () => {
         'Content-Type': 'application/json'
       }
     })
-    
+
     console.log('Portfolio response status:', response.status)
-    
+
     if (!response.ok) {
       let errorData
       try {
@@ -89,7 +89,7 @@ const fetchPortfolioData = async () => {
       } catch {
         errorData = { message: 'Failed to parse server response' }
       }
-      
+
       if (response.status === 404) {
         error.value = {
           message: 'Portfolio not found: ' + (errorData.message || ''),
@@ -100,7 +100,7 @@ const fetchPortfolioData = async () => {
       }
       return
     }
-    
+
     const data = await response.json()
     console.log('Portfolio data received:', data)
     portfolioData.value = data
@@ -132,7 +132,7 @@ const formatPrice = (price: number): string => {
   }).format(price)
 }
 
-const { 
+const {
   tableContainer,
   currentPage,
   paginatedItems: paginatedAssets,
@@ -151,7 +151,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   const rect = header.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
-  
+
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
@@ -160,40 +160,27 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 <template>
   <!-- First check API heartbeat status -->
-  <FullPageError
-    v-if="!isApiAvailable && apiError"
-    :message="apiError.message"
-    :error-type="apiError.type"
-    @retry="checkApiHeartbeat"
-  />
-  
+  <FullPageError v-if="!isApiAvailable && apiError" :message="apiError.message" :error-type="apiError.type"
+    @retry="checkApiHeartbeat" />
+
   <!-- Then check for other errors -->
-  <FullPageError
-    v-else-if="error"
-    :message="error.message"
-    :error-type="error.type"
-    @retry="fetchPortfolioData"
-  />
-  
+  <FullPageError v-else-if="error" :message="error.message" :error-type="error.type" @retry="fetchPortfolioData" />
+
   <!-- Only render normal page when there's no error -->
   <div v-else class="portfolio-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
-    
+
     <PageMain>
       <div ref="tableContainer" class="w-full h-full overflow-auto px-2 sm:px-4 py-4">
         <!-- Add the conditional overflow container to match MarketsView -->
-        <div class="h-full" :class="{'overflow-y-auto': portfolioData.assets.length > 10}">
+        <div class="h-full" :class="{ 'overflow-y-auto': portfolioData.assets.length > 10 }">
           <div v-if="loading" class="flex justify-center items-center py-8">
             <LoadingSpinner />
           </div>
-          
-          <ErrorDisplay
-            v-else-if="error"
-            :message="error.message"
-            :error-type="error.type"
-            @retry="fetchPortfolioData"
-          />
-          
+
+          <ErrorDisplay v-else-if="error" :message="error.message" :error-type="error.type"
+            @retry="fetchPortfolioData" />
+
           <div v-else class="space-y-6">
             <!-- Portfolio Summary -->
             <FadeIn>
@@ -203,19 +190,22 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   Portfolio Summary
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                  <div
+                    class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
                     <p class="text-sm text-gray-400">Total Value</p>
                     <p class="text-green-400 text-2xl font-bold">
                       ${{ formatPrice(portfolioData.totalValue) }}
                     </p>
                   </div>
-                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                  <div
+                    class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
                     <p class="text-sm text-gray-400">Available Balance</p>
                     <p class="text-green-400 text-2xl font-bold">
                       ${{ formatPrice(portfolioData.balance) }}
                     </p>
                   </div>
-                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                  <div
+                    class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
                     <p class="text-sm text-gray-400">Total Positions</p>
                     <p class="text-green-400 text-2xl font-bold">{{ totalPositions }}</p>
                   </div>
@@ -227,22 +217,25 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
             <FadeIn>
               <div class="w-full">
                 <div class="flex items-center mb-4">
-                  <font-awesome-icon
-                    icon="wallet"
-                    class="mr-2 text-green-400"
-                  />
+                  <font-awesome-icon icon="wallet" class="mr-2 text-green-400" />
                   <h1 class="text-2xl font-bold">Holdings</h1>
                 </div>
                 <div class="overflow-x-auto bg-white/5 rounded-xl p-4 border border-white/10">
                   <table class="min-w-full divide-y divide-white/10">
                     <thead>
                       <tr>
-                        <th class="text-left py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Symbol</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Shares</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Avg Price</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Current</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Value</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Return</th>
+                        <th class="text-left py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          Symbol</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          Shares</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Avg
+                          Price</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          Current</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          Value</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          Return</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-white/10">
@@ -251,8 +244,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           No holdings found
                         </td>
                       </tr>
-                      <tr v-for="asset in paginatedAssets" :key="asset.assetId" 
-                          class="hover:bg-white/5 transition-colors">
+                      <tr v-for="asset in paginatedAssets" :key="asset.assetId"
+                        class="hover:bg-white/5 transition-colors">
                         <td class="py-4 px-4">
                           <div class="flex items-center">
                             <div>
@@ -275,10 +268,11 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                         </td>
                         <td class="py-4 px-4 text-right">
                           <span :class="[
-                            calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'text-gray-400' : 
-                            parseFloat(calculateReturnPercentage(asset.averagePrice, asset.currentPrice)) >= 0 ? 'text-green-400' : 'text-red-400'
+                            calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'text-gray-400' :
+                              parseFloat(calculateReturnPercentage(asset.averagePrice, asset.currentPrice)) >= 0 ? 'text-green-400' : 'text-red-400'
                           ]">
-                            {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'N/A' : calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
+                            {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'N/A' :
+                              calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
                           </span>
                         </td>
                       </tr>
@@ -288,38 +282,30 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   <!-- Replace the pagination section -->
                   <div class="mt-4 flex items-center justify-between px-4">
                     <div class="text-sm text-gray-400">
-                      Showing {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to 
-                      {{ Math.min(currentPage * visibleItems, portfolioData.assets?.length || 0) }} of 
+                      Showing {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to
+                      {{ Math.min(currentPage * visibleItems, portfolioData.assets?.length || 0) }} of
                       {{ portfolioData.assets?.length || 0 }} positions
                     </div>
                     <div class="flex items-center gap-2">
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-1 rounded-lg transition-colors"
-                        :class="[
+                      <button @click="prevPage" :disabled="currentPage === 1"
+                        class="px-3 py-1 rounded-lg transition-colors" :class="[
                           currentPage === 1
                             ? 'bg-white/5 text-gray-500 cursor-not-allowed'
                             : 'bg-white/10 text-white hover:bg-white/20'
-                        ]"
-                      >
+                        ]">
                         <font-awesome-icon icon="chevron-left" />
                       </button>
-                      
+
                       <span class="text-gray-400">
                         Page {{ currentPage }} of {{ totalPages }}
                       </span>
 
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-1 rounded-lg transition-colors"
-                        :class="[
+                      <button @click="nextPage" :disabled="currentPage === totalPages"
+                        class="px-3 py-1 rounded-lg transition-colors" :class="[
                           currentPage === totalPages
                             ? 'bg-white/5 text-gray-500 cursor-not-allowed'
                             : 'bg-white/10 text-white hover:bg-white/20'
-                        ]"
-                      >
+                        ]">
                         <font-awesome-icon icon="chevron-right" />
                       </button>
                     </div>
@@ -383,7 +369,10 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 /* Mobile optimization */
 @media (max-width: 640px) {
-  button, input, select {
+
+  button,
+  input,
+  select {
     min-height: 44px;
   }
 }
@@ -431,7 +420,8 @@ tr {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 !important;
-  overflow: hidden !important; /* Contain overflow */
+  overflow: hidden !important;
+  /* Contain overflow */
 }
 
 /* Set explicit sizing for main container */
@@ -440,7 +430,8 @@ tr {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  height: auto !important; /* Remove fixed height */
+  height: auto !important;
+  /* Remove fixed height */
 }
 
 /* Fix scrolling container */

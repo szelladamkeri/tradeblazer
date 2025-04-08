@@ -47,8 +47,8 @@ const handleLogin = async (e: Event) => {
       throw new Error(data?.message || 'Login failed')
     }
 
-    localStorage.setItem('user', JSON.stringify(data))
-    userStore.setUser(data.user)
+    // Let userStore handle data persistence and state management
+    userStore.setUser(data.user, data.token)
     router.push('/')
   } catch (err) {
     error.value =
@@ -66,7 +66,7 @@ const handleMouseMove = (event: MouseEvent) => {
   const rect = main.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
-  
+
   main.style.setProperty('--mouse-x', `${x}%`);
   main.style.setProperty('--mouse-y', `${y}%`);
 };
@@ -95,72 +95,48 @@ const handleMouseMove = (event: MouseEvent) => {
                 <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
                   <span>Email or Username</span>
                   <transition name="fade">
-                    <CheckIcon
-                      v-if="email && isEmailOrUsernameValid"
-                      class="text-green-400 ml-2"
-                    />
+                    <CheckIcon v-if="email && isEmailOrUsernameValid" class="text-green-400 ml-2" />
                   </transition>
                 </label>
-                <input
-                  type="text"
-                  v-model="email"
-                  required
-                  :class="[
-                    'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
-                    email
-                      ? isEmailOrUsernameValid
-                        ? 'border-green-500'
-                        : 'border-red-500'
-                      : 'border-gray-600',
-                  ]"
-                  placeholder="Enter your email or username"
-                />
+                <input type="text" v-model="email" required :class="[
+                  'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
+                  email
+                    ? isEmailOrUsernameValid
+                      ? 'border-green-500'
+                      : 'border-red-500'
+                    : 'border-gray-600',
+                ]" placeholder="Enter your email or username" />
               </div>
 
               <div class="space-y-2">
                 <label class="flex items-center justify-between text-gray-200 text-sm font-medium">
                   <span>Password</span>
                   <transition name="fade">
-                    <CheckIcon
-                      v-if="password && isPasswordValid"
-                      class="text-green-400 ml-2"
-                    />
+                    <CheckIcon v-if="password && isPasswordValid" class="text-green-400 ml-2" />
                   </transition>
                 </label>
-                <input
-                  type="password"
-                  v-model="password"
-                  required
-                  :class="[
-                    'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
-                    password
-                      ? isPasswordValid
-                        ? 'border-green-500'
-                        : 'border-red-500'
-                      : 'border-gray-600',
-                  ]"
-                  placeholder="Enter your password"
-                />
+                <input type="password" v-model="password" required :class="[
+                  'w-full p-3 rounded-lg bg-white/10 border text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-green-500/20 transition-colors',
+                  password
+                    ? isPasswordValid
+                      ? 'border-green-500'
+                      : 'border-red-500'
+                    : 'border-gray-600',
+                ]" placeholder="Enter your password" />
               </div>
 
-              <button
-                type="submit"
-                :disabled="!isFormValid || loading"
-                :class="[
-                  'w-full p-3 rounded-lg text-white font-medium transition-all duration-200',
-                  isFormValid
-                    ? 'bg-green-600 hover:bg-green-700'
-                    : 'bg-gray-600 cursor-not-allowed opacity-50',
-                ]"
-              >
+              <button type="submit" :disabled="!isFormValid || loading" :class="[
+                'w-full p-3 rounded-lg text-white font-medium transition-all duration-200',
+                isFormValid
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-gray-600 cursor-not-allowed opacity-50',
+              ]">
                 {{ loading ? 'Logging in...' : 'Login' }}
               </button>
 
               <div class="text-center text-gray-400">
                 <span>Don't have an account? </span>
-                <router-link to="/register" class="text-green-500 hover:text-green-400"
-                  >Register</router-link
-                >
+                <router-link to="/register" class="text-green-500 hover:text-green-400">Register</router-link>
               </div>
             </form>
           </div>
@@ -193,11 +169,9 @@ const handleMouseMove = (event: MouseEvent) => {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(74, 222, 128, 0.08) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(74, 222, 128, 0.08) 0%,
+      transparent 60%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.6s ease;

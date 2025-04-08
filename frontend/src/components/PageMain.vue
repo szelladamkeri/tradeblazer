@@ -12,7 +12,7 @@ const handleMouseMove = (event: MouseEvent) => {
   const rect = main.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
-  
+
   main.style.setProperty('--mouse-x', `${x}%`);
   main.style.setProperty('--mouse-y', `${y}%`);
 };
@@ -43,7 +43,8 @@ onMounted(() => {
 
 .page-main {
   width: 100% !important;
-  max-width: 1280px !important; /* Match max-w-7xl */
+  max-width: 1280px !important;
+  /* Match max-w-7xl */
   margin: 0 auto !important;
   box-sizing: border-box !important;
   background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
@@ -55,7 +56,8 @@ onMounted(() => {
   overflow: hidden;
   position: relative;
   flex: 1;
-  z-index: 10; /* Lower than header's z-index of 50 */
+  z-index: 10;
+  /* Lower than header's z-index of 50 */
 }
 
 /* Interactive gradient effect */
@@ -63,11 +65,9 @@ onMounted(() => {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(74, 222, 128, 0.08) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(74, 222, 128, 0.08) 0%,
+      transparent 60%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.6s ease;
@@ -79,10 +79,23 @@ onMounted(() => {
   opacity: 1;
 }
 
+/* Content alignment */
+:deep(.page-content) {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 1rem !important;
+  box-sizing: border-box !important;
+}
+
 /* Consistent responsive breakpoints */
 @media (max-width: 1400px) {
   .page-main {
     width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  :deep(.page-content) {
     max-width: 95vw !important;
   }
 }
