@@ -1,0 +1,37 @@
+Trade View Implementation TODOs:
+
+1. Price Chart Integration:
+- [ ] Integrate a charting library (e.g., Chart.js, TradingView)
+- [ ] Implement real-time or interval-based price updates
+- [ ] Add timeframe selectors (1D, 1W, 1M, etc.)
+
+2. Watchlist Functionality:
+- [ ] Add watchlist table to database if not exists
+- [ ] Implement /api/watchlist endpoints (add/remove/check)
+- [ ] Add watchlist state management to frontend
+
+3. Trading Features:
+- [x] Implement order validation
+- [x] Add commission/fee calculations
+- [ ] Implement order history
+- [ ] Add position tracking
+- [ ] Implement stop-loss and take-profit options
+
+4. Balance Management:
+- [x] Add balance checks before trade
+- [x] Implement balance updates after trade
+- [ ] Add transaction history
+
+5. UI Improvements:
+- [x] Add trade confirmation modal
+- [ ] Implement order book view
+- [ ] Add price alerts
+- [ ] Add trading volume indicators
+
+Additional TODOs:
+- [x] Fix authentication check in TradeView
+- [x] Add proper type safety for asset data
+- [x] Implement order submission loading state
+- [x] Add error handling for trade submissions
+- [ ] Add success feedback after trade
+- [ ] Implement asset holding validation for sell orders

@@ -145,6 +145,46 @@ app.use('/api', require('./routes')(pool, asyncHandler))
 app.use('/api/portfolio', require('./routes/portfolio')(pool, asyncHandler))
 
 /**
+ * Single Asset API Endpoint
+ * Fetches details of a specific asset by ID
+ */
+app.get('/api/assets/:id', asyncHandler(async (req, res) => {
+  const assetId = parseInt(req.params.id)
+  
+  if (isNaN(assetId)) {
+    return res.status(400).json({ message: 'Invalid asset ID' })
+  }
+
+  const query = `
+    SELECT a.*, 
+           COALESCE(
+             (SELECT (a.price - t.price) / t.price * 100
+              FROM trades t 
+              WHERE t.asset_id = a.id 
+              ORDER BY t.created_at DESC 
+              LIMIT 1
+             ), 
+             0
+           ) as change_24h
+    FROM assets a
+    WHERE a.id = ?
+  `
+  
+  pool.query(query, [assetId], (err, results) => {
+    if (err) {
+      console.error('Asset fetch error:', err)
+      return res.status(500).json({ message: 'Database error' })
+    }
+    
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: 'Asset not found' })
+    }
+
+    res.json(results[0])
+  })
+}))
+
+/**
  * Asset Search API Endpoint
  * Allows searching assets by name or symbol
  */
