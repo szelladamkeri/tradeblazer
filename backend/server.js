@@ -9,6 +9,9 @@ const path = require('path')
 const app = express()
 const port = 3000
 
+// Put this in a separate file for better organization
+const alphaKey = "0W6GD6NKNOXOXN6P";
+
 /**
  * Database Configuration
  * Reading from configuration file for security and flexibility
@@ -210,6 +213,204 @@ app.get('/api/assets/search', (req, res) => {
     res.json(results)
   })
 })
+
+/**
+ * Watchlist Endpoints
+ */
+app.get('/api/users/:userId/watchlist', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.userId)
+
+  const query = `
+    SELECT w.id as watchlistId, a.*, w.created_at as added_at
+    FROM watchlist w
+    JOIN assets a ON w.asset_id = a.id
+    WHERE w.user_id = ?
+    ORDER BY w.created_at DESC
+  `
+
+  pool.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Watchlist fetch error:', err)
+      return res.status(500).json({ message: 'Database error' })
+    }
+    res.json(results)
+  })
+}))
+
+app.post('/api/watchlist/:assetId', asyncHandler(async (req, res) => {
+  const { userId } = req.body
+  const assetId = parseInt(req.params.assetId)
+  
+  // Better validation
+  if (!userId) {
+    return res.status(400).json({ 
+      error: 'Missing user ID', 
+      message: 'User ID is required in the request body' 
+    })
+  }
+  
+  if (isNaN(assetId) || assetId <= 0) {
+    return res.status(400).json({ 
+      error: 'Invalid asset ID', 
+      message: 'Asset ID must be a positive number' 
+    })
+  }
+
+  console.log(`Adding asset ${assetId} to watchlist for user ${userId}`)
+  
+  const query = 'INSERT INTO watchlist (user_id, asset_id) VALUES (?, ?)'
+
+  pool.query(query, [userId, assetId], (err, result) => {
+    if (err) {
+      console.error('Watchlist add detailed error:', err)
+      
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(409).json({ 
+          error: 'Duplicate entry', 
+          message: 'Asset already in watchlist' 
+        })
+      }
+      
+      if (err.code === 'ER_NO_REFERENCED_ROW' || err.code === 'ER_NO_REFERENCED_ROW_2') {
+        return res.status(400).json({ 
+          error: 'Foreign key constraint failed', 
+          message: 'Invalid user ID or asset ID' 
+        })
+      }
+      
+      return res.status(500).json({ 
+        error: 'Database error', 
+        message: `Failed to add to watchlist: ${err.message}` 
+      })
+    }
+    
+    res.status(201).json({ id: result.insertId })
+  })
+}))
+
+app.delete('/api/watchlist/:id', asyncHandler(async (req, res) => {
+  const watchlistId = parseInt(req.params.id)
+
+  pool.query('DELETE FROM watchlist WHERE id = ?', [watchlistId], (err, result) => {
+    if (err) {
+      console.error('Watchlist remove error:', err)
+      return res.status(500).json({ message: 'Database error' })
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Watchlist item not found' })
+    }
+    res.status(204).send()
+  })
+}))
+
+/**
+ * Check if Asset is in Watchlist Endpoint
+ * Checks if a specific asset is in a user's watchlist
+ */
+app.get('/api/users/:userId/watchlist/check/:assetId', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.userId)
+  const assetId = parseInt(req.params.assetId)
+  
+  if (isNaN(userId) || isNaN(assetId)) {
+    return res.status(400).json({ 
+      error: 'Invalid parameters', 
+      message: 'User ID and Asset ID must be numeric values' 
+    })
+  }
+
+  const query = `
+    SELECT * FROM watchlist 
+    WHERE user_id = ? AND asset_id = ?
+    LIMIT 1
+  `
+
+  pool.query(query, [userId, assetId], (err, results) => {
+    if (err) {
+      console.error('Watchlist check error:', err)
+      return res.status(500).json({ message: 'Database error' })
+    }
+    
+    // Return whether the asset is in the watchlist and the watchlist item id if it exists
+    res.json({
+      isInWatchlist: results.length > 0,
+      watchlistId: results.length > 0 ? results[0].id : null
+    })
+  })
+}))
+
+// Rate limiting setup
+const rateLimit = {
+  windowMs: 60 * 1000, // 1 minute
+  count: 0,
+  lastReset: Date.now(),
+  maxRequests: 5 // Alpha Vantage free tier limit
+}
+
+// Cache setup
+const priceCache = new Map()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
+/**
+ * Price History API Endpoint
+ * Proxies requests to Alpha Vantage with caching and rate limiting
+ */
+app.get('/api/prices/:symbol', asyncHandler(async (req, res) => {
+  const { symbol } = req.params
+  const { interval = '5min', type = 'stock' } = req.query
+  
+  // Check cache first
+  const cacheKey = `${symbol}-${interval}`
+  const cached = priceCache.get(cacheKey)
+  if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
+    return res.json(cached.data)
+  }
+
+  // Rate limiting check
+  if (Date.now() - rateLimit.lastReset > rateLimit.windowMs) {
+    rateLimit.count = 0
+    rateLimit.lastReset = Date.now()
+  }
+
+  if (rateLimit.count >= rateLimit.maxRequests) {
+    return res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: 'Please try again in a minute'
+    })
+  }
+
+  try {
+    const functionName = type === 'forex' ? 'FX_INTRADAY' 
+                      : type === 'crypto' ? 'CRYPTO_INTRADAY'
+                      : 'TIME_SERIES_INTRADAY'
+
+    const url = `https://www.alphavantage.co/query?function=${functionName}&symbol=${symbol}&interval=${interval}&apikey=${alphaKey}`
+    
+    const response = await fetch(url)
+    if (!response.ok) throw new Error('Alpha Vantage API error')
+    
+    const data = await response.json()
+    
+    if (data['Error Message']) {
+      throw new Error(data['Error Message'])
+    }
+
+    // Cache the successful response
+    priceCache.set(cacheKey, {
+      data,
+      timestamp: Date.now()
+    })
+    
+    rateLimit.count++
+    res.json(data)
+
+  } catch (err) {
+    console.error('Price history error:', err)
+    res.status(500).json({
+      error: 'Failed to fetch price data',
+      message: err.message
+    })
+  }
+}))
 
 /**
  * Database Reconnection Endpoint

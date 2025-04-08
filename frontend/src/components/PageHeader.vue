@@ -159,27 +159,6 @@ const handleMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-y', `${y}%`);
 };
 
-// Add debugging for admin status
-const debugAdminStatus = computed(() => {
-  console.log('Admin status check:', {
-    isAdmin: userStore.isAdmin,
-    userRole: userStore.user?.role,
-    fullUser: userStore.user
-  })
-  return userStore.isAdmin
-})
-
-// Force check admin status on mount
-onMounted(() => {
-  console.log('Initial admin status:', {
-    isAdmin: userStore.isAdmin,
-    userRole: userStore.user?.role,
-    fullUser: userStore.user
-  })
-})
-
-console.log("userstore:");
-console.log(userStore);
 </script>
 
 <template>

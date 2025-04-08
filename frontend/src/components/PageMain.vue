@@ -44,7 +44,6 @@ onMounted(() => {
 .page-main {
   width: 100% !important;
   max-width: 1280px !important;
-  /* Match max-w-7xl */
   margin: 0 auto !important;
   box-sizing: border-box !important;
   background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);

@@ -35,3 +35,13 @@ Additional TODOs:
 - [x] Add error handling for trade submissions
 - [ ] Add success feedback after trade
 - [ ] Implement asset holding validation for sell orders
+
+
+
+ignore ts if ur from anthropic:
+
+email server: use gmail
+- use mailgen node package to generate mail bodies
+- use random hashed id in server global to listen to that and use that to generate new passwords and stuff for the user
+- watchlist email message when price hits threshold. that should be just a simple routine email send
+

@@ -16,7 +16,7 @@
         </div>
 
         <div v-else-if="asset" class="space-y-6">
-
+          <!-- Asset header -->
           <div class="bg-white/5 rounded-xl p-6 border border-white/10">
             <div class="flex items-center justify-between">
               <div>
@@ -37,17 +37,13 @@
             </div>
           </div>
 
-          <!-- Chart Placeholder -->
-          <div class="bg-white/5 rounded-xl p-6 border border-white/10 h-[400px] relative">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <font-awesome-icon icon="chart-line" class="text-4xl text-gray-600 mb-4" />
-                <p class="text-gray-400">Chart integration coming soon</p>
-              </div>
-            </div>
-            <canvas id="priceChart" class="w-full h-full"></canvas>
+          <!-- Price Chart -->
+          <div class="bg-white/5 rounded-xl p-6 border border-white/10 h-[400px]">
+            <PriceChart v-if="asset" :asset-id="asset.id" @chart-error="handleChartError" />
+            <div v-if="chartError" class="text-red-400 text-sm mt-2">Chart error: {{ chartError }}</div>
           </div>
 
+          <!-- Trading Panel -->
           <div class="bg-white/10 p-6 rounded-xl border border-white/10" v-if="isLoggedIn">
             <h3 class="text-xl font-bold text-white mb-4">Trade Asset</h3>
             <div class="space-y-4">
@@ -78,7 +74,7 @@
               <div>
                 <label class="block text-gray-200 text-sm font-medium mb-2">Quantity</label>
                 <input type="number" v-model="quantity" min="0.00000001" step="0.00000001"
-                  class="w-full p-3 rounded-lg bg-white/10 border border-gray-600 text-white">
+                  class="w-full p-3 rounded-lg bg-white/10 border border-white/10 text-white">
               </div>
 
               <div class="p-4 bg-black/30 rounded-lg mt-6">
@@ -125,7 +121,7 @@
                 </button>
               </div>
 
-              <button @click="executeTrade" :disabled="!canTrade"
+              <button @click="handleTrade" :disabled="!canTrade"
                 class="w-full mt-4 py-3 px-5 bg-green-600 disabled:bg-green-600/50 text-white rounded-lg">
                 Execute Trade
               </button>
@@ -155,6 +151,7 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue'
 import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
+import PriceChart from '@/components/PriceChart.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -173,6 +170,7 @@ interface Asset {
   change_24h: number
   market_cap?: number
   volume_24h?: number
+  watchlistId?: number
 }
 
 // Update refs with proper typing
@@ -180,11 +178,16 @@ const asset = ref<Asset | null>(null)
 const loading = ref(true)
 const error = ref<{ message: string; type: string } | null>(null)
 
+// Add chart error handling
+const chartError = ref<string | null>(null)
+const handleChartError = (error: string) => {
+  console.error('Chart error details:', error)
+  chartError.value = error
+}
+
 // Trade form data
 const quantity = ref(1)
-const orderType = ref('market') // market or limit
 const tradeType = ref('buy') // buy or sell
-const limitPrice = ref(0)
 
 // Trading form state
 const orderSubmitting = ref(false)
@@ -222,7 +225,6 @@ const canTrade = computed(() => {
   const userBalance = userStore.user?.balance || 0
 
   if (tradeType.value === 'sell') {
-    // Check user's asset holdings for sells
     return true // TODO: Implement holding check
   }
 
@@ -244,18 +246,41 @@ const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
 const fetchAssetDetails = async () => {
   loading.value = true
   error.value = null
+  chartError.value = null // Reset chart error on new fetch
 
   try {
     const response = await fetch(`http://localhost:3000/api/assets/${route.params.id}`)
-    if (!response.ok) throw new Error('Failed to fetch asset details')
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Asset fetch response error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
+      throw new Error('Failed to fetch asset details')
+    }
 
     const data = await response.json()
     asset.value = data
+    console.log('Asset details loaded:', data)
 
-    // Check if in watchlist (placeholder)
-    isInWatchlist.value = false // TODO: Implement watchlist check
+    // Check if the user is logged in, then check if asset is in watchlist
+    if (isLoggedIn.value && userStore.user) {
+      await checkWatchlistStatus(data.id)
+    } else {
+      isInWatchlist.value = false
+    }
   } catch (err) {
-    console.error('Error fetching asset:', err)
+    console.error('Error fetching asset details:', err)
+    if (err instanceof Error) {
+      console.error('Error name:', err.name)
+      console.error('Error message:', err.message)
+      console.error('Error stack:', err.stack)
+    } else {
+      console.error('Unknown error type:', err)
+    }
+
     const processedError = handleApiError(err)
     error.value = {
       message: processedError.message,
@@ -263,6 +288,46 @@ const fetchAssetDetails = async () => {
     }
   } finally {
     loading.value = false
+  }
+}
+
+// Add a new function to check watchlist status
+const checkWatchlistStatus = async (assetId) => {
+  try {
+    console.log('Checking watchlist status for asset:', assetId)
+    const response = await fetch(
+      `http://localhost:3000/api/users/${userStore.user.id}/watchlist/check/${assetId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      }
+    )
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Watchlist check response error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
+      console.warn('Failed to check watchlist status')
+      isInWatchlist.value = false
+      return
+    }
+
+    const data = await response.json()
+    console.log('Watchlist check result:', data)
+    isInWatchlist.value = data.isInWatchlist
+
+    // Store the watchlist ID if the asset is in the watchlist
+    if (data.isInWatchlist && asset.value) {
+      console.log('Asset is in watchlist with ID:', data.watchlistId)
+      asset.value.watchlistId = data.watchlistId
+    }
+  } catch (err) {
+    console.error('Error checking watchlist status:', err)
+    isInWatchlist.value = false
   }
 }
 
@@ -274,6 +339,12 @@ const handleTrade = async () => {
   orderError.value = null
 
   try {
+    console.log('Submitting trade:', {
+      assetId: asset.value.id,
+      quantity: quantity.value,
+      tradeType: tradeType.value
+    })
+
     const response = await fetch('http://localhost:3000/api/orders', {
       method: 'POST',
       headers: {
@@ -283,20 +354,26 @@ const handleTrade = async () => {
       body: JSON.stringify({
         assetId: asset.value.id,
         quantity: quantity.value,
-        orderType: orderType.value,
-        tradeType: tradeType.value,
-        limitPrice: orderType.value === 'limit' ? limitPrice.value : undefined
+        tradeType: tradeType.value
       })
     })
 
-    if (!response.ok) throw new Error('Failed to place order')
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Trade response error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
+      throw new Error('Failed to place order')
+    }
 
     const data = await response.json()
+    console.log('Trade success:', data)
     orderSuccess.value = true
     await userStore.refreshBalance() // Refresh user's balance
-
   } catch (err) {
-    console.error('Trade error:', err)
+    console.error('Trade error details:', err)
     orderError.value = err instanceof Error ? err.message : 'Failed to place order'
   } finally {
     orderSubmitting.value = false
@@ -312,20 +389,76 @@ const toggleWatchlist = async () => {
 
   watchlistLoading.value = true
   try {
-    const endpoint = `http://localhost:3000/api/watchlist/${asset.value?.id}`
-    const method = isInWatchlist.value ? 'DELETE' : 'POST'
+    const userId = userStore.user!.id
 
-    const response = await fetch(endpoint, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${userStore.token}`
+    if (isInWatchlist.value && asset.value) {
+      // For DELETE, use the watchlistId we got from checkWatchlistStatus
+      const watchlistId = asset.value.watchlistId
+
+      if (!watchlistId) {
+        console.log('No watchlist ID found, attempting to fetch it')
+        await checkWatchlistStatus(asset.value.id)
+
+        // If still no watchlist ID, reset state and return
+        if (!asset.value.watchlistId) {
+          console.warn('Still no watchlist ID found after check, resetting state')
+          isInWatchlist.value = false
+          watchlistLoading.value = false
+          return
+        }
       }
-    })
 
-    if (!response.ok) throw new Error('Failed to update watchlist')
+      console.log('Removing from watchlist, ID:', asset.value.watchlistId)
+      const deleteResponse = await fetch(`http://localhost:3000/api/watchlist/${asset.value.watchlistId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!deleteResponse.ok) {
+        const errorText = await deleteResponse.text()
+        console.error('Watchlist delete response error:', {
+          status: deleteResponse.status,
+          statusText: deleteResponse.statusText,
+          body: errorText
+        })
+        throw new Error('Failed to remove from watchlist')
+      }
+
+      console.log('Successfully removed from watchlist')
+      delete asset.value.watchlistId
+    } else {
+      console.log('Adding to watchlist, asset ID:', asset.value?.id)
+      const addResponse = await fetch(`http://localhost:3000/api/watchlist/${asset.value?.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!addResponse.ok) {
+        const errorText = await addResponse.text()
+        console.error('Watchlist add response error:', {
+          status: addResponse.status,
+          statusText: addResponse.statusText,
+          body: errorText
+        })
+        throw new Error('Failed to add to watchlist')
+      }
+
+      const data = await addResponse.json()
+      console.log('Successfully added to watchlist, new ID:', data?.id)
+      if (data && data.id && asset.value) {
+        asset.value.watchlistId = data.id
+      }
+    }
+
     isInWatchlist.value = !isInWatchlist.value
   } catch (err) {
-    console.error('Watchlist error:', err)
+    console.error('Watchlist toggle error details:', err)
   } finally {
     watchlistLoading.value = false
   }
@@ -353,75 +486,6 @@ onMounted(fetchAssetDetails)
 </script>
 
 <style scoped>
-.trade-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.asset-info {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.trade-form {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.form-group select,
-.form-group input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.trade-button {
-  width: 100%;
-  padding: 12px;
-  background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.trade-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.login-prompt {
-  text-align: center;
-  padding: 40px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.error-message {
-  padding: 20px;
-  background: #ffebee;
-  color: #d32f2f;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
 /* Add interactive gradient effect */
 :deep(.page-main)::after {
   content: '';
@@ -463,32 +527,5 @@ onMounted(fetchAssetDetails)
 .overflow-y-auto {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-}
-
-/* Match styling with other views */
-.trade-view {
-  padding-top: 0 !important;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Ensure proper content height */
-:deep(.page-main) {
-  min-height: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 !important;
-  overflow: hidden !important;
-}
-
-/* Improve dropdown appearance */
-select {
-  background-image: none;
-}
-
-/* Add chart placeholder styling */
-#priceChart {
-  opacity: 0.1;
 }
 </style>
