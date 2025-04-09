@@ -35,7 +35,7 @@ Additional TODOs:
 - [x] Add error handling for trade submissions
 - [ ] Add success feedback after trade
 - [ ] Implement asset holding validation for sell orders
-
+- [ ] Remove things from tutorialview that are not implemented/will be not implemented
 
 
 ignore ts if ur from anthropic:

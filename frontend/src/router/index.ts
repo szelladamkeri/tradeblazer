@@ -79,7 +79,13 @@ const router = createRouter({
       name: 'asset-details',
       component: () => import('../views/MarketsView.vue'),
       props: true
-    }
+    },
+    {
+      path: '/tutorial',
+      name: 'tutorial',
+      component: () => import('../views/TutorialView.vue'),
+      props: true
+    },
   ]
 })
 
