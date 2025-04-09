@@ -119,6 +119,23 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // Add mock balance data - TODO: Replace with real API call later
+  async function getUserBalance() {
+    if (!user.value) return 0;
+    // Mock API call
+    // const response = await fetch(`http://localhost:3000/api/users/${user.value.id}/balance`);
+    // const data = await response.json();
+    // return data.balance;
+    return user.value.balance || 10000; // Default mock balance
+  }
+
+  async function refreshBalance() {
+    if (user.value) {
+      const balance = await getUserBalance();
+      user.value.balance = balance;
+    }
+  }
+
   return {
     user,
     token,
@@ -132,5 +149,7 @@ export const useUserStore = defineStore('user', () => {
     initializeFromStorage,
     refreshUser,
     checkAvatar,
+    getUserBalance,
+    refreshBalance,
   }
 })
