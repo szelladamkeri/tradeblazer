@@ -49,10 +49,10 @@ const showEmailValidation = computed(() => emailTouched.value && emailChanged.va
 const isDisplayNameValid = computed(() => displayName.value.trim().length >= 3)
 const isEmailValid = computed(() => emailPattern.test(email.value.trim()))
 const isCurrentPasswordValid = computed(() => currentPassword.value.length >= passwordMinLength)
-const isNewPasswordValid = computed(() => 
+const isNewPasswordValid = computed(() =>
   newPassword.value === '' || newPassword.value.length >= passwordMinLength
 )
-const doPasswordsMatch = computed(() => 
+const doPasswordsMatch = computed(() =>
   newPassword.value === confirmPassword.value
 )
 
@@ -72,14 +72,14 @@ const markEmailTouched = () => {
 const formValid = computed(() => {
   // Current password is still required
   if (!currentPassword.value) return false
-  
+
   // If user is changing password, validate confirmation
   if (newPassword.value && newPassword.value !== confirmPassword.value) return false
-  
+
   // Only validate touched fields
   if (displayNameTouched.value && !isDisplayNameValid.value) return false
   if (emailTouched.value && !isEmailValid.value) return false
-  
+
   return true
 })
 
@@ -96,12 +96,12 @@ onMounted(() => {
     router.push('/login')
     return
   }
-  
+
   // Initialize form with current user data
   if (userStore.user) {
     displayName.value = userStore.user.displayName || userStore.user.username
     email.value = userStore.user.email
-    
+
     // Store original values for change detection
     originalDisplayName.value = displayName.value
     originalEmail.value = email.value
@@ -162,7 +162,7 @@ const confirmAvatarUpdate = async () => {
   try {
     loading.value = true
     error.value = null
-    
+
     const response = await fetch(`http://localhost:3000/api/user/avatar`, {
       method: 'PUT',
       body: formData
@@ -237,7 +237,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   const rect = header.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
-  
+
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
@@ -245,21 +245,12 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 <template>
   <!-- First check API heartbeat status -->
-  <FullPageError
-    v-if="!isApiAvailable && apiError"
-    :message="apiError.message"
-    :error-type="apiError.type"
-    @retry="checkApiHeartbeat"
-  />
-  
+  <FullPageError v-if="!isApiAvailable && apiError" :message="apiError.message" :error-type="apiError.type"
+    @retry="checkApiHeartbeat" />
+
   <!-- Then check for other errors -->
-  <FullPageError
-    v-else-if="error"
-    :message="error.message"
-    :error-type="error.type"
-    @retry="router.push('/profile')"
-  />
-  
+  <FullPageError v-else-if="error" :message="error.message" :error-type="error.type" @retry="router.push('/profile')" />
+
   <!-- Only render normal page when there's no error -->
   <div class="edit-profile-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
@@ -278,16 +269,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <!-- Avatar Section - Made more compact -->
               <div class="bg-white/10 rounded-xl p-4 border border-white/10 flex-shrink-0">
                 <h2 class="text-lg font-bold text-white mb-2">Profile Picture</h2>
-                
+
                 <div class="flex flex-row items-center gap-4">
                   <!-- Current Avatar Display -->
                   <div class="w-24 h-24 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
-                    <img
-                      v-if="userStore.avatar.available"
+                    <img v-if="userStore.avatar.available"
                       :src="`http://localhost:3000/uploads/avatars/${userStore.user?.username}.jpg?t=${userStore.avatarTimestamp}`"
-                      class="w-full h-full object-cover"
-                      alt="Profile"
-                    />
+                      class="w-full h-full object-cover" alt="Profile" />
                     <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
                       <span class="text-white text-2xl font-semibold">
                         {{ userStore.user?.username.charAt(0).toUpperCase() }}
@@ -301,164 +289,118 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                       {{ fileError }}
                     </div>
 
-                    <input
-                      type="file"
-                      accept="image/jpeg"
-                      @change="handleAvatarChange"
-                      class="block w-full text-xs text-gray-400
+                    <input type="file" accept="image/jpeg" @change="handleAvatarChange" class="block w-full text-xs text-gray-400
                              file:mr-3 file:py-1.5 file:px-3 file:rounded-lg
                              file:border-0 file:text-xs file:font-medium
                              file:bg-green-600 file:text-white
-                             file:transition-colors"
-                    />
+                             file:transition-colors" />
                     <p class="mt-1 text-xs text-gray-400">
                       JPG only, maximum size 2MB
                     </p>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Profile Info and Email -->
               <div class="bg-white/10 rounded-xl p-4 border border-white/10 flex-grow">
                 <h2 class="text-lg font-bold text-white mb-2">Profile Information</h2>
-                
+
                 <div class="space-y-3">
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
                       <span>Display Name</span>
-                      <span 
-                        v-if="showDisplayNameValidation"
-                        :class="isDisplayNameValid ? 'text-green-400' : 'text-red-400'"
-                        class="text-xs"
-                      >
+                      <span v-if="showDisplayNameValidation"
+                        :class="isDisplayNameValid ? 'text-green-400' : 'text-red-400'" class="text-xs">
                         {{ isDisplayNameValid ? '✓ Valid' : '✗ Min 3 characters' }}
                       </span>
                     </label>
-                    <input
-                      v-model.trim="displayName"
-                      type="text"
-                      @blur="markDisplayNameTouched"
-                      required
+                    <input v-model.trim="displayName" type="text" @blur="markDisplayNameTouched" required
                       class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
-                      :class="showDisplayNameValidation ? (isDisplayNameValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'"
-                    />
+                      :class="showDisplayNameValidation ? (isDisplayNameValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'" />
                     <p class="mt-1 text-xs text-gray-400">This is how your name will appear to other users</p>
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
                       <span>Email Address</span>
-                      <span 
-                        v-if="showEmailValidation"
-                        :class="isEmailValid ? 'text-green-400' : 'text-red-400'"
-                        class="text-xs"
-                      >
+                      <span v-if="showEmailValidation" :class="isEmailValid ? 'text-green-400' : 'text-red-400'"
+                        class="text-xs">
                         {{ isEmailValid ? '✓ Valid' : '✗ Invalid email' }}
                       </span>
                     </label>
-                    <input
-                      v-model.trim="email"
-                      type="email"
-                      @blur="markEmailTouched"
-                      required
+                    <input v-model.trim="email" type="email" @blur="markEmailTouched" required
                       class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
-                      :class="showEmailValidation ? (isEmailValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'"
-                    />
+                      :class="showEmailValidation ? (isEmailValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'" />
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <!-- Right column - Password section -->
             <div class="bg-white/10 rounded-xl p-4 border border-white/10 flex flex-col">
               <h2 class="text-lg font-bold text-white mb-2">Password Settings</h2>
               <p class="text-xs text-gray-400 mb-3">
                 Current password is required. New password is optional - leave blank to keep your current password.
               </p>
-              
+
               <div class="space-y-3 flex-grow">
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
                     <span>Current Password <span class="text-red-400">*</span></span>
-                    <span 
-                      v-if="currentPassword"
-                      :class="isCurrentPasswordValid ? 'text-green-400' : 'text-red-400'"
-                      class="text-xs"
-                    >
+                    <span v-if="currentPassword" :class="isCurrentPasswordValid ? 'text-green-400' : 'text-red-400'"
+                      class="text-xs">
                       {{ isCurrentPasswordValid ? '✓ Valid' : `✗ Min ${passwordMinLength} characters` }}
                     </span>
                   </label>
-                  <input
-                    v-model="currentPassword"
-                    type="password"
-                    required
+                  <input v-model="currentPassword" type="password" required
                     class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
-                    :class="currentPassword ? (isCurrentPasswordValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'"
-                  />
+                    :class="currentPassword ? (isCurrentPasswordValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'" />
                   <p class="mt-1 text-xs text-gray-400">Required to verify your identity</p>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
                     <span>New Password <span class="text-gray-400">(optional)</span></span>
-                    <span 
-                      :class="newPassword ? (isNewPasswordValid ? 'text-green-400' : 'text-red-400') : ''"
-                      class="text-xs"
-                    >
-                      {{ newPassword ? (isNewPasswordValid ? '✓ Valid' : `✗ Min ${passwordMinLength} characters`) : '' }}
+                    <span :class="newPassword ? (isNewPasswordValid ? 'text-green-400' : 'text-red-400') : ''"
+                      class="text-xs">
+                      {{ newPassword ? (isNewPasswordValid ? '✓ Valid' : `✗ Min ${passwordMinLength} characters`) : ''
+                      }}
                     </span>
                   </label>
-                  <input
-                    v-model="newPassword"
-                    type="password"
+                  <input v-model="newPassword" type="password"
                     class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
                     :class="newPassword ? (isNewPasswordValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'"
-                    placeholder="Leave blank to keep current password"
-                  />
+                    placeholder="Leave blank to keep current password" />
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
                     <span>Confirm New Password</span>
-                    <span 
-                      v-if="newPassword"
+                    <span v-if="newPassword"
                       :class="confirmPassword ? (doPasswordsMatch ? 'text-green-400' : 'text-red-400') : ''"
-                      class="text-xs"
-                    >
+                      class="text-xs">
                       {{ confirmPassword ? (doPasswordsMatch ? '✓ Passwords match' : '✗ Passwords don\'t match') : '' }}
                     </span>
                   </label>
-                  <input
-                    v-model="confirmPassword"
-                    type="password"
-                    :disabled="!newPassword"
-                    :required="!!newPassword"
+                  <input v-model="confirmPassword" type="password" :disabled="!newPassword" :required="!!newPassword"
                     class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
-                    :class="[ 
+                    :class="[
                       'transition-colors',
                       !newPassword ? 'opacity-50 cursor-not-allowed' : '',
                       newPassword && confirmPassword ? (doPasswordsMatch ? 'border-green-500' : 'border-red-500') : 'border-white/10'
-                    ]"
-                  />
+                    ]" />
                 </div>
               </div>
-              
+
               <!-- Action buttons -->
               <div class="flex justify-end gap-3 pt-3 mt-auto">
-                <button
-                  type="button"
-                  @click="router.push('/profile')"
-                  class="px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-                >
+                <button type="button" @click="router.push('/profile')"
+                  class="px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  @click="handleSubmit"
-                  :disabled="!formValid || loading"
+                <button type="button" @click="handleSubmit" :disabled="!formValid || loading"
                   class="px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center min-w-[100px] text-sm"
-                  :class="formValid ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-600 opacity-50 cursor-not-allowed'"
-                >
+                  :class="formValid ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-600 opacity-50 cursor-not-allowed'">
                   <LoadingSpinner v-if="loading" class="w-4 h-4" />
                   <span v-else>Save Changes</span>
                 </button>
@@ -473,31 +415,22 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
     <div v-if="showCropper" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div class="bg-white/5 rounded-xl p-6 border border-white/10 max-w-xl w-full backdrop-blur-xl">
         <h3 class="text-xl font-bold text-white mb-4">Crop Profile Picture</h3>
-        
+
         <div class="bg-black/30 rounded-xl p-4 mb-4">
           <div class="h-72">
-            <Cropper
-              ref="cropperRef"
-              :src="imageUrl"
-              :stencil-props="{
-                aspectRatio: 1
-              }"
-              class="cropper"
-            />
+            <Cropper ref="cropperRef" :src="imageUrl" :stencil-props="{
+              aspectRatio: 1
+            }" class="cropper" />
           </div>
         </div>
 
         <div class="flex justify-end gap-3">
-          <button
-            @click="cancelCrop"
-            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
+          <button @click="cancelCrop"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
             Cancel
           </button>
-          <button
-            @click="handleCrop"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
+          <button @click="handleCrop"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
             Apply & Continue
           </button>
         </div>
@@ -505,16 +438,10 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
     </div>
 
     <!-- Confirm Avatar Update Dialog -->
-    <ConfirmDialog
-      :show="showAvatarConfirm"
-      title="Update Profile Picture"
-      message="Are you sure you want to update your profile picture?"
-      confirm-text="Update"
-      :confirm-button-class="'bg-green-600 hover:bg-green-700'"
-      type="update"
-      @confirm="confirmAvatarUpdate"
-      @cancel="showAvatarConfirm = false"
-    />
+    <ConfirmDialog :show="showAvatarConfirm" title="Update Profile Picture"
+      message="Are you sure you want to update your profile picture?" confirm-text="Update"
+      :confirm-button-class="'bg-green-600 hover:bg-green-700'" type="update" @confirm="confirmAvatarUpdate"
+      @cancel="showAvatarConfirm = false" />
   </div>
 </template>
 
@@ -530,7 +457,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  height: auto !important; /* Remove fixed height */
+  height: auto !important;
+  /* Remove fixed height */
 }
 
 /* Fix overflow handling */
@@ -546,7 +474,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 !important;
-  overflow: hidden !important; /* Contain overflow */
+  overflow: hidden !important;
+  /* Contain overflow */
 }
 
 /* Hide browser's password reveal button */
@@ -567,13 +496,16 @@ input:not([disabled]):hover {
 
 /* Better mobile experience */
 @media (max-width: 640px) {
+
   input,
   button {
-    font-size: 16px; /* Prevent iOS zoom */
+    font-size: 16px;
+    /* Prevent iOS zoom */
   }
-  
+
   button {
-    height: 44px; /* Better touch targets */
+    height: 44px;
+    /* Better touch targets */
   }
 }
 
@@ -588,23 +520,26 @@ span.text-xs {
 }
 
 /* Form section transitions */
-.space-y-4 > div {
+.space-y-4>div {
   transition: all 0.3s ease;
 }
 
 /* Make everything more compact */
 input {
-  height: 38px; /* Reduced height for inputs */
+  height: 38px;
+  /* Reduced height for inputs */
 }
 
 .text-lg {
-  font-size: 1.1rem; /* Slightly smaller headers */
+  font-size: 1.1rem;
+  /* Slightly smaller headers */
 }
 
 /* Ensure proper scaling for desktop view */
 @media (min-width: 1024px) {
   .max-w-4xl {
-    max-width: 64rem; /* Wider container for desktop */
+    max-width: 64rem;
+    /* Wider container for desktop */
   }
 }
 

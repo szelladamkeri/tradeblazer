@@ -17,30 +17,42 @@
 
         <div v-else-if="asset" class="space-y-6">
           <!-- Asset header -->
-          <div class="bg-white/5 rounded-xl p-6 border border-white/10">
-            <div class="flex items-center justify-between">
-              <div>
-                <h1 class="text-2xl font-bold text-white">{{ asset.name }}</h1>
-                <p class="text-gray-400">{{ asset.symbol }}</p>
-              </div>
-              <div class="flex items-center gap-4">
-                <!-- Watchlist Button -->
-                <button @click="toggleWatchlist" :disabled="watchlistLoading"
-                  class="p-2 rounded-lg hover:bg-white/10 transition-colors"
-                  :class="isInWatchlist ? 'text-green-400' : 'text-gray-400'">
-                  <font-awesome-icon :icon="['fas', 'star']" :class="{ 'animate-pulse': watchlistLoading }" />
-                </button>
-                <div class="text-green-400 text-3xl font-bold">
-                  ${{ formatPrice(asset.price) }}
+          <div class="dashboard-panel">
+            <div class="panel-inner">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h1 class="text-2xl font-bold text-white">{{ asset.name }}</h1>
+                  <p class="text-gray-400">{{ asset.symbol }}</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <!-- Watchlist Button -->
+                  <button @click="toggleWatchlist" :disabled="watchlistLoading"
+                    class="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                    :class="isInWatchlist ? 'text-green-400' : 'text-gray-400'">
+                    <font-awesome-icon :icon="['fas', 'star']" :class="{ 'animate-pulse': watchlistLoading }" />
+                  </button>
+                  <div class="text-green-400 text-3xl font-bold">
+                    ${{ formatPrice(asset.price) }}
+                  </div>
                 </div>
               </div>
             </div>
+            <div class="corner-decor top-left"></div>
+            <div class="corner-decor top-right"></div>
+            <div class="corner-decor bottom-left"></div>
+            <div class="corner-decor bottom-right"></div>
           </div>
 
           <!-- Price Chart -->
-          <div class="bg-white/5 rounded-xl p-6 border border-white/10 h-[400px]">
-            <PriceChart v-if="asset" :asset-id="asset.id" @chart-error="handleChartError" />
-            <div v-if="chartError" class="text-red-400 text-sm mt-2">Chart error: {{ chartError }}</div>
+          <div class="dashboard-panel">
+            <div class="panel-inner">
+              <PriceChart v-if="asset" :asset-id="asset.id" @chart-error="handleChartError" />
+              <div v-if="chartError" class="text-red-400 text-sm mt-2">Chart error: {{ chartError }}</div>
+            </div>
+            <div class="corner-decor top-left"></div>
+            <div class="corner-decor top-right"></div>
+            <div class="corner-decor bottom-left"></div>
+            <div class="corner-decor bottom-right"></div>
           </div>
 
           <!-- Trading Panel -->

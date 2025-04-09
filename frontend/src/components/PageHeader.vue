@@ -78,25 +78,60 @@ const performSearch = async () => {
   searchLoading.value = true
   searchError.value = null
 
+  // Get current route for debugging
+  const currentRoute = router.currentRoute.value.path
+  console.log(`Performing search from route ${currentRoute} for: "${searchQuery.value}"`)
+
   try {
-    const response = await fetch(`http://localhost:3000/api/assets/search?q=${encodeURIComponent(searchQuery.value)}`)
-    if (!response.ok) throw new Error('Search failed')
+    // Add a cache-busting parameter to avoid potential browser caching issues
+    const timestamp = new Date().getTime()
+    const url = `http://localhost:3000/api/assets/search?q=${encodeURIComponent(searchQuery.value)}&_=${timestamp}`
+
+    console.log(`Sending search request to: ${url}`)
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      let errorText
+      try {
+        // Try to get error as JSON first
+        const errorJson = await response.json()
+        errorText = JSON.stringify(errorJson)
+      } catch {
+        // Fall back to text if not JSON
+        errorText = await response.text().catch(() => 'No error details available')
+      }
+
+      console.error(`Search failed from route ${currentRoute}:`, response.status, errorText)
+      throw new Error(`Search failed: ${response.status} ${errorText}`)
+    }
+
     const data = await response.json()
-    searchResults.value = data.slice(0, 5) // Limit to 5 results for better UX
+    console.log(`Search found ${data.length} results from route ${currentRoute}`)
+
+    // Reset results first to ensure UI updates properly
+    searchResults.value = []
+    // Small delay to ensure UI updates before populating results
+    setTimeout(() => {
+      searchResults.value = data.slice(0, 5) // Limit to 5 results for better UX
+    }, 10)
   } catch (err) {
-    searchError.value = 'Failed to perform search'
-    console.error(err)
+    console.error(`Search error from route ${currentRoute}:`, err)
+    searchError.value = `Failed to perform search: ${err.message || 'Unknown error'}`
   } finally {
     searchLoading.value = false
   }
 }
 
-// Debounce search for better performance
-let searchTimeout: any = null
+// Improve debounce handling with clear cancellation
+let searchTimeout: number | null = null
 watch(searchQuery, () => {
-  clearTimeout(searchTimeout)
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+    searchTimeout = null
+  }
+
   if (searchQuery.value.length >= 2) {
-    searchTimeout = setTimeout(() => {
+    searchTimeout = window.setTimeout(() => {
       performSearch()
       showSearchResults.value = true
     }, 300)
@@ -106,12 +141,20 @@ watch(searchQuery, () => {
   }
 })
 
+// Ensure cleanup on component unmount
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+    searchTimeout = null
+  }
+})
+
 const closeSearchResults = () => {
   showSearchResults.value = false
 }
 
 const goToAsset = (assetId: number) => {
-  router.push(`/markets/${assetId}`)
+  router.push(`/trade/${assetId}`)
   searchQuery.value = ''
   closeSearchResults()
   closeMenu()
@@ -848,7 +891,25 @@ nav {
 router-link:hover,
 button:hover {
   @apply text-green-400;
-  background: none;
+}
+
+/* Update dropdown menu items to preserve the glow effect */
+:deep(.dropdown-item:hover) {
+  @apply text-green-400 bg-white/10;
+}
+
+/* Remove any remaining hover:bg classes */
+[class*='hover:bg'] {}
+
+/* Update hover behaviors to preserve the glow */
+.router-link-active {
+  @apply text-green-400 bg-green-500/20;
+}
+
+/* Keep the glow effect - remove these overrides */
+:deep(a),
+:deep(button) {
+  @apply transition-colors;
 }
 
 /* Update dropdown menu items to only change text color on hover */
@@ -859,7 +920,7 @@ button:hover {
 
 /* Remove any remaining hover:bg classes */
 [class*='hover:bg'] {
-  @apply hover:bg-transparent;
+  @apply hover:bg-transparent !important;
 }
 
 /* Update hover behaviors */
@@ -1514,5 +1575,26 @@ a:hover {
   .mobile-menu {
     display: none;
   }
+}
+
+/* Remove all conflicting hover style overrides and simplify to a single implementation */
+router-link:hover,
+button:hover,
+:deep(a:hover),
+:deep(button:hover),
+.dropdown-item:hover {
+  @apply text-green-400 bg-white/10;
+  transform: translateY(-1px);
+}
+
+/* Keep active state styling consistent */
+.router-link-active,
+.router-link.router-link-active {
+  @apply text-green-400 bg-green-500/20;
+}
+
+/* Remove any conflicting hover:bg overrides */
+[class*='hover:bg'] {
+  @apply hover:bg-white/10;
 }
 </style>

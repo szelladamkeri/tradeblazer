@@ -66,6 +66,13 @@ import {
   faCalendarDays,
   faLifeRing,
   faBuilding,
+  faChevronCircleDown,
+  faChevronDown,
+  faList,
+  faTimesCircle,
+  faSpinner,
+  faArrowRight,
+  faBell,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -125,6 +132,13 @@ library.add(
   faCalendarDays,
   faLifeRing,
   faBuilding,
+  faChevronCircleDown,
+  faChevronDown,
+  faList,
+  faTimesCircle,
+  faSpinner,
+  faArrowRight,
+  faBell,
 )
 
 const app = createApp(App)

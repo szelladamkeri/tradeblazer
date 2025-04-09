@@ -159,6 +159,43 @@ app.use('/api', require('./routes')(pool, asyncHandler))
 app.use('/api/portfolio', require('./routes/portfolio')(pool, asyncHandler))
 
 /**
+ * Asset Search API Endpoint
+ * Allows searching assets by name or symbol
+ */
+app.get('/api/assets/search', (req, res) => {
+  const searchQuery = req.query.q?.toString().toLowerCase()
+  
+  console.log('Search request received:', { searchQuery })
+  
+  if (!searchQuery) {
+    console.log('No search query provided, returning empty results')
+    return res.json([])
+  }
+
+  const query = `
+    SELECT id, name, symbol, type, price
+    FROM assets
+    WHERE LOWER(name) LIKE ? OR LOWER(symbol) LIKE ?
+    LIMIT 10
+  `
+  
+  console.log('Executing search query:', query.replace(/\s+/g, ' ').trim())
+  
+  pool.query(query, [`%${searchQuery}%`, `%${searchQuery}%`], (err, results) => {
+    if (err) {
+      console.error('Search database error:', err)
+      return res.status(500).json({ 
+        message: 'Database error', 
+        error: err.message 
+      })
+    }
+    
+    console.log(`Search found ${results.length} results`)
+    res.json(results)
+  })
+})
+
+/**
  * Single Asset API Endpoint
  * Fetches details of a specific asset by ID
  */
@@ -199,29 +236,31 @@ app.get('/api/assets/:id', asyncHandler(async (req, res) => {
 }))
 
 /**
- * Asset Search API Endpoint
- * Allows searching assets by name or symbol
+ * Diagnostic endpoint to check database connection
  */
-app.get('/api/assets/search', (req, res) => {
-  const searchQuery = req.query.q?.toLowerCase()
-  
-  if (!searchQuery) {
-    return res.json([])
+app.get('/api/diagnostics/database', (req, res) => {
+  if (!pool) {
+    return res.status(500).json({ 
+      status: 'error',
+      message: 'Database pool is not initialized'
+    })
   }
-
-  const query = `
-    SELECT id, name, symbol, type, price
-    FROM assets
-    WHERE LOWER(name) LIKE ? OR LOWER(symbol) LIKE ?
-    LIMIT 10
-  `
   
-  pool.query(query, [`%${searchQuery}%`, `%${searchQuery}%`], (err, results) => {
+  // Test query to verify database connection
+  pool.query('SELECT 1 AS test', (err, results) => {
     if (err) {
-      console.error('Search error:', err)
-      return res.status(500).json({ message: 'Database error' })
+      return res.status(500).json({
+        status: 'error',
+        message: 'Database connection failed',
+        error: err.message
+      })
     }
-    res.json(results)
+    
+    res.json({
+      status: 'success',
+      message: 'Database connection successful',
+      result: results
+    })
   })
 })
 
