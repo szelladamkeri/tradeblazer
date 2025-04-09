@@ -7,7 +7,6 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { handleApiError } from '@/utils/errorHandler'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import { useI18n } from 'vue-i18n'
 import {
   faChartPie, faBolt, faListCheck, faChartLine,
   faClockRotateLeft, faEye, faGaugeHigh, faShieldHalved,
@@ -192,8 +191,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
-
-const { t } = useI18n()
 </script>
 
 <template>
@@ -201,126 +198,134 @@ const { t } = useI18n()
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
     <div class="w-full pt-12 pb-8 px-4 view-content">
       <div class="max-w-7xl mx-auto">
-        <!-- Panels Grid - Now directly on the gradient background -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div v-for="panel in dashboardPanels" :key="panel.id" v-show="panel.visible" class="dashboard-panel">
-            <div class="panel-inner">
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
-                  <font-awesome-icon :icon="panel.icon" class="panel-icon" />
-                  {{ t(`dashboard.${panel.id}`) }}
-                </h2>
-              </div>
+        <!-- Main Content Wrapper -->
+        <div
+          class="bg-[rgba(18,24,38,0.95)] backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/10 p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+              <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
+            </div>
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
+              <p class="text-gray-400 mt-1">Your financial overview at a glance</p>
+            </div>
+          </div>
 
-              <!-- Panels Grid -->
-              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <div v-for="panel in dashboardPanels" :key="panel.id" v-show="panel.visible" class="dashboard-panel">
-                  <div class="panel-inner">
-                    <div class="flex items-center justify-between mb-4">
-                      <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
-                        <font-awesome-icon :icon="panel.icon" class="panel-icon" />
-                        {{ panel.title }}
-                      </h2>
-                    </div>
-                    <div v-else-if="marketStats.error" class="flex-1 flex items-center justify-center text-red-400">
-                      {{ marketStats.error }}
-                    </div>
-                    <div v-else class="h-full flex flex-col gap-3">
-                      <!-- Top row - larger stats -->
-                      <div class="flex gap-3 flex-1">
-                        <div class="flex-1 bg-white/5 rounded-lg p-3">
-                          <div class="text-sm text-gray-400">{{ t('dashboard.volume24h') }}</div>
-                          <div class="text-xl text-white font-medium mt-1">
-                            ${{ marketStats.totalVolume.toLocaleString() }}
-                          </div>
-                        </div>
-                        <div class="flex-1 bg-white/5 rounded-lg p-3">
-                          <div class="text-sm text-gray-400">{{ t('dashboard.totalTrades') }}</div>
-                          <div class="text-xl text-white font-medium mt-1">
-                            {{ marketStats.totalTrades.toLocaleString() }}
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Bottom row - smaller stats -->
-                      <div class="flex gap-3">
-                        <div class="flex-1 bg-green-500/10 rounded-lg p-2 flex items-center justify-between">
-                          <span class="text-sm text-gray-400">{{ t('dashboard.marketStatus') }}</span>
-                          <span class="text-sm text-green-400 font-medium">{{ t('dashboard.open') }}</span>
-                        </div>
-                        <div class="flex-1 bg-white/5 rounded-lg p-2 flex items-center justify-between">
-                          <span class="text-sm text-gray-400">{{ t('dashboard.activeAssets') }}</span>
-                          <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
-                        </div>
-                      </div>
-                    </div>
+          <!-- Panels Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div v-for="panel in dashboardPanels" :key="panel.id" v-show="panel.visible" class="dashboard-panel">
+              <div class="panel-inner">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
+                    <font-awesome-icon :icon="panel.icon" class="panel-icon" />
+                    {{ panel.title }}
+                  </h2>
+                </div>
 
-                    <!-- Trending Assets Panel -->
-                    <div v-else-if="panel.id === 'trending'" class="flex-1 flex flex-col">
-                      <div v-if="trendingAssets.loading" class="flex-1 flex items-center justify-center">
-                        <LoadingSpinner class="w-6 h-6" />
+                <!-- Market Statistics Panel -->
+                <div v-if="panel.id === 'market-stats'" class="flex-1">
+                  <div v-if="marketStats.loading" class="flex-1 flex items-center justify-center">
+                    <LoadingSpinner class="w-6 h-6" />
+                  </div>
+                  <div v-else-if="marketStats.error" class="flex-1 flex items-center justify-center text-red-400">
+                    {{ marketStats.error }}
+                  </div>
+                  <div v-else class="h-full flex flex-col gap-3">
+                    <!-- Top row - larger stats -->
+                    <div class="flex gap-3 flex-1">
+                      <div class="flex-1 bg-white/5 rounded-lg p-3">
+                        <div class="text-sm text-gray-400">24h Volume</div>
+                        <div class="text-xl text-white font-medium mt-1">
+                          ${{ marketStats.totalVolume.toLocaleString() }}
+                        </div>
                       </div>
-                      <div v-else-if="trendingAssets.error"
-                        class="flex-1 flex items-center justify-center text-red-400">
-                        <font-awesome-icon icon="triangle-exclamation" class="text-xl mr-2" />
-                        {{ trendingAssets.error }}
+                      <div class="flex-1 bg-white/5 rounded-lg p-3">
+                        <div class="text-sm text-gray-400">Total Trades</div>
+                        <div class="text-xl text-white font-medium mt-1">
+                          {{ marketStats.totalTrades.toLocaleString() }}
+                        </div>
                       </div>
-                      <div v-else class="flex-1 flex flex-col">
-                        <div class="flex-1 trending-container">
-                          <div class="trending-items-wrapper">
-                            <div v-for="asset in trendingAssets.data" :key="asset.id" class="trending-item"
-                              @click="router.push(`/trade/${asset.id}`)">
-                              <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                  <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                                    <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
-                                  </div>
-                                  <div>
-                                    <div class="font-medium text-white group-hover:text-green-400 transition-colors">
-                                      {{ asset.symbol }}
-                                    </div>
-                                    <div class="text-sm text-gray-400">{{ asset.name }}</div>
-                                  </div>
+                    </div>
+                    <!-- Bottom row - smaller stats -->
+                    <div class="flex gap-3">
+                      <div class="flex-1 bg-green-500/10 rounded-lg p-2 flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Market Status</span>
+                        <span class="text-sm text-green-400 font-medium">Open</span>
+                      </div>
+                      <div class="flex-1 bg-white/5 rounded-lg p-2 flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Active Assets</span>
+                        <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Trending Assets Panel -->
+                <div v-else-if="panel.id === 'trending'" class="flex-1 flex flex-col">
+                  <div v-if="trendingAssets.loading" class="flex-1 flex items-center justify-center">
+                    <LoadingSpinner class="w-6 h-6" />
+                  </div>
+                  <div v-else-if="trendingAssets.error" class="flex-1 flex items-center justify-center text-red-400">
+                    <font-awesome-icon icon="triangle-exclamation" class="text-xl mr-2" />
+                    {{ trendingAssets.error }}
+                  </div>
+                  <div v-else class="flex-1 flex flex-col">
+                    <div class="flex-1 trending-container">
+                      <div class="trending-items-wrapper">
+                        <div v-for="asset in trendingAssets.data" :key="asset.id" class="trending-item"
+                          @click="router.push(`/trade/${asset.id}`)">
+                          <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                              <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
+                              </div>
+                              <div>
+                                <div class="font-medium text-white group-hover:text-green-400 transition-colors">
+                                  {{ asset.symbol }}
                                 </div>
-                                <div class="text-right">
-                                  <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
-                                  <div :class="[
-                                    'text-sm flex items-center gap-1',
-                                    asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
-                                  ]">
-                                    <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
-                                    {{ Math.abs(asset.change_24h).toFixed(2) }}%
-                                  </div>
-                                </div>
+                                <div class="text-sm text-gray-400">{{ asset.name }}</div>
+                              </div>
+                            </div>
+                            <div class="text-right">
+                              <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
+                              <div :class="[
+                                'text-sm flex items-center gap-1',
+                                asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
+                              ]">
+                                <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
+                                {{ Math.abs(asset.change_24h).toFixed(2) }}%
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-
-                    <!-- Placeholder for other panels -->
-                    <div v-else class="flex-1 flex flex-col items-center justify-center">
-                      <font-awesome-icon :icon="panel.icon" class="panel-icon-lg mb-3 pulse-animate" />
-                      <p class="text-center text-gray-400">{{ panel.title }} content coming soon</p>
-                    </div>
                   </div>
-                  <!-- Decorative corner elements for futuristic look -->
-                  <div class="corner-decor top-left"></div>
-                  <div class="corner-decor top-right"></div>
-                  <div class="corner-decor bottom-left"></div>
-                  <div class="corner-decor bottom-right"></div>
+                </div>
+
+                <!-- Placeholder for other panels -->
+                <div v-else class="flex-1 flex flex-col items-center justify-center">
+                  <font-awesome-icon :icon="panel.icon" class="panel-icon-lg mb-3 pulse-animate" />
+                  <p class="text-center text-gray-400">{{ panel.title }} content coming soon</p>
                 </div>
               </div>
-
-              <!-- Add corner decorations to match other views -->
+              <!-- Decorative corner elements for futuristic look -->
               <div class="corner-decor top-left"></div>
               <div class="corner-decor top-right"></div>
               <div class="corner-decor bottom-left"></div>
               <div class="corner-decor bottom-right"></div>
             </div>
           </div>
+
+          <!-- Add corner decorations to match other views -->
+          <div class="corner-decor top-left"></div>
+          <div class="corner-decor top-right"></div>
+          <div class="corner-decor bottom-left"></div>
+          <div class="corner-decor bottom-right"></div>
         </div>
       </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>

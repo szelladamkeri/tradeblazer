@@ -1715,7 +1715,7 @@ button:hover,
 /* Remove any conflicting hover:bg overrides */
 [class*='hover:bg'] {
   @apply hover:bg-white/10;
-
+}
   /* Fix all dropdowns - ensure they're visible */
   .page-header {
     overflow: visible !important;
@@ -1778,4 +1778,5 @@ button:hover,
   div[v-show="showProfileDropdown"] a,
   div[v-show="showProfileDropdown"] button {
     pointer-events: auto !important;
-  }</style>
+  }
+  </style>
