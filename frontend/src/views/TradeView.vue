@@ -115,7 +115,7 @@
                       class="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-white" />
                   </div>
                 </div>
-                <button
+                <button @click="handleSetAlert"
                   class="w-full py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors">
                   Set Alert
                 </button>
@@ -480,6 +480,41 @@ const handleMouseMove = (event: MouseEvent) => {
 
   main.style.setProperty('--mouse-x', `${x}%`)
   main.style.setProperty('--mouse-y', `${y}%`)
+}
+
+const handleSetAlert = async () => {
+  if (!isLoggedIn.value || !asset.value) return
+
+  try {
+    if (!asset.value.watchlistId) {
+      await toggleWatchlist()
+      if (!asset.value.watchlistId) throw new Error('Failed to add to watchlist')
+    }
+
+    const response = await fetch(`http://localhost:3000/api/watchlist/${asset.value.watchlistId}/alert`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${userStore.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        alertPrice: alertPrice.value,
+        alertType: alertType.value
+      })
+    })
+
+    if (!response.ok) throw new Error('Failed to set alert')
+
+    showAlertForm.value = false
+    // Optional: Show success notification
+  } catch (err) {
+    console.error('Alert setting error:', err)
+  }
+}
+
+const setAlertButton = () => {
+  alertPrice.value = asset.value?.price || 0
+  showAlertForm.value = true
 }
 
 onMounted(fetchAssetDetails)

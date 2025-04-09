@@ -15,31 +15,41 @@
             <div class="animate-spin w-6 h-6 border-2 border-green-400/20 border-t-green-400 rounded-full"></div>
         </div>
 
-        <div class="absolute top-0 right-0 p-4 z-10 flex gap-2">
-            <button v-for="period in timeframes" :key="period.value" @click="updateTimeframe(period.value)" :class="[
-                'px-3 py-1 rounded text-xs font-medium transition-colors',
-                selectedTimeframe === period.value
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
-            ]">
-                {{ period.label }}
-            </button>
-        </div>
-        <div class="absolute top-0 left-0 p-4 z-10 flex gap-2">
-            <button v-for="indicator in indicators" :key="indicator.value" @click="toggleIndicator(indicator.value)"
-                :class="[
+        <!-- Move controls to top container with proper spacing -->
+        <div class="absolute top-0 left-0 right-0 p-4 z-10 flex justify-between">
+            <div class="flex gap-2">
+                <!-- Debug Email Button -->
+                <button @click="sendDebugEmail"
+                    class="px-3 py-1 rounded text-xs font-medium transition-colors bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                    Debug Email
+                </button>
+            </div>
+            <div class="flex gap-2">
+                <button v-for="period in timeframes" :key="period.value" @click="updateTimeframe(period.value)" :class="[
                     'px-3 py-1 rounded text-xs font-medium transition-colors',
-                    activeIndicators.includes(indicator.value)
+                    selectedTimeframe === period.value
                         ? 'bg-green-500/20 text-green-400'
                         : 'bg-white/5 text-gray-400 hover:bg-white/10'
                 ]">
-                {{ indicator.label }}
-            </button>
+                    {{ period.label }}
+                </button>
+            </div>
         </div>
 
-        <!-- Chart container -->
-        <div ref="chartContainer" class="w-full h-full">
-            <canvas ref="chartRef"></canvas>
+        <!-- Add time range slider for 1Y view -->
+        <div v-if="selectedTimeframe === '1Y'" class="absolute top-16 left-0 right-0 px-4 z-10">
+            <input type="range" v-model="timeRange" min="30" :max="365" step="30"
+                class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer" @input="handleTimeRangeChange">
+            <div class="flex justify-between text-xs text-gray-400 mt-1">
+                <span>{{ timeRange }} days</span>
+                <span>1Y</span>
+            </div>
+        </div>
+
+        <!-- Chart container with adjusted padding when slider is visible -->
+        <div ref="chartContainer" class="w-full h-full"
+            :class="{ 'pt-28': selectedTimeframe === '1Y', 'pt-16': selectedTimeframe !== '1Y' }">
+            <canvas ref="chartRef" :id="chartId"></canvas>
         </div>
     </div>
 </template>
@@ -47,6 +57,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
 import Chart from 'chart.js/auto'
+import 'chartjs-adapter-date-fns'
 
 const props = defineProps({
     assetId: {
@@ -57,6 +68,9 @@ const props = defineProps({
 
 const emit = defineEmits(['chart-error'])
 
+// Generate unique ID for the chart canvas
+const chartId = `chart-${Math.random().toString(36).substr(2, 9)}`
+
 // Chart state
 const chartRef = ref<HTMLCanvasElement | null>(null)
 const chartContainer = ref<HTMLDivElement | null>(null)
@@ -64,20 +78,13 @@ const chart = ref<Chart | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const selectedTimeframe = ref('1D')
-const activeIndicators = ref(['sma'])
 
 // Time frames options
 const timeframes = [
     { label: '1D', value: '1D' },
     { label: '1W', value: '1W' },
-    { label: '1M', value: '1M' }
-]
-
-// Technical indicator options
-const indicators = [
-    { label: 'SMA', value: 'sma' },
-    { label: 'EMA', value: 'ema' },
-    { label: 'RSI', value: 'rsi' }
+    { label: '1M', value: '1M' },
+    { label: '1Y', value: '1Y' }
 ]
 
 // Template data for price history - this way we don't need complex adapters
@@ -108,33 +115,56 @@ const templateData = {
         }),
         prices: Array.from({ length: 30 }, () => Math.random() * 1000 + 10000),
         volumes: Array.from({ length: 30 }, () => Math.random() * 10000000)
+    },
+    '1Y': {
+        timestamps: Array.from({ length: 365 }, (_, i) => {
+            const date = new Date()
+            date.setDate(date.getDate() - 365 + i)
+            return date.toISOString()
+        }),
+        prices: Array.from({ length: 365 }, () => Math.random() * 1000 + 10000),
+        volumes: Array.from({ length: 365 }, () => Math.random() * 20000000)
     }
 }
 
+// Add price data cache
+const priceDataCache = ref<{
+    [key: string]: {
+        timestamps: Date[],
+        prices: number[],
+        volumes: number[]
+    }
+}>({})
+
 const fetchPriceHistory = async () => {
-    // Clear any existing chart first to prevent "Canvas already in use" errors
-    if (chart.value) {
-        chart.value.destroy();
-        chart.value = null;
+    // Return cached data if available
+    if (priceDataCache.value[selectedTimeframe.value]) {
+        createChart(priceDataCache.value[selectedTimeframe.value])
+        return
     }
 
+    destroyChart()
     loading.value = true
     error.value = null
 
     try {
-        // First get the asset symbol and type from our backend just to log it
-        // This simulates a real backend call but we'll use our template data
         const assetResponse = await fetch(`http://localhost:3000/api/assets/${props.assetId}`)
         if (!assetResponse.ok) throw new Error('Failed to fetch asset details')
         const asset = await assetResponse.json()
-        console.log(`Loading chart data for ${asset.symbol} (${asset.type})`)
 
-        // Simulate network delay for realism
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Get the template data and convert timestamps to Date objects
+        const data = templateData[selectedTimeframe.value]
+        const processedData = {
+            timestamps: data.timestamps.map(ts => new Date(ts)),
+            prices: data.prices,
+            volumes: data.volumes
+        }
 
-        // Use our template data instead of actual API call
-        createChart(templateData[selectedTimeframe.value])
+        // Cache the processed data
+        priceDataCache.value[selectedTimeframe.value] = processedData
 
+        // Create chart with processed data
+        createChart(processedData)
     } catch (err) {
         console.error('Chart error:', err)
         error.value = err instanceof Error ? err.message : 'Failed to load chart data'
@@ -148,21 +178,41 @@ const retryLoading = () => {
     fetchPriceHistory()
 }
 
+// Add time range state
+const timeRange = ref(365)
+
+// Add time range handler
+const handleTimeRangeChange = () => {
+    if (selectedTimeframe.value === '1Y') {
+        const data = templateData['1Y']
+        const startIndex = data.timestamps.length - timeRange.value
+        const processedData = {
+            timestamps: data.timestamps.slice(startIndex).map(ts => new Date(ts)),
+            prices: data.prices.slice(startIndex),
+            volumes: data.volumes.slice(startIndex)
+        }
+        createChart(processedData)
+    }
+}
+
+// Modify updateTimeframe to reset timeRange
 const updateTimeframe = (timeframe: string) => {
     selectedTimeframe.value = timeframe
+    if (timeframe === '1Y') {
+        timeRange.value = 365
+    }
+    destroyChart()
     fetchPriceHistory()
 }
 
-const createChart = (data: { timestamps: string[], prices: number[], volumes: number[] }) => {
-    if (chart.value) {
-        chart.value.destroy()
-    }
+const createChart = (data: { timestamps: Date[], prices: number[], volumes: number[] }) => {
+    if (!data) return
+    destroyChart()
 
     const ctx = chartRef.value?.getContext('2d')
     if (!ctx) return
 
-    // Determine time unit based on selected timeframe
-    const timeUnit = selectedTimeframe.value === '1D' ? 'hour' : selectedTimeframe.value === '1W' ? 'day' : 'week'
+    const timeUnit = selectedTimeframe.value === '1D' ? 'hour' : 'day'
 
     const chartConfig = {
         type: 'line',
@@ -196,9 +246,9 @@ const createChart = (data: { timestamps: string[], prices: number[], volumes: nu
                         unit: timeUnit,
                         displayFormats: {
                             hour: 'HH:mm',
-                            day: 'MMM D',
-                            week: 'MMM D',
-                            month: 'MMM YYYY'
+                            day: 'MMM d', // Changed from 'MMM D' to 'MMM d'
+                            week: 'MMM d',
+                            month: 'MMM yyyy'
                         }
                     },
                     grid: {
@@ -236,9 +286,8 @@ const createChart = (data: { timestamps: string[], prices: number[], volumes: nu
                     callbacks: {
                         label: (context) => `$${context.parsed.y.toLocaleString()}`,
                         title: (tooltipItems) => {
-                            const item = tooltipItems[0]
-                            const date = new Date(item.label)
-                            return date.toLocaleString()
+                            const date = tooltipItems[0].parsed.x
+                            return new Date(date).toLocaleString()
                         }
                     }
                 }
@@ -246,164 +295,34 @@ const createChart = (data: { timestamps: string[], prices: number[], volumes: nu
         }
     }
 
-    // Add technical indicators
-    addTechnicalIndicators(data.prices, chartConfig)
-
     chart.value = new Chart(ctx, chartConfig)
 }
 
-const addTechnicalIndicators = (prices: number[], chartConfig: any) => {
-    const datasets = chartConfig.data.datasets
-
-    // Add technical indicators if enabled
-    console.log('Active indicators:', activeIndicators.value);
-
-    // Create a local constant to avoid repeated .value access
-    const activeInds = activeIndicators.value;
-
-    if (activeInds.includes('sma')) {
-        datasets.push({
-            label: 'SMA 20',
-            data: calculateSMA(prices, 20),
-            borderColor: '#60a5fa',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            fill: false
-        })
-    }
-
-    if (activeInds.includes('ema')) {
-        datasets.push({
-            label: 'EMA 20',
-            data: calculateEMA(prices, 20),
-            borderColor: '#f472b6',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            fill: false
-        })
-    }
-
-    if (activeInds.includes('rsi')) {
-        // Using a separate dataset for RSI would require a secondary y-axis
-        // Simplified approach: simulate RSI by adding relative values
-        datasets.push({
-            label: 'RSI',
-            data: calculateRSI(prices),
-            borderColor: '#fbbf24',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            fill: false,
-            yAxisID: 'rsi'
-        })
-
-        // Add RSI y-axis
-        chartConfig.options.scales.rsi = {
-            position: 'right',
-            grid: {
-                drawOnChartArea: false
-            },
-            ticks: {
-                color: 'rgba(255,255,255,0.5)'
-            },
-            min: 0,
-            max: 100
-        }
-    }
-}
-
-// Simple moving average calculation
-const calculateSMA = (data: number[], window: number) => {
-    const result = []
-
-    // Add null values for the initial period where SMA isn't calculated
-    for (let i = 0; i < window - 1; i++) {
-        result.push(null)
-    }
-
-    for (let i = window - 1; i < data.length; i++) {
-        const windowData = data.slice(i - window + 1, i + 1)
-        const avg = windowData.reduce((sum, val) => sum + val, 0) / window
-        result.push(avg)
-    }
-
-    return result
-}
-
-// Exponential moving average calculation
-const calculateEMA = (data: number[], window: number) => {
-    const result = []
-
-    // Add null values for the initial period
-    for (let i = 0; i < window - 1; i++) {
-        result.push(null)
-    }
-
-    // Start with SMA for the first value
-    const firstWindow = data.slice(0, window)
-    let currentEMA = firstWindow.reduce((sum, val) => sum + val, 0) / window
-    result.push(currentEMA)
-
-    // Calculate multiplier
-    const multiplier = 2 / (window + 1)
-
-    // Calculate EMA for the rest
-    for (let i = window; i < data.length; i++) {
-        currentEMA = (data[i] - currentEMA) * multiplier + currentEMA
-        result.push(currentEMA)
-    }
-
-    return result
-}
-
-// Simplified RSI calculation
-const calculateRSI = (data: number[]) => {
-    const result = []
-    const period = 14
-
-    // Add null values for the initial period
-    for (let i = 0; i < period; i++) {
-        result.push(null)
-    }
-
-    for (let i = period; i < data.length; i++) {
-        const gains = []
-        const losses = []
-
-        // Calculate gains and losses for the period
-        for (let j = i - period + 1; j <= i; j++) {
-            const change = data[j] - data[j - 1]
-            if (change >= 0) {
-                gains.push(change)
-                losses.push(0)
-            } else {
-                gains.push(0)
-                losses.push(Math.abs(change))
+// Add debug email function
+const sendDebugEmail = async () => {
+    try {
+        const response = await fetch('http://localhost:3000/api/debug/email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        })
+        const data = await response.text()
+        if (!response.ok) {
+            throw new Error(`Failed to send debug email: ${response.status} ${response.statusText}\n${data}`)
         }
-
-        const avgGain = gains.reduce((sum, val) => sum + val, 0) / period
-        const avgLoss = losses.reduce((sum, val) => sum + val, 0) / period
-
-        if (avgLoss === 0) {
-            result.push(100)
-        } else {
-            const rs = avgGain / avgLoss
-            const rsi = 100 - (100 / (1 + rs))
-            result.push(rsi)
-        }
+        alert('Debug email sent successfully!')
+    } catch (err) {
+        console.error('Debug email error:', err)
+        alert(`Debug email error: ${err instanceof Error ? err.message : String(err)}`)
     }
-
-    return result
 }
 
-const toggleIndicator = (indicator: string) => {
-    const index = activeIndicators.value.indexOf(indicator)
-    if (index === -1) {
-        activeIndicators.value.push(indicator)
-    } else {
-        activeIndicators.value.splice(index, 1)
+const destroyChart = () => {
+    if (chart.value) {
+        chart.value.destroy()
+        chart.value = null
     }
-    fetchPriceHistory() // Recreate chart with new indicators
 }
 
 onMounted(() => {
@@ -412,10 +331,7 @@ onMounted(() => {
 
 // Make sure to clean up on component unmount
 onUnmounted(() => {
-    if (chart.value) {
-        chart.value.destroy()
-        chart.value = null
-    }
+    destroyChart()
 })
 </script>
 
@@ -423,5 +339,32 @@ onUnmounted(() => {
 .chart-container {
     position: relative;
     height: 100%;
+}
+
+/* Add custom slider styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #4ade80;
+    cursor: pointer;
+    margin-top: -6px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+input[type="range"]:focus {
+    outline: none;
 }
 </style>

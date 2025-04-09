@@ -16,6 +16,10 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "chart.js": "^4.4.8",
-    "concurrently": "^7.6.0"
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "concurrently": "^7.6.0",
+    "dotenv": "^16.4.7",
+    "mailgen": "^2.0.29",
+    "nodemailer": "^6.10.0"
   }
 }

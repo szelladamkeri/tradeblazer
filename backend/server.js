@@ -4,6 +4,10 @@ const mysql = require('mysql')
 const fs = require('fs')
 const ini = require('ini')
 const path = require('path')
+// Add dotenv at the top of the file
+require('dotenv').config()
+const priceAlertService = require('./services/priceAlertService');
+const { transporter, mailGenerator } = require('./config/email')
 
 // Initialize Express application
 const app = express()
@@ -428,6 +432,33 @@ app.post('/api/reconnect', async (req, res) => {
   }
 })
 
+// Add debug email endpoint
+app.post('/api/debug/email', asyncHandler(async (req, res) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: process.env.EMAIL_USER,
+      subject: `${process.env.EMAIL_SUBJECT_PREFIX} Debug Test`,
+      html: mailGenerator.generate({
+        body: {
+          name: 'Developer',
+          intro: 'This is a debug test email from TradeBlazer.',
+          outro: `Sent at: ${new Date().toLocaleString()}`
+        }
+      })
+    }
+
+    await transporter.sendMail(mailOptions)
+    res.json({ message: 'Debug email sent successfully' })
+  } catch (error) {
+    console.error('Email error:', error)
+    res.status(500).json({
+      error: 'Email service error',
+      message: error.message
+    })
+  }
+}))
+
 /**
  * Global Error Handling Middleware
  * Catches and formats all errors consistently
@@ -460,3 +491,6 @@ process.on('unhandledRejection', (reason, promise) => {
 app.listen(port, () => {
   console.log(`Backend server is running on http://localhost:${port}`)
 })
+
+// Start price alert service
+priceAlertService.start();

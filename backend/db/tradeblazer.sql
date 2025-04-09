@@ -594,6 +594,12 @@ INSERT INTO `watchlist` (`id`, `user_id`, `asset_id`, `created_at`) VALUES
 (23, 5, 7, '2025-04-04 09:13:00'),
 (24, 6, 9, '2025-04-04 09:14:00'),
 (25, 10, 11, '2025-04-04 09:15:00');
+
+ALTER TABLE `watchlist` 
+ADD COLUMN `alert_price` decimal(20,8) DEFAULT NULL,
+ADD COLUMN `alert_type` enum('above','below') DEFAULT NULL,
+ADD COLUMN `alert_triggered` tinyint(1) DEFAULT 0;
+
 --
 -- Indexek a kiírt táblákhoz
 --

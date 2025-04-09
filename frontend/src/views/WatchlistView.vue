@@ -4,30 +4,30 @@
     <PageMain @mousemove="handleMouseMove">
       <div class="watchlist-container">
         <h1>Your Watchlist</h1>
-        
+
         <div v-if="!isLoggedIn" class="login-prompt">
           <p>Please log in to view your watchlist</p>
           <button @click="$router.push('/login')" class="login-button">Go to Login</button>
         </div>
-        
+
         <div v-else>
           <div v-if="error" class="error-message">
             <p>{{ error }}</p>
             <button @click="fetchWatchlist" class="retry-button">Retry</button>
           </div>
-          
+
           <div v-else-if="loading" class="loading">
             <div class="loading-spinner"></div>
             <p>Loading your watchlist...</p>
           </div>
-          
+
           <div v-else-if="watchlist.length === 0" class="empty-watchlist">
             <p>Your watchlist is empty.</p>
             <button @click="$router.push('/search')" class="browse-button">
               Browse Assets
             </button>
           </div>
-          
+
           <div v-else>
             <div class="watchlist-grid">
               <div v-for="item in watchlist" :key="item.id" class="watchlist-item">
@@ -35,14 +35,25 @@
                   <span class="asset-symbol">{{ item.symbol }}</span>
                   <span class="asset-type" :class="`type-${item.type}`">{{ item.type }}</span>
                 </div>
-                
+
                 <h3 class="asset-name">{{ item.name }}</h3>
-                
+
                 <div class="asset-price">
                   <span>Current Price:</span>
                   <span class="price">${{ Number(item.price).toLocaleString() }}</span>
                 </div>
-                
+
+                <div v-if="item.alert_price" class="alert-info mt-2 p-2 bg-green-50 rounded-lg">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-green-700">
+                      Alert: {{ item.alert_type === 'above' ? '>' : '<' }} ${{ Number(item.alert_price).toLocaleString()
+                        }} </span>
+                        <button @click="removeAlert(item.watchlistId)" class="text-red-500 hover:text-red-700">
+                          <font-awesome-icon icon="times" />
+                        </button>
+                  </div>
+                </div>
+
                 <div class="card-actions">
                   <button @click="removeFromWatchlist(item.watchlistId)" class="remove-button">
                     Remove
@@ -75,7 +86,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 async function fetchWatchlist() {
   loading.value = true;
   error.value = null;
-  
+
   try {
     const response = await axios.get(
       `http://localhost:3000/api/users/${userStore.user.id}/watchlist` // Updated endpoint
@@ -99,6 +110,29 @@ async function removeFromWatchlist(watchlistId) {
   }
 }
 
+async function removeAlert(watchlistId) {
+  try {
+    const response = await fetch(`http://localhost:3000/api/watchlist/${watchlistId}/alert`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${userStore.token}`
+      }
+    })
+
+    if (!response.ok) throw new Error('Failed to remove alert')
+
+    // Update local state
+    const item = watchlist.value.find(i => i.watchlistId === watchlistId)
+    if (item) {
+      item.alert_price = null
+      item.alert_type = null
+      item.alert_triggered = false
+    }
+  } catch (err) {
+    console.error('Error removing alert:', err)
+  }
+}
+
 function goToTrade(assetId) {
   router.push(`/trade/${assetId}`);
 }
@@ -109,7 +143,7 @@ const handleMouseMove = (event: MouseEvent) => {
   const rect = main.getBoundingClientRect();
   const x = ((event.clientX - rect.left) / rect.width) * 100;
   const y = ((event.clientY - rect.top) / rect.height) * 100;
-  
+
   main.style.setProperty('--mouse-x', `${x}%`);
   main.style.setProperty('--mouse-y', `${y}%`);
 };
@@ -135,15 +169,20 @@ onMounted(() => {
   color: #333;
 }
 
-.login-prompt, .empty-watchlist, .loading, .error-message {
+.login-prompt,
+.empty-watchlist,
+.loading,
+.error-message {
   text-align: center;
   padding: 40px;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.login-button, .browse-button, .retry-button {
+.login-button,
+.browse-button,
+.retry-button {
   background-color: #2196f3;
   color: white;
   border: none;
@@ -163,7 +202,7 @@ onMounted(() => {
   background-color: white;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
 }
 
@@ -228,7 +267,8 @@ onMounted(() => {
   margin-top: 20px;
 }
 
-.remove-button, .trade-button {
+.remove-button,
+.trade-button {
   padding: 8px;
   border: none;
   border-radius: 4px;
@@ -276,8 +316,13 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Add interactive gradient effect */
@@ -285,11 +330,9 @@ onMounted(() => {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(74, 222, 128, 0.08) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(74, 222, 128, 0.08) 0%,
+      transparent 60%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.6s ease;
