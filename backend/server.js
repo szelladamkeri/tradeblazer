@@ -50,7 +50,17 @@ app.use(express.json())
  */
 app.use((req, res, next) => {
   const requestStartTime = new Date()
-  const formattedStartTime = requestStartTime.toISOString()
+  
+  // Format the time in local timezone with a cleaner format
+  const formattedStartTime = requestStartTime.toLocaleString('en-US', { 
+    timeZone: 'Europe/Budapest',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
   
   // Save the original end method to hook into it
   const originalEnd = res.end
@@ -61,11 +71,9 @@ app.use((req, res, next) => {
     const duration = responseEndTime.getTime() - requestStartTime.getTime()
     const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
     
-    // Format log output with better readability
-    console.log('\n' + '-'.repeat(40))
-    console.log(`[${formattedStartTime}]`)
-    console.log(`${req.method} ${req.originalUrl}`)
-    console.log(`Status: ${res.statusCode} | Duration: ${duration}ms`)
+    // Clean format with CMD-compatible characters instead of emojis
+    console.log(`\n>> ${formattedStartTime} | ${req.method} ${req.originalUrl}`)
+    console.log(`   Status: ${res.statusCode} | Duration: ${duration}ms`)
     
     // Only print body data for POST/PUT requests
     if ((req.method === 'POST' || req.method === 'PUT') && req.body && Object.keys(req.body).length > 0) {
@@ -76,7 +84,6 @@ app.use((req, res, next) => {
         console.log('Body: [Circular structure]')
       }
     }
-    console.log('-'.repeat(40))
     
     // Call the original end method
     return originalEnd.apply(this, arguments)

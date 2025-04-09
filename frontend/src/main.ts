@@ -27,7 +27,6 @@ import {
   faUserSlash,
   faRightFromBracket,
   faRightToBracket,
-  // Add missing icons
   faUsers,
   faHashtag,
   faUser,
@@ -36,11 +35,15 @@ import {
   faHome,
   faInfo,
   faSearch,
-  // Add the missing icons
   faStar,
   faExchangeAlt,
-  // Add triangle exclamation icon for error messages
   faTriangleExclamation,
+  faGraduationCap,
+  faPlay,
+  faBook,
+  faTools,
+  faBriefcase,
+  faMagnifyingGlassChart,
   faLayerGroup,
   faCaretUp,
   faCaretDown,
@@ -52,6 +55,17 @@ import {
   faRotate,
   faServer,
   faLock,
+  faCircleArrowUp,
+  faCircleArrowDown,
+  faLaptop,
+  faCompass,
+  faCircleQuestion,
+  faComments,
+  faScaleBalanced,
+  faListCheck,
+  faCalendarDays,
+  faLifeRing,
+  faBuilding,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -72,7 +86,6 @@ library.add(
   faUserSlash,
   faRightFromBracket,
   faRightToBracket,
-  // Add missing icons
   faUsers,
   faHashtag,
   faUser,
@@ -81,10 +94,15 @@ library.add(
   faHome,
   faInfo,
   faSearch,
-  // Add the missing icons to the library
   faStar,
   faExchangeAlt,
   faTriangleExclamation,
+  faGraduationCap,
+  faPlay,
+  faBook,
+  faTools,
+  faBriefcase,
+  faMagnifyingGlassChart,
   faLayerGroup,
   faCaretUp,
   faCaretDown,
@@ -96,6 +114,17 @@ library.add(
   faRotate,
   faServer,
   faLock,
+  faCircleArrowUp,
+  faCircleArrowDown,
+  faLaptop,
+  faCompass,
+  faCircleQuestion,
+  faComments,
+  faScaleBalanced,
+  faListCheck,
+  faCalendarDays,
+  faLifeRing,
+  faBuilding,
 )
 
 const app = createApp(App)
