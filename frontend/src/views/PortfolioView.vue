@@ -12,6 +12,7 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue'
 import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
+import { useI18n } from 'vue-i18n'
 
 interface PortfolioData {
   assets: Array<{
@@ -156,6 +157,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-y', `${y}%`);
 };
 
+const { t } = useI18n()
+
 </script>
 
 <template>
@@ -187,26 +190,26 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="w-full">
                 <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
                   <font-awesome-icon icon="wallet" class="text-green-400 mr-2" />
-                  Portfolio Summary
+                  {{ t('portfolio.summary') }}
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div
                     class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                    <p class="text-sm text-gray-400">Total Value</p>
+                    <p class="text-sm text-gray-400">{{ t('portfolio.totalValue') }}</p>
                     <p class="text-green-400 text-2xl font-bold">
                       ${{ formatPrice(portfolioData.totalValue) }}
                     </p>
                   </div>
                   <div
                     class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                    <p class="text-sm text-gray-400">Available Balance</p>
+                    <p class="text-sm text-gray-400">{{ t('portfolio.availableBalance') }}</p>
                     <p class="text-green-400 text-2xl font-bold">
                       ${{ formatPrice(portfolioData.balance) }}
                     </p>
                   </div>
                   <div
                     class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                    <p class="text-sm text-gray-400">Total Positions</p>
+                    <p class="text-sm text-gray-400">{{ t('portfolio.totalPositions') }}</p>
                     <p class="text-green-400 text-2xl font-bold">{{ totalPositions }}</p>
                   </div>
                 </div>
@@ -218,30 +221,30 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="w-full">
                 <div class="flex items-center mb-4">
                   <font-awesome-icon icon="wallet" class="mr-2 text-green-400" />
-                  <h1 class="text-2xl font-bold">Holdings</h1>
+                  <h1 class="text-2xl font-bold">{{ t('portfolio.holdings') }}</h1>
                 </div>
                 <div class="overflow-x-auto bg-white/5 rounded-xl p-4 border border-white/10">
                   <table class="min-w-full divide-y divide-white/10">
                     <thead>
                       <tr>
                         <th class="text-left py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          Symbol</th>
+                          {{ t('portfolio.table.symbol') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          Shares</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">Avg
-                          Price</th>
+                          {{ t('portfolio.table.shares') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          Current</th>
+                          {{ t('portfolio.table.avgPrice') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          Value</th>
+                          {{ t('portfolio.table.current') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          Return</th>
+                          {{ t('portfolio.table.value') }}</th>
+                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          {{ t('portfolio.table.return') }}</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-white/10">
                       <tr v-if="portfolioData.assets.length === 0">
                         <td colspan="6" class="py-4 px-4 text-center text-gray-400">
-                          No holdings found
+                          {{ t('portfolio.table.noHoldings') }}
                         </td>
                       </tr>
                       <tr v-for="asset in paginatedAssets" :key="asset.assetId"
@@ -282,9 +285,9 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   <!-- Replace the pagination section -->
                   <div class="mt-4 flex items-center justify-between px-4">
                     <div class="text-sm text-gray-400">
-                      Showing {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to
-                      {{ Math.min(currentPage * visibleItems, portfolioData.assets?.length || 0) }} of
-                      {{ portfolioData.assets?.length || 0 }} positions
+                      {{ t('portfolio.pagination.showing') }} {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to
+                      {{ Math.min(currentPage * visibleItems, portfolioData.assets?.length || 0) }} {{ t('portfolio.pagination.of') }}
+                      {{ portfolioData.assets?.length || 0 }} {{ t('portfolio.pagination.positions') }}
                     </div>
                     <div class="flex items-center gap-2">
                       <button @click="prevPage" :disabled="currentPage === 1"
@@ -297,7 +300,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                       </button>
 
                       <span class="text-gray-400">
-                        Page {{ currentPage }} of {{ totalPages }}
+                        {{ t('portfolio.pagination.page') }} {{ currentPage }} {{ t('portfolio.pagination.of') }} {{ totalPages }}
                       </span>
 
                       <button @click="nextPage" :disabled="currentPage === totalPages"

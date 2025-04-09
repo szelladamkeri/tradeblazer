@@ -16,7 +16,9 @@ import { handleApiError } from '@/utils/errorHandler'
 import FullPageError from '@/components/FullPageError.vue'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import { type User } from '@/types'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const users = ref<User[]>([])
@@ -408,7 +410,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
           <div>
             <div class="flex items-center gap-3 mb-6">
               <font-awesome-icon icon="shield" class="text-green-400 text-2xl" />
-              <h1 class="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
+              <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ t('admin.title') }}</h1>
             </div>
 
             <div v-if="loading" class="flex justify-center items-center py-8">
@@ -453,7 +455,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           <div class="text-sm text-gray-400">{{ user.email }}</div>
                           <div class="text-sm mt-1">
                             <span :class="user.role === 'A' ? 'text-green-400' : 'text-gray-400'">
-                              {{ user.role === 'A' ? 'Admin' : 'User' }}
+                              {{ user.role === 'A' ? t('admin.table.admin') : t('admin.table.user') }}
                             </span>
                             <span class="text-gray-500 ml-2">#{{ user.id }}</span>
                           </div>
@@ -489,7 +491,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           @click="openAvatarModal(user)"
                           class="text-xs px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
                         >
-                          Change Avatar
+                          {{ t('admin.avatarModal.change') }}
                         </button>
                       </div>
                     </div>
@@ -501,7 +503,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="hidden sm:block bg-white/5 rounded-xl p-4 sm:p-6 overflow-hidden border border-white/10">
                 <div class="flex items-center gap-3 mb-4">
                   <font-awesome-icon icon="users" class="text-green-400" />
-                  <h2 class="text-xl text-white font-semibold">User Management</h2>
+                  <h2 class="text-xl text-white font-semibold">{{ t('admin.userManagement') }}</h2>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -517,31 +519,31 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
                             <div class="flex items-center gap-2">
                               <font-awesome-icon icon="user" class="text-green-400" />
-                              Username
+                              {{ t('admin.table.username') }}
                             </div>
                           </th>
                           <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
                             <div class="flex items-center gap-2">
                               <font-awesome-icon icon="envelope" class="text-green-400" />
-                              Email
+                              {{ t('admin.table.email') }}
                             </div>
                           </th>
                           <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
                             <div class="flex items-center gap-2">
                               <font-awesome-icon icon="user-tag" class="text-green-400" />
-                              Role
+                              {{ t('admin.table.role') }}
                             </div>
                           </th>
                           <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
                             <div class="flex items-center gap-2">
                               <font-awesome-icon icon="wrench" class="text-green-400" />
-                              Actions
+                              {{ t('admin.table.actions') }}
                             </div>
                           </th>
                           <th class="py-3 px-4 whitespace-nowrap border-b border-white/10">
                             <div class="flex items-center gap-2">
                               <font-awesome-icon icon="user-circle" class="text-green-400" />
-                              Avatar
+                              {{ t('admin.table.avatar') }}
                             </div>
                           </th>
                         </tr>
@@ -557,7 +559,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           <td class="py-3 px-4 whitespace-nowrap">{{ user.email }}</td>
                           <td class="py-3 px-4 whitespace-nowrap">
                             <span :class="user.role === 'A' ? 'text-green-400' : 'text-gray-400'">
-                              {{ user.role === 'A' ? 'Admin' : 'User' }}
+                              {{ user.role === 'A' ? t('admin.table.admin') : t('admin.table.user') }}
                             </span>
                           </td>
                           <td class="py-3 px-4 whitespace-nowrap">
@@ -605,14 +607,14 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                                   @click="openAvatarModal(user)"
                                   class="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
                                 >
-                                  Change
+                                  {{ t('admin.avatarModal.change') }}
                                 </button>
                                 <button
                                   v-if="avatarTimestamps[user.id]"
                                   @click="handleDeleteAvatar(user)"
                                   class="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
                                 >
-                                  Remove
+                                  {{ t('admin.avatarModal.remove') }}
                                 </button>
                               </div>
                             </div>
@@ -624,9 +626,9 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <!-- Add pagination controls -->
                     <div class="mt-4 flex items-center justify-between px-4">
                       <div class="text-sm text-gray-400">
-                        Showing {{ users.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to 
-                        {{ Math.min(currentPage * visibleItems, users.length) }} of 
-                        {{ users.length }} users
+                        {{ t('admin.pagination.showing') }} {{ users.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to
+                        {{ Math.min(currentPage * visibleItems, users.length) }} {{ t('admin.pagination.of') }} 
+                        {{ users.length }} {{ t('admin.pagination.users') }}
                       </div>
                       <div class="flex items-center gap-2">
                         <button
@@ -643,7 +645,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                         </button>
                         
                         <span class="text-gray-400">
-                          Page {{ currentPage }} of {{ totalPages }}
+                          {{ t('admin.pagination.page') }} {{ currentPage }} {{ t('admin.pagination.of') }} {{ totalPages }}
                         </span>
 
                         <button
@@ -667,134 +669,152 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
           </div>
         </div>
       </div>
+    </PageMain>
 
-      <!-- Move ConfirmDialogs outside of the blurred content -->
-      <ConfirmDialog
-        :show="showDeleteConfirm"
-        title="Delete User"
-        :message="`Are you sure you want to delete '${userToDelete?.username}'? This action cannot be undone.`"
-        confirm-text="Delete"
-        :confirm-button-class="'bg-red-600 hover:bg-red-700'"
-        type="delete"
-        :z-index="200"
-        @confirm="confirmDelete"
-        @cancel="showDeleteConfirm = false"
-      />
+    <!-- Confirm Delete Dialog -->
+    <ConfirmDialog
+      v-if="showDeleteConfirm"
+      :title="t('admin.confirmDialog.deleteUser')"
+      :confirmButtonText="t('admin.confirmDialog.confirm')"
+      :cancelButtonText="t('admin.confirmDialog.cancel')"
+      @confirm="confirmDelete"
+      @cancel="showDeleteConfirm = false"
+    />
 
-      <ConfirmDialog
-        :show="showAvatarConfirm"
-        title="Update Avatar"
-        :message="`Are you sure you want to update the avatar for '${selectedUserForAvatar?.username}'?`"
-        confirm-text="Update"
-        :confirm-button-class="'bg-green-600 hover:bg-green-700'"
-        type="update"
-        :z-index="200"
-        @confirm="confirmAvatarUpdate"
-        @cancel="showAvatarConfirm = false"
-      />
+    <!-- Confirm Delete Avatar Dialog -->
+    <ConfirmDialog
+      v-if="showDeleteAvatarConfirm"
+      :title="t('admin.confirmDialog.deleteAvatar')"
+      :confirmButtonText="t('admin.confirmDialog.confirm')"
+      :cancelButtonText="t('admin.confirmDialog.cancel')"
+      @confirm="confirmDeleteAvatar"
+      @cancel="showDeleteAvatarConfirm = false"
+    />
 
-      <ConfirmDialog
-        :show="showDeleteAvatarConfirm"
-        title="Delete Avatar"
-        :message="`Are you sure you want to delete the avatar for '${userToDeleteAvatar?.username}'?`"
-        confirm-text="Delete"
-        :confirm-button-class="'bg-red-600 hover:bg-red-700'"
-        type="delete"
-        :z-index="200"
-        @confirm="confirmDeleteAvatar"
-        @cancel="showDeleteAvatarConfirm = false"
-      />
+    <!-- Edit User Modal -->
+    <EditUserModal
+      v-if="showEditModal && selectedUser"
+      :user="selectedUser"
+      @close="showEditModal = false"
+      @save="handleSaveUser"
+    />
 
-      <!-- Avatar Modal -->
-      <div
-        v-if="showAvatarModal"
-        class="fixed inset-0 z-[60]"
-        :class="{
-          'pointer-events-none': showDeleteConfirm || showAvatarConfirm || showDeleteAvatarConfirm,
-        }"
-      >
-        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="fixed inset-0 flex items-center justify-center p-4">
-          <div class="bg-white/5 rounded-xl p-6 border border-green-500/20 max-w-md w-full">
-            <div class="flex flex-col items-center text-center">
-              <div class="mb-4 text-3xl text-green-400">
-                <font-awesome-icon icon="user-pen" />
-              </div>
-              
-              <h3 class="text-xl font-bold text-white mb-4">
-                Update Avatar for {{ selectedUserForAvatar?.username }}
-              </h3>
-
-              <template v-if="!showCropper">
-                <div v-if="fileError" 
-                     class="mb-4 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg w-full">
-                  {{ fileError }}
-                </div>
-                
-                <div class="w-full space-y-4">
-                  <input
-                    type="file"
-                    accept="image/jpeg"
-                    @change="handleAvatarChange"
-                    class="block w-full text-sm text-gray-400
-                           file:mr-4 file:py-2.5 file:px-4 file:rounded-lg
-                           file:border-0 file:text-sm file:font-medium
-                           file:bg-green-600 file:text-white
-                           hover:file:bg-green-700 file:cursor-pointer
-                           file:transition-colors"
-                  />
-
-                  <div class="flex justify-end gap-3 pt-4">
-                    <button
-                      @click="showAvatarModal = false"
-                      class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
-                             text-white rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </template>
-
-              <!-- Cropper view -->
-              <template v-else>
-                <div class="w-full mb-6">
-                  <div class="bg-black/30 rounded-xl p-4 mb-4">
-                    <div class="h-72">
-                      <Cropper
-                        ref="cropperRef"
-                        :src="imageUrl"
-                        :stencil-props="{
-                          aspectRatio: 1,
-                        }"
-                        class="cropper"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="flex justify-end gap-3">
-                    <button
-                      @click="cancelCrop"
-                      class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
-                             text-white rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      @click="handleCrop"
-                      class="px-5 py-2.5 bg-green-600 hover:bg-green-700 
-                             text-white rounded-lg transition-colors"
-                    >
-                      Apply & Upload
-                    </button>
-                  </div>
-                </div>
-              </template>
-            </div>
+    <!-- Avatar Upload Modal -->
+    <div v-if="showAvatarModal"
+      class="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[100]">
+      <div class="bg-gray-800 p-6 rounded-xl w-full max-w-md mx-auto border border-white/10">
+        <div class="relative">
+          <div class="absolute top-0 right-0">
+            <button @click="showAvatarModal = false" class="text-gray-400 hover:text-white">
+              <font-awesome-icon icon="times" />
+            </button>
           </div>
+
+          <div class="flex items-center justify-center h-12 w-12 rounded-full bg-green-600/20 mb-4">
+            <font-awesome-icon icon="user-pen" />
+          </div>
+          
+          <h3 class="text-xl font-bold text-white mb-4">
+            {{ t('admin.avatarModal.title') }} {{ selectedUserForAvatar?.username }}
+          </h3>
+
+          <template v-if="!showCropper">
+            <div v-if="fileError" 
+                 class="mb-4 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg w-full">
+              {{ fileError }}
+            </div>
+            
+            <div class="w-full space-y-4">
+              <input
+                type="file"
+                accept="image/jpeg"
+                @change="handleAvatarChange"
+                class="block w-full text-sm text-gray-400
+                       file:mr-4 file:py-2.5 file:px-4 file:rounded-lg
+                       file:border-0 file:text-sm file:font-medium
+                       file:bg-green-600 file:text-white
+                       hover:file:bg-green-700 file:cursor-pointer
+                       file:transition-colors"
+              />
+            </div>
+
+            <!-- Confirm button appears only when file is selected -->
+            <div class="flex justify-end gap-3 pt-4" v-if="avatarFile">
+              <button
+                @click="showAvatarModal = false"
+                class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
+                       text-white rounded-lg transition-colors"
+              >
+                {{ t('admin.avatarModal.cancel') }}
+              </button>
+              <button
+                @click="showAvatarConfirm = true"
+                class="px-5 py-2.5 bg-green-600 hover:bg-green-700 
+                       text-white rounded-lg transition-colors"
+              >
+                {{ t('admin.avatarModal.apply') }}
+              </button>
+            </div>
+            
+            <!-- Just cancel when no file selected -->
+            <div class="flex justify-end gap-3 pt-4" v-else>
+              <button
+                @click="showAvatarModal = false"
+                class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
+                       text-white rounded-lg transition-colors"
+              >
+                {{ t('admin.avatarModal.cancel') }}
+              </button>
+            </div>
+          </template>
+
+          <!-- Cropper view -->
+          <template v-else>
+            <div class="w-full mb-6">
+              <div class="bg-black/30 rounded-xl p-4 mb-4">
+                <div class="h-72">
+                  <Cropper
+                    ref="cropperRef"
+                    :src="imageUrl"
+                    :stencil-props="{
+                      aspectRatio: 1,
+                    }"
+                    class="cropper"
+                  />
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-3">
+                <button
+                  @click="cancelCrop"
+                  class="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 
+                         text-white rounded-lg transition-colors"
+                >
+                  {{ t('admin.avatarModal.cancel') }}
+                </button>
+                <button
+                  @click="handleCrop"
+                  class="px-5 py-2.5 bg-green-600 hover:bg-green-700 
+                         text-white rounded-lg transition-colors"
+                >
+                  {{ t('admin.avatarModal.apply') }}
+                </button>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
-    </PageMain>
+    </div>
+
+    <!-- Confirm Avatar Dialog -->
+    <ConfirmDialog
+      v-if="showAvatarConfirm"
+      :title="t('admin.avatarModal.title')"
+      :confirmButtonText="t('admin.confirmDialog.confirm')"
+      :cancelButtonText="t('admin.confirmDialog.cancel')"
+      @confirm="confirmAvatarUpdate"
+      @cancel="showAvatarConfirm = false"
+    />
   </div>
 </template>
 

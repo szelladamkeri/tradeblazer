@@ -11,6 +11,7 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue'
 import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
+import { useI18n } from 'vue-i18n'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -135,6 +136,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
+
+const { t } = useI18n()
 </script>
 
 <template>

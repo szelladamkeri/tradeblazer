@@ -746,7 +746,7 @@ h3 {
   border: 1px solid rgba(74, 222, 128, 0.08);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
   border-radius: 0.75rem;
-  overflow: hidden;
+  overflow: visible !important; /* IMPORTANT: Change this from 'hidden' to 'visible' */
 }
 
 /* Remove all conflicting background/border styles from header element */
@@ -930,15 +930,6 @@ nav {
   overflow: visible !important;
 }
 
-/* Remove conflicting z-index utilities */
-.z-\[50\],
-.z-\[51\],
-.z-\[52\],
-.z-\[60\],
-.z-\[70\] {
-  z-index: unset !important;
-}
-
 /* Add z-index for dropdown */
 .z-50 {
   z-index: 50;
@@ -963,6 +954,19 @@ nav {
 .z-\[101\],
 .z-\[102\] {
   z-index: unset;
+}
+
+/* Ensure language dropdown is visible */
+div[v-show="showLanguageDropdown"] {
+  z-index: 9999 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Fix language dropdown parent positioning */
+[ref="languageDropdownRef"] {
+  position: relative !important;
+  overflow: visible !important;
 }
 
 /* Add background color for .bg-black */
@@ -1644,5 +1648,69 @@ a:hover {
   .mobile-menu {
     display: none;
   }
+}
+
+/* Fix all dropdowns - ensure they're visible */
+.page-header {
+  overflow: visible !important;
+}
+
+/* Highest z-index for dropdowns - but don't force visibility */
+div[v-show="showLanguageDropdown"],
+div[v-show="showProfileDropdown"] {
+  z-index: 9999 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+  /* Remove these lines that force visibility:
+  visibility: visible !important;
+  display: block !important;
+  */
+}
+
+/* Explicitly set position and overflow for dropdown containers */
+[ref="languageDropdownRef"],
+[ref="dropdownRef"] {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Fix z-index classes with !important to prevent overrides */
+.z-\[50\] {
+  z-index: 50 !important;
+}
+
+.z-\[60\] {
+  z-index: 60 !important;
+}
+
+.z-\[70\] {
+  z-index: 70 !important;
+}
+
+/* Modify language dropdown styling - don't force display */
+.absolute.right-0.top-full {
+  position: absolute !important;
+  right: 0 !important;
+  top: 100% !important;
+  z-index: 9999 !important;
+  /* Remove this line:
+  display: block !important;
+  */
+}
+
+/* Remove any parent elements that might clip the dropdown */
+.page-header-wrapper, 
+.component-global-wrapper, 
+header, 
+.content-container,
+nav {
+  overflow: visible !important;
+}
+
+/* Make dropdown elements clickable but don't force visibility */
+div[v-show="showLanguageDropdown"] button,
+div[v-show="showProfileDropdown"] a,
+div[v-show="showProfileDropdown"] button {
+  pointer-events: auto !important;
 }
 </style>

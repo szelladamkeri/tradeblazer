@@ -7,6 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { handleApiError } from '@/utils/errorHandler'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useI18n } from 'vue-i18n'
 import { 
   faChartPie, faBolt, faListCheck, faChartLine, 
   faClockRotateLeft, faEye, faGaugeHigh, faShieldHalved,
@@ -191,6 +192,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -213,7 +216,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
                   <font-awesome-icon :icon="panel.icon" class="panel-icon" />
-                  {{ panel.title }}
+                  {{ t(`dashboard.${panel.id}`) }}
                 </h2>
               </div>
 
@@ -229,13 +232,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   <!-- Top row - larger stats -->
                   <div class="flex gap-3 flex-1">
                     <div class="flex-1 bg-white/5 rounded-lg p-3">
-                      <div class="text-sm text-gray-400">24h Volume</div>
+                      <div class="text-sm text-gray-400">{{ t('dashboard.volume24h') }}</div>
                       <div class="text-xl text-white font-medium mt-1">
                         ${{ marketStats.totalVolume.toLocaleString() }}
                       </div>
                     </div>
                     <div class="flex-1 bg-white/5 rounded-lg p-3">
-                      <div class="text-sm text-gray-400">Total Trades</div>
+                      <div class="text-sm text-gray-400">{{ t('dashboard.totalTrades') }}</div>
                       <div class="text-xl text-white font-medium mt-1">
                         {{ marketStats.totalTrades.toLocaleString() }}
                       </div>
@@ -244,11 +247,11 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   <!-- Bottom row - smaller stats -->
                   <div class="flex gap-3">
                     <div class="flex-1 bg-green-500/10 rounded-lg p-2 flex items-center justify-between">
-                      <span class="text-sm text-gray-400">Market Status</span>
-                      <span class="text-sm text-green-400 font-medium">Open</span>
+                      <span class="text-sm text-gray-400">{{ t('dashboard.marketStatus') }}</span>
+                      <span class="text-sm text-green-400 font-medium">{{ t('dashboard.open') }}</span>
                     </div>
                     <div class="flex-1 bg-white/5 rounded-lg p-2 flex items-center justify-between">
-                      <span class="text-sm text-gray-400">Active Assets</span>
+                      <span class="text-sm text-gray-400">{{ t('dashboard.activeAssets') }}</span>
                       <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
                     </div>
                   </div>

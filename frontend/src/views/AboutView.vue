@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
+
+const { t } = useI18n()
 
 // Add mouse move tracking for the gradient effect
 const handleMouseMove = (event: MouseEvent) => {
@@ -20,13 +23,10 @@ const handleMouseMove = (event: MouseEvent) => {
     <PageMain @mousemove="handleMouseMove">
       <div class="w-full max-w-7xl mx-auto p-8 md:p-12 lg:p-16 xl:p-16">
         <div class="space-y-8">
-          <h1 class="text-3xl font-bold text-white">About TradeBlazer</h1>
+          <h1 class="text-3xl font-bold text-white">{{ t('about.title') }}</h1>
           <div class="prose prose-invert">
             <p>
-              We are a small indie company of two who worked hard on this project, not only we worked hard
-              but we are hard. We faced many challanges, such as our supervisors and we couldn't edge in
-              class, we were forced to work like slaves. We need your money to feed our families and to
-              buy monster energy drink :3
+              {{ t('about.description') }}
             </p>
           </div>
         </div>

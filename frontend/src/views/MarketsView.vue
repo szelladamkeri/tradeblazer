@@ -10,6 +10,7 @@ import { usePagination } from '@/composables/usePagination'
 import { handleApiError } from '@/utils/errorHandler'
 import FullPageError from '@/components/FullPageError.vue'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
+import { useI18n } from 'vue-i18n'
 
 interface Asset {
   id: number;
@@ -31,6 +32,8 @@ const loading = ref(true)
 const error = ref<{ message: string; type: string } | null>(null)
 const searchTerm = ref('')
 const selectedType = ref('all')
+
+const { t } = useI18n()
 
 // Add computed property for filtered assets
 const filteredAssets = computed(() => {
@@ -212,8 +215,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
             </div>
             <div>
-              <h1 class="text-2xl sm:text-3xl font-bold text-white">Markets</h1>
-              <p class="text-gray-400 mt-1">Browse and trade available assets on our platform</p>
+              <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ t('markets.title') }}</h1>
+              <p class="text-gray-400 mt-1">{{ t('markets.subtitle') }}</p>
             </div>
           </div>
           
@@ -223,7 +226,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <input
                 type="text"
                 v-model="searchTerm"
-                placeholder="Search assets..."
+                :placeholder="t('markets.search')"
                 class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200"
               />
               <font-awesome-icon icon="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -237,16 +240,16 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200"
                 >
                   <option value="all">
-                    <font-awesome-icon icon="layer-group" /> All Assets
+                    <font-awesome-icon icon="layer-group" /> {{ t('common.all') }}
                   </option>
                   <option value="stock">
-                    <font-awesome-icon icon="chart-line" /> Stocks
+                    <font-awesome-icon icon="chart-line" /> {{ t('markets.stock') }}
                   </option>
                   <option value="crypto">
-                    <font-awesome-icon icon="coins" /> Crypto
+                    <font-awesome-icon icon="coins" /> {{ t('markets.crypto') }}
                   </option>
                   <option value="forex">
-                    <font-awesome-icon icon="exchange-alt" /> Forex
+                    <font-awesome-icon icon="exchange-alt" /> {{ t('markets.forex') }}
                   </option>
                 </select>
                 <span class="custom-select-icon">
@@ -269,7 +272,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
             <div class="panel-inner flex items-center justify-center p-8 max-w-md text-center">
               <div class="flex flex-col items-center">
                 <font-awesome-icon icon="search" class="text-3xl text-gray-400 mb-4 panel-icon-lg" />
-                <p class="text-gray-400">No assets found matching your search criteria.</p>
+                <p class="text-gray-400">{{ t('markets.noAssetsFound') }}</p>
               </div>
             </div>
             <div class="corner-decor top-left"></div>
@@ -286,7 +289,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
                   <font-awesome-icon icon="list" class="panel-icon" />
-                  Market Assets
+                  {{ t('markets.marketAssets') }}
                 </h2>
               </div>
               
@@ -297,28 +300,28 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                       <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10">
                         <div class="flex items-center gap-2">
                           <font-awesome-icon icon="coins" class="text-green-400" />
-                          Asset
+                          {{ t('markets.type') }}
                         </div>
                       </th>
                       <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
                         <div class="flex items-center gap-2 justify-end">
                           <font-awesome-icon icon="dollar-sign" class="text-green-400" />
-                          Price
+                          {{ t('markets.price') }}
                         </div>
                       </th>
                       <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
                         <div class="flex items-center gap-2 justify-end">
                           <font-awesome-icon icon="chart-line" class="text-green-400" />
-                          24h Change
+                          {{ t('markets.change') }}
                         </div>
                       </th>
                       <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
                         <div class="flex items-center gap-2 justify-end">
                           <font-awesome-icon icon="sack-dollar" class="text-green-400" />
-                          Market Cap
+                          {{ t('markets.marketCap') }}
                         </div>
                       </th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">Actions</th>
+                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">{{ t('markets.actions') }}</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/10">
@@ -350,7 +353,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           <button @click="goToTrade(asset.id)"
                                   class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors flex items-center gap-2">
                             <font-awesome-icon icon="exchange-alt" />
-                            Trade
+                            {{ t('markets.trade') }}
                           </button>
                           <button v-if="isLoggedIn" 
                                   @click="addToWatchlist(asset.id)"
