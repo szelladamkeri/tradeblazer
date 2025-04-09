@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
+import { useI18n } from 'vue-i18n'
+
+// Add i18n support
+const { t } = useI18n()
 
 // Add mouse move tracking for the gradient effect
 const handleMouseMove = (event: MouseEvent) => {
@@ -35,7 +39,7 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="graduation-cap" class="text-green-400" />
-                    Tutorial Guide
+                    {{ t('tutorial.title') }}
                   </h2>
                   
                   <nav class="space-y-2">
@@ -47,7 +51,7 @@ const setActiveSection = (section: string) => {
                         : 'text-gray-300 hover:bg-white/10'"
                     >
                       <font-awesome-icon icon="play" class="text-xs" />
-                      Getting Started
+                      {{ t('tutorial.sections.gettingStarted') }}
                     </button>
                     <button 
                       @click="setActiveSection('website-tutorial')"
@@ -58,9 +62,8 @@ const setActiveSection = (section: string) => {
                     >
                       <div class="flex items-center gap-1">
                         <font-awesome-icon icon="compass" class="text-xs" />
-                        <!-- <font-awesome-icon icon="laptop" class="text-xs" />  -->
                       </div>
-                      Website Navigation
+                      {{ t('tutorial.sections.websiteNavigation') }}
                     </button>
                     <button 
                       @click="setActiveSection('trading-basics')"
@@ -70,7 +73,7 @@ const setActiveSection = (section: string) => {
                         : 'text-gray-300 hover:bg-white/10'"
                     >
                       <font-awesome-icon icon="book" class="text-xs" />
-                      Trading Basics
+                      {{ t('tutorial.sections.tradingBasics') }}
                     </button>
                     <button 
                       @click="setActiveSection('advanced-tools')"
@@ -80,7 +83,7 @@ const setActiveSection = (section: string) => {
                         : 'text-gray-300 hover:bg-white/10'"
                     >
                       <font-awesome-icon icon="chart-line" class="text-xs" />
-                      Advanced Tools
+                      {{ t('tutorial.sections.advancedTools') }}
                     </button>
                     <button 
                       @click="setActiveSection('portfolio-management')"
@@ -90,7 +93,7 @@ const setActiveSection = (section: string) => {
                         : 'text-gray-300 hover:bg-white/10'"
                     >
                       <font-awesome-icon icon="wallet" class="text-xs" />
-                      Portfolio Management
+                      {{ t('tutorial.sections.portfolioManagement') }}
                     </button>
                     <button 
                       @click="setActiveSection('market-analysis')"
@@ -100,7 +103,7 @@ const setActiveSection = (section: string) => {
                         : 'text-gray-300 hover:bg-white/10'"
                     >
                       <font-awesome-icon icon="chart-pie" class="text-xs" />
-                      Market Analysis
+                      {{ t('tutorial.sections.marketAnalysis') }}
                     </button>
                   </nav>
                   
@@ -119,35 +122,32 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="play" class="text-green-400" />
-                    Getting Started with TradeBlazer
+                    {{ t('tutorial.gettingStarted.title') }}
                   </h2>
                   
                   <div class="space-y-6">
                     <!-- Welcome Introduction -->
                     <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-2 text-green-400">Welcome to TradeBlazer</h3>
+                      <h3 class="text-lg font-medium mb-2 text-green-400">{{ t('tutorial.gettingStarted.welcome.title') }}</h3>
                       <p class="text-gray-300">
-                        Welcome aboard! TradeBlazer is a friendly and easy-to-use platform for buying and selling financial assets 
-                        like stocks, cryptocurrencies, and currencies. Whether you're completely new to trading or have some experience, 
-                        we're here to guide you every step of the way.
+                        {{ t('tutorial.gettingStarted.welcome.description') }}
                       </p>
                     </div>
                     
                     <!-- Account Setup -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Creating Your Account</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.gettingStarted.accountSetup.title') }}</h3>
                       <div class="grid md:grid-cols-2 gap-4 mb-4">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Step 1: Sign Up</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.gettingStarted.accountSetup.step1.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Simply enter your email and create a password. We keep things simple so you can start
-                            exploring right away!
+                            {{ t('tutorial.gettingStarted.accountSetup.step1.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Step 2: Complete Your Profile</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.gettingStarted.accountSetup.step2.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Add your name and preferences. This helps us personalize your trading experience.
+                            {{ t('tutorial.gettingStarted.accountSetup.step2.description') }}
                           </p>
                         </div>
                       </div>
@@ -155,41 +155,41 @@ const setActiveSection = (section: string) => {
                     
                     <!-- What You Can Do -->
                     <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                      <h4 class="font-medium text-white mb-2">What You Can Do on TradeBlazer</h4>
+                      <h4 class="font-medium text-white mb-2">{{ t('tutorial.gettingStarted.whatYouCanDo.title') }}</h4>
                       <p class="text-sm text-gray-400 mb-3">
-                        Here are the main things you can do on our platform:
+                        {{ t('tutorial.gettingStarted.whatYouCanDo.description') }}
                       </p>
                       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div class="bg-white/10 p-3 rounded-lg text-center">
                           <font-awesome-icon icon="search" class="text-green-400 text-xl mb-2" />
-                          <p class="text-white text-sm">Explore Markets</p>
+                          <p class="text-white text-sm">{{ t('tutorial.gettingStarted.whatYouCanDo.exploreMarkets') }}</p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg text-center">
                           <div class="flex justify-center gap-2 mb-2">
                             <font-awesome-icon icon="circle-arrow-up" class="text-green-400 text-xl" />
                             <font-awesome-icon icon="circle-arrow-down" class="text-red-400 text-xl" />
                           </div>
-                          <p class="text-white text-sm">Buy & Sell</p>
+                          <p class="text-white text-sm">{{ t('tutorial.gettingStarted.whatYouCanDo.buySell') }}</p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg text-center">
                           <font-awesome-icon icon="chart-line" class="text-green-400 text-xl mb-2" />
-                          <p class="text-white text-sm">Track Performance</p>
+                          <p class="text-white text-sm">{{ t('tutorial.gettingStarted.whatYouCanDo.trackPerformance') }}</p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg text-center">
                           <font-awesome-icon icon="book" class="text-green-400 text-xl mb-2" />
-                          <p class="text-white text-sm">Learn & Grow</p>
+                          <p class="text-white text-sm">{{ t('tutorial.gettingStarted.whatYouCanDo.learnGrow') }}</p>
                         </div>
                       </div>
                     </div>
                     
                     <!-- Quick Tips -->
                     <div class="bg-green-500/10 border-l-4 border-green-400 p-4 rounded-lg">
-                      <h4 class="text-lg font-medium mb-2 text-white">Beginner Tips</h4>
+                      <h4 class="text-lg font-medium mb-2 text-white">{{ t('tutorial.gettingStarted.quickTips.title') }}</h4>
                       <ul class="list-disc list-inside text-gray-300 space-y-2">
-                        <li>Start with the "Website Navigation" tutorial to learn how to use our platform</li>
-                        <li>Begin with small amounts until you feel comfortable with trading</li>
-                        <li>Use the Demo mode to practice without using real money</li>
-                        <li>Don't hesitate to contact our support team if you need help!</li>
+                        <li>{{ t('tutorial.gettingStarted.quickTips.tip1') }}</li>
+                        <li>{{ t('tutorial.gettingStarted.quickTips.tip2') }}</li>
+                        <li>{{ t('tutorial.gettingStarted.quickTips.tip3') }}</li>
+                        <li>{{ t('tutorial.gettingStarted.quickTips.tip4') }}</li>
                       </ul>
                     </div>
                   </div>
@@ -206,39 +206,39 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="compass" class="text-green-400" />
-                    TradeBlazer Website Navigation
+                    {{ t('tutorial.websiteTutorial.title') }}
                   </h2>
                   
                   <div class="space-y-6">
                     <!-- Dashboard Overview -->
                     <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-2 text-green-400">The Dashboard</h3>
+                      <h3 class="text-lg font-medium mb-2 text-green-400">{{ t('tutorial.websiteTutorial.dashboard.title') }}</h3>
                       <p class="text-gray-300 mb-3">
-                        The Dashboard is your home base. Here's what you'll find there:
+                        {{ t('tutorial.websiteTutorial.dashboard.description') }}
                       </p>
                       <div class="grid md:grid-cols-2 gap-4">
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-2">Market Overview</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.websiteTutorial.dashboard.marketOverview.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            See the latest market trends and popular assets in one glance
+                            {{ t('tutorial.websiteTutorial.dashboard.marketOverview.description') }}
                           </p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-2">Your Portfolio</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.websiteTutorial.dashboard.yourPortfolio.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Quick look at your investments and how they're performing
+                            {{ t('tutorial.websiteTutorial.dashboard.yourPortfolio.description') }}
                           </p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-2">Watchlist</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.websiteTutorial.dashboard.watchlist.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Assets you're interested in but haven't bought yet
+                            {{ t('tutorial.websiteTutorial.dashboard.watchlist.description') }}
                           </p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-2">Recent Activity</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.websiteTutorial.dashboard.recentActivity.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Your latest trades and account updates
+                            {{ t('tutorial.websiteTutorial.dashboard.recentActivity.description') }}
                           </p>
                         </div>
                       </div>
@@ -246,38 +246,38 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Main Navigation -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Main Menu Navigation</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.websiteTutorial.mainMenu.title') }}</h3>
                       <p class="text-gray-300 mb-3">
-                        The main menu is always available at the top of the page:
+                        {{ t('tutorial.websiteTutorial.mainMenu.description') }}
                       </p>
                       <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-white/10">
                           <thead class="bg-white/5">
                             <tr>
-                              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Menu Item</th>
-                              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">What It Does</th>
+                              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{{ t('tutorial.websiteTutorial.mainMenu.table.menuItem') }}</th>
+                              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{{ t('tutorial.websiteTutorial.mainMenu.table.whatItDoes') }}</th>
                             </tr>
                           </thead>
                           <tbody class="divide-y divide-white/10">
                             <tr class="bg-white/5">
-                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Home</td>
-                              <td class="px-6 py-4 text-sm text-gray-400">Returns to the main dashboard</td>
+                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.websiteTutorial.mainMenu.table.home') }}</td>
+                              <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.websiteTutorial.mainMenu.table.homeDescription') }}</td>
                             </tr>
                             <tr>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Markets</td>
-                              <td class="px-6 py-4 text-sm text-gray-400">Browse all available assets you can trade</td>
+                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.websiteTutorial.mainMenu.table.markets') }}</td>
+                              <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.websiteTutorial.mainMenu.table.marketsDescription') }}</td>
                             </tr>
                             <tr class="bg-white/5">
-                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Portfolio</td>
-                              <td class="px-6 py-4 text-sm text-gray-400">See all your investments in detail</td>
+                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.websiteTutorial.mainMenu.table.portfolio') }}</td>
+                              <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.websiteTutorial.mainMenu.table.portfolioDescription') }}</td>
                             </tr>
                             <tr>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Watchlist</td>
-                              <td class="px-6 py-4 text-sm text-gray-400">View and manage assets you're monitoring</td>
+                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.websiteTutorial.mainMenu.table.watchlist') }}</td>
+                              <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.websiteTutorial.mainMenu.table.watchlistDescription') }}</td>
                             </tr>
                             <tr class="bg-white/5">
-                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Profile</td>
-                              <td class="px-6 py-4 text-sm text-gray-400">Manage your account settings and information</td>
+                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.websiteTutorial.mainMenu.table.profile') }}</td>
+                              <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.websiteTutorial.mainMenu.table.profileDescription') }}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -286,34 +286,34 @@ const setActiveSection = (section: string) => {
                     
                     <!-- How to Trade -->
                     <div class="bg-white/5 p-5 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-3 text-green-400">How to Make Your First Trade</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.websiteTutorial.howToTrade.title') }}</h3>
                       <div class="space-y-4">
                         <div class="flex items-start gap-3">
                           <div class="bg-green-500/20 text-green-400 rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
                           <div>
-                            <h4 class="font-medium text-white">Find an Asset</h4>
-                            <p class="text-sm text-gray-400">Go to the Markets page and search for an asset you're interested in</p>
+                            <h4 class="font-medium text-white">{{ t('tutorial.websiteTutorial.howToTrade.step1.title') }}</h4>
+                            <p class="text-sm text-gray-400">{{ t('tutorial.websiteTutorial.howToTrade.step1.description') }}</p>
                           </div>
                         </div>
                         <div class="flex items-start gap-3">
                           <div class="bg-green-500/20 text-green-400 rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
                           <div>
-                            <h4 class="font-medium text-white">Review Details</h4>
-                            <p class="text-sm text-gray-400">Click on the asset to see its price history and information</p>
+                            <h4 class="font-medium text-white">{{ t('tutorial.websiteTutorial.howToTrade.step2.title') }}</h4>
+                            <p class="text-sm text-gray-400">{{ t('tutorial.websiteTutorial.howToTrade.step2.description') }}</p>
                           </div>
                         </div>
                         <div class="flex items-start gap-3">
                           <div class="bg-green-500/20 text-green-400 rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
                           <div>
-                            <h4 class="font-medium text-white">Enter Amount</h4>
-                            <p class="text-sm text-gray-400">Choose how much you want to buy or sell</p>
+                            <h4 class="font-medium text-white">{{ t('tutorial.websiteTutorial.howToTrade.step3.title') }}</h4>
+                            <p class="text-sm text-gray-400">{{ t('tutorial.websiteTutorial.howToTrade.step3.description') }}</p>
                           </div>
                         </div>
                         <div class="flex items-start gap-3">
                           <div class="bg-green-500/20 text-green-400 rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">4</div>
                           <div>
-                            <h4 class="font-medium text-white">Confirm Trade</h4>
-                            <p class="text-sm text-gray-400">Review your order and click "Execute Trade"</p>
+                            <h4 class="font-medium text-white">{{ t('tutorial.websiteTutorial.howToTrade.step4.title') }}</h4>
+                            <p class="text-sm text-gray-400">{{ t('tutorial.websiteTutorial.howToTrade.step4.description') }}</p>
                           </div>
                         </div>
                       </div>
@@ -321,24 +321,18 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Account Management -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Managing Your Account</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.websiteTutorial.accountManagement.title') }}</h3>
                       <div class="grid md:grid-cols-2 gap-4">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Depositing Funds</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.websiteTutorial.accountManagement.depositingFunds.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            1. Go to your Profile<br>
-                            2. Click "Deposit"<br>
-                            3. Enter amount and choose payment method<br>
-                            4. Confirm the transaction
+                            {{ t('tutorial.websiteTutorial.accountManagement.depositingFunds.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Withdrawing Funds</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.websiteTutorial.accountManagement.withdrawingFunds.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            1. Go to your Profile<br>
-                            2. Click "Withdraw"<br>
-                            3. Enter amount and choose withdrawal method<br>
-                            4. Confirm the transaction
+                            {{ t('tutorial.websiteTutorial.accountManagement.withdrawingFunds.description') }}
                           </p>
                         </div>
                       </div>
@@ -346,22 +340,22 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Getting Help -->
                     <div class="bg-green-500/10 border-l-4 border-green-400 p-4 rounded-lg">
-                      <h4 class="text-lg font-medium mb-2 text-white">Need Help?</h4>
+                      <h4 class="text-lg font-medium mb-2 text-white">{{ t('tutorial.websiteTutorial.gettingHelp.title') }}</h4>
                       <p class="text-gray-300 mb-3">
-                        If you ever get stuck or have questions, we're here to help you!
+                        {{ t('tutorial.websiteTutorial.gettingHelp.description') }}
                       </p>
                       <div class="grid md:grid-cols-3 gap-3">
                         <button class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
                           <font-awesome-icon icon="circle-question" class="text-green-400 mb-1" />
-                          <p class="text-white text-sm">Help Center</p>
+                          <p class="text-white text-sm">{{ t('tutorial.websiteTutorial.gettingHelp.helpCenter') }}</p>
                         </button>
                         <button class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
                           <font-awesome-icon icon="comments" class="text-green-400 mb-1" />
-                          <p class="text-white text-sm">Live Chat</p>
+                          <p class="text-white text-sm">{{ t('tutorial.websiteTutorial.gettingHelp.liveChat') }}</p>
                         </button>
                         <button class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
                           <font-awesome-icon icon="envelope" class="text-green-400 mb-1" />
-                          <p class="text-white text-sm">Email Support</p>
+                          <p class="text-white text-sm">{{ t('tutorial.websiteTutorial.gettingHelp.emailSupport') }}</p>
                         </button>
                       </div>
                     </div>
@@ -379,14 +373,13 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="book" class="text-green-400" />
-                    Trading Basics
+                    {{ t('tutorial.tradingBasics.title') }}
                   </h2>
                   
                   <div class="space-y-6">
-                    <h3 class="text-lg font-medium mb-3 text-green-400">What Are Financial Markets?</h3>
+                    <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.tradingBasics.whatAreMarkets.title') }}</h3>
                     <p class="mb-4 text-gray-300">
-                      Think of markets as big online stores where people buy and sell different types of financial assets. 
-                      Here are the main types you'll see on TradeBlazer:
+                      {{ t('tutorial.tradingBasics.whatAreMarkets.description') }}
                     </p>
                     
                     <!-- Market Types Comparison -->
@@ -394,26 +387,26 @@ const setActiveSection = (section: string) => {
                       <table class="min-w-full divide-y divide-white/10">
                         <thead class="bg-white/5">
                           <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Market Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">What It Is</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Example</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{{ t('tutorial.tradingBasics.marketTypes.table.marketType') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{{ t('tutorial.tradingBasics.marketTypes.table.whatItIs') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">{{ t('tutorial.tradingBasics.marketTypes.table.example') }}</th>
                           </tr>
                         </thead>
                         <tbody class="divide-y divide-white/10">
                           <tr class="bg-white/5">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Stocks</td>
-                            <td class="px-6 py-4 text-sm text-gray-400">Small pieces of ownership in companies</td>
-                            <td class="px-6 py-4 text-sm text-gray-400">Apple, Amazon, Tesla</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.tradingBasics.marketTypes.table.stocks') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.tradingBasics.marketTypes.table.stocksDescription') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.tradingBasics.marketTypes.table.stocksExample') }}</td>
                           </tr>
                           <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Cryptocurrencies</td>
-                            <td class="px-6 py-4 text-sm text-gray-400">Digital currencies that use encryption</td>
-                            <td class="px-6 py-4 text-sm text-gray-400">Bitcoin, Ethereum, Dogecoin</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.tradingBasics.marketTypes.table.cryptocurrencies') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.tradingBasics.marketTypes.table.cryptocurrenciesDescription') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.tradingBasics.marketTypes.table.cryptocurrenciesExample') }}</td>
                           </tr>
                           <tr class="bg-white/5">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Forex</td>
-                            <td class="px-6 py-4 text-sm text-gray-400">Trading one currency for another</td>
-                            <td class="px-6 py-4 text-sm text-gray-400">USD/EUR, GBP/JPY</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ t('tutorial.tradingBasics.marketTypes.table.forex') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.tradingBasics.marketTypes.table.forexDescription') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">{{ t('tutorial.tradingBasics.marketTypes.table.forexExample') }}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -421,36 +414,30 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Basic Trading Concepts -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Basic Trading Concepts</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.tradingBasics.basicConcepts.title') }}</h3>
                       <div class="grid md:grid-cols-2 gap-4 mb-6">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Buying vs. Selling</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.tradingBasics.basicConcepts.buyingSelling.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>Buying (Going Long):</strong> You buy an asset hoping its price will go up, so you can sell it later for a profit.<br><br>
-                            <strong>Selling (Going Short):</strong> You sell an asset you think will drop in price, hoping to buy it back cheaper later.
+                            {{ t('tutorial.tradingBasics.basicConcepts.buyingSelling.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Price Movements</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.tradingBasics.basicConcepts.priceMovements.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <span class="text-green-400">Green numbers</span> mean price is going up.<br>
-                            <span class="text-red-400">Red numbers</span> mean price is going down.<br><br>
-                            Prices change based on how many people are buying and selling.
+                            {{ t('tutorial.tradingBasics.basicConcepts.priceMovements.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Order Types</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.tradingBasics.basicConcepts.orderTypes.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>Market Order:</strong> Buy or sell right now at the current price.<br><br>
-                            <strong>Limit Order:</strong> Set a specific price you want to buy or sell at. The order will only execute if the market reaches that price.
+                            {{ t('tutorial.tradingBasics.basicConcepts.orderTypes.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Risk Management</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.tradingBasics.basicConcepts.riskManagement.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>Start small:</strong> Begin with amounts you can afford to lose.<br><br>
-                            <strong>Diversify:</strong> Don't put all your money in one asset.<br><br>
-                            <strong>Stop-loss:</strong> Set a price where your position automatically closes to limit losses.
+                            {{ t('tutorial.tradingBasics.basicConcepts.riskManagement.description') }}
                           </p>
                         </div>
                       </div>
@@ -458,47 +445,47 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Understanding Profit and Loss -->
                     <div class="bg-white/5 p-5 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Understanding Profit and Loss</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.tradingBasics.profitLoss.title') }}</h3>
                       <div class="flex flex-col md:flex-row gap-4">
                         <div class="bg-white/10 p-4 rounded-lg md:w-1/2">
-                          <h4 class="font-medium text-green-400 mb-2">Example: Making a Profit</h4>
-                          <p class="text-gray-300 text-sm mb-2">You buy 1 share of a company for $100</p>
-                          <p class="text-gray-300 text-sm mb-2">The price rises to $120</p>
-                          <p class="text-gray-300 text-sm mb-2">You sell your share</p>
-                          <p class="text-white font-medium">Your profit: $20 (20% return)</p>
+                          <h4 class="font-medium text-green-400 mb-2">{{ t('tutorial.tradingBasics.profitLoss.profitExample.title') }}</h4>
+                          <p class="text-gray-300 text-sm mb-2">{{ t('tutorial.tradingBasics.profitLoss.profitExample.step1') }}</p>
+                          <p class="text-gray-300 text-sm mb-2">{{ t('tutorial.tradingBasics.profitLoss.profitExample.step2') }}</p>
+                          <p class="text-gray-300 text-sm mb-2">{{ t('tutorial.tradingBasics.profitLoss.profitExample.step3') }}</p>
+                          <p class="text-white font-medium">{{ t('tutorial.tradingBasics.profitLoss.profitExample.result') }}</p>
                         </div>
                         <div class="bg-white/10 p-4 rounded-lg md:w-1/2">
-                          <h4 class="font-medium text-red-400 mb-2">Example: Taking a Loss</h4>
-                          <p class="text-gray-300 text-sm mb-2">You buy 1 share of a company for $100</p>
-                          <p class="text-gray-300 text-sm mb-2">The price falls to $80</p>
-                          <p class="text-gray-300 text-sm mb-2">You sell your share</p>
-                          <p class="text-white font-medium">Your loss: $20 (20% loss)</p>
+                          <h4 class="font-medium text-red-400 mb-2">{{ t('tutorial.tradingBasics.profitLoss.lossExample.title') }}</h4>
+                          <p class="text-gray-300 text-sm mb-2">{{ t('tutorial.tradingBasics.profitLoss.lossExample.step1') }}</p>
+                          <p class="text-gray-300 text-sm mb-2">{{ t('tutorial.tradingBasics.profitLoss.lossExample.step2') }}</p>
+                          <p class="text-gray-300 text-sm mb-2">{{ t('tutorial.tradingBasics.profitLoss.lossExample.step3') }}</p>
+                          <p class="text-white font-medium">{{ t('tutorial.tradingBasics.profitLoss.lossExample.result') }}</p>
                         </div>
                       </div>
                       <p class="text-gray-300 mt-4">
-                        Remember: All investments involve risk. Prices can go up or down, and you might get back less than you put in.
+                        {{ t('tutorial.tradingBasics.profitLoss.reminder') }}
                       </p>
                     </div>
                     
                     <!-- Beginner's FAQ -->
                     <div class="bg-green-500/10 border-l-4 border-green-400 p-4 rounded-lg">
-                      <h4 class="text-lg font-medium mb-2 text-white">Beginner's FAQ</h4>
+                      <h4 class="text-lg font-medium mb-2 text-white">{{ t('tutorial.tradingBasics.faq.title') }}</h4>
                       <div class="space-y-3">
                         <div>
-                          <p class="text-white font-medium">How much money do I need to start?</p>
-                          <p class="text-gray-300">You can start with as little as $10 on TradeBlazer.</p>
+                          <p class="text-white font-medium">{{ t('tutorial.tradingBasics.faq.question1.title') }}</p>
+                          <p class="text-gray-300">{{ t('tutorial.tradingBasics.faq.question1.answer') }}</p>
                         </div>
                         <div>
-                          <p class="text-white font-medium">How do I know which assets to buy?</p>
-                          <p class="text-gray-300">Research companies you understand or use our "Recommended for Beginners" section.</p>
+                          <p class="text-white font-medium">{{ t('tutorial.tradingBasics.faq.question2.title') }}</p>
+                          <p class="text-gray-300">{{ t('tutorial.tradingBasics.faq.question2.answer') }}</p>
                         </div>
                         <div>
-                          <p class="text-white font-medium">Is it risky to trade?</p>
-                          <p class="text-gray-300">Yes, all trading carries risk. Never invest more than you can afford to lose.</p>
+                          <p class="text-white font-medium">{{ t('tutorial.tradingBasics.faq.question3.title') }}</p>
+                          <p class="text-gray-300">{{ t('tutorial.tradingBasics.faq.question3.answer') }}</p>
                         </div>
                         <div>
-                          <p class="text-white font-medium">How quickly can I withdraw my money?</p>
-                          <p class="text-gray-300">Most withdrawals process within 1-3 business days.</p>
+                          <p class="text-white font-medium">{{ t('tutorial.tradingBasics.faq.question4.title') }}</p>
+                          <p class="text-gray-300">{{ t('tutorial.tradingBasics.faq.question4.answer') }}</p>
                         </div>
                       </div>
                     </div>
@@ -516,35 +503,28 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="chart-line" class="text-green-400" />
-                    Advanced Trading Tools
+                    {{ t('tutorial.advancedTools.title') }}
                   </h2>
                   
                   <div class="space-y-6">
                     <p class="text-gray-300 mb-6">
-                      Once you're comfortable with the basics, these advanced tools can help you make better trading decisions.
-                      Don't worry if they seem complicated at first - you can learn about them step by step!
+                      {{ t('tutorial.advancedTools.description') }}
                     </p>
                     
                     <!-- Technical Indicators Explained Simply -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Chart Tools Explained Simply</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.advancedTools.chartTools.title') }}</h3>
                       <div class="grid md:grid-cols-2 gap-4 mb-4">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Moving Averages</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.advancedTools.chartTools.movingAverages.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>What it is:</strong> A line showing the average price over time<br><br>
-                            <strong>How to use it:</strong> When price goes above the line, it might be a good time to buy. 
-                            When it goes below, it might be time to sell.<br><br>
-                            <strong>Like:</strong> Looking at the average temperature for the last 14 days to predict tomorrow's weather
+                            {{ t('tutorial.advancedTools.chartTools.movingAverages.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">RSI (Relative Strength Index)</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.advancedTools.chartTools.rsi.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>What it is:</strong> A tool that shows if an asset might be overbought (too expensive) or oversold (too cheap)<br><br>
-                            <strong>How to use it:</strong> When RSI is above 70, the asset might be overpriced and due for a drop. 
-                            When below 30, it might be underpriced and due for a rise.<br><br>
-                            <strong>Like:</strong> A car's speedometer warning you when you're going too fast
+                            {{ t('tutorial.advancedTools.chartTools.rsi.description') }}
                           </p>
                         </div>
                       </div>
@@ -552,16 +532,15 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Simplified Chart Patterns -->
                     <div class="bg-white/5 p-6 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Chart Patterns for Beginners</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.advancedTools.chartPatterns.title') }}</h3>
                       <p class="text-gray-300 mb-4">
-                        Chart patterns are shapes that appear in price charts that might help predict future movements.
-                        Think of them like weather patterns that might help forecast what's coming next.
+                        {{ t('tutorial.advancedTools.chartPatterns.description') }}
                       </p>
                       <div class="grid md:grid-cols-2 gap-6">
                         <div>
-                          <h4 class="font-medium text-white mb-2">Uptrend (Bullish)</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.advancedTools.chartPatterns.uptrend.title') }}</h4>
                           <p class="text-sm text-gray-400 mb-2">
-                            A series of higher highs and higher lows. Like climbing up stairs - each step is higher than the last.
+                            {{ t('tutorial.advancedTools.chartPatterns.uptrend.description') }}
                           </p>
                           <div class="h-20 bg-white/10 rounded-lg relative overflow-hidden">
                             <div class="absolute inset-0 flex items-center">
@@ -572,9 +551,9 @@ const setActiveSection = (section: string) => {
                           </div>
                         </div>
                         <div>
-                          <h4 class="font-medium text-white mb-2">Downtrend (Bearish)</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.advancedTools.chartPatterns.downtrend.title') }}</h4>
                           <p class="text-sm text-gray-400 mb-2">
-                            A series of lower highs and lower lows. Like walking down stairs - each step is lower than the last.
+                            {{ t('tutorial.advancedTools.chartPatterns.downtrend.description') }}
                           </p>
                           <div class="h-20 bg-white/10 rounded-lg relative overflow-hidden">
                             <div class="absolute inset-0 flex items-center">
@@ -589,22 +568,18 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Order Types for Beginners -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Helpful Order Types</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.advancedTools.orderTypes.title') }}</h3>
                       <div class="grid md:grid-cols-2 gap-4 mb-4">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Stop Loss</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.advancedTools.orderTypes.stopLoss.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>What it does:</strong> Automatically sells your asset if the price falls to a level you set<br><br>
-                            <strong>Why use it:</strong> Protects you from big losses if the market moves against you<br><br>
-                            <strong>Like:</strong> An insurance policy for your trades
+                            {{ t('tutorial.advancedTools.orderTypes.stopLoss.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Take Profit</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.advancedTools.orderTypes.takeProfit.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            <strong>What it does:</strong> Automatically sells your asset when it reaches a profit target you set<br><br>
-                            <strong>Why use it:</strong> Locks in your profits without you having to watch the market constantly<br><br>
-                            <strong>Like:</strong> Having a finish line for your race
+                            {{ t('tutorial.advancedTools.orderTypes.takeProfit.description') }}
                           </p>
                         </div>
                       </div>
@@ -612,13 +587,13 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Beginner-Friendly Tips -->
                     <div class="bg-green-500/10 border-l-4 border-green-400 p-4 rounded-lg">
-                      <h4 class="text-lg font-medium mb-2 text-white">Tips for Using Advanced Tools</h4>
+                      <h4 class="text-lg font-medium mb-2 text-white">{{ t('tutorial.advancedTools.tips.title') }}</h4>
                       <ul class="list-disc list-inside text-gray-300 space-y-2">
-                        <li>Start with just one or two simple tools - don't overwhelm yourself</li>
-                        <li>Practice using these tools with paper trading (no real money) first</li>
-                        <li>Remember that no tool can predict the future with 100% accuracy</li>
-                        <li>Use our tutorial videos to see these tools in action</li>
-                        <li>Join our community forum to learn how other beginners are using these tools</li>
+                        <li>{{ t('tutorial.advancedTools.tips.tip1') }}</li>
+                        <li>{{ t('tutorial.advancedTools.tips.tip2') }}</li>
+                        <li>{{ t('tutorial.advancedTools.tips.tip3') }}</li>
+                        <li>{{ t('tutorial.advancedTools.tips.tip4') }}</li>
+                        <li>{{ t('tutorial.advancedTools.tips.tip5') }}</li>
                       </ul>
                     </div>
                   </div>
@@ -635,79 +610,74 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="wallet" class="text-green-400" />
-                    Managing Your Investments
+                    {{ t('tutorial.portfolioManagement.title') }}
                   </h2>
                   
                   <div class="space-y-6">
                     <p class="text-gray-300 mb-6">
-                      Portfolio management is simply how you organize and look after all your investments.
-                      Think of it like tending a garden - you need to plant different things, maintain them, and sometimes make changes.
+                      {{ t('tutorial.portfolioManagement.description') }}
                     </p>
                     
                     <!-- Don't Put All Eggs in One Basket -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Spreading Your Money (Diversification)</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.portfolioManagement.diversification.title') }}</h3>
                       <div class="bg-white/5 p-4 rounded-lg border border-white/10 mb-4">
-                        <h4 class="font-medium text-white mb-3">Don't Put All Your Eggs in One Basket</h4>
+                        <h4 class="font-medium text-white mb-3">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.title') }}</h4>
                         <div class="grid grid-cols-3 gap-3 mb-4">
                           <div class="h-24 relative rounded-lg overflow-hidden bg-gradient-to-b from-blue-500/30 to-blue-600/30 border border-blue-400/20">
                             <div class="absolute inset-0 flex items-center justify-center">
                               <div class="text-center">
-                                <p class="text-xs text-gray-300">Stocks</p>
-                                <p class="text-lg font-bold text-white">40%</p>
+                                <p class="text-xs text-gray-300">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.stocks') }}</p>
+                                <p class="text-lg font-bold text-white">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.stocksPercentage') }}</p>
                               </div>
                             </div>
                           </div>
                           <div class="h-24 relative rounded-lg overflow-hidden bg-gradient-to-b from-green-500/30 to-green-600/30 border border-green-400/20">
                             <div class="absolute inset-0 flex items-center justify-center">
                               <div class="text-center">
-                                <p class="text-xs text-gray-300">Safer Investments</p>
-                                <p class="text-lg font-bold text-white">40%</p>
+                                <p class="text-xs text-gray-300">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.saferInvestments') }}</p>
+                                <p class="text-lg font-bold text-white">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.saferInvestmentsPercentage') }}</p>
                               </div>
                             </div>
                           </div>
                           <div class="h-24 relative rounded-lg overflow-hidden bg-gradient-to-b from-yellow-500/30 to-yellow-600/30 border border-yellow-400/20">
                             <div class="absolute inset-0 flex items-center justify-center">
                               <div class="text-center">
-                                <p class="text-xs text-gray-300">New Opportunities</p>
-                                <p class="text-lg font-bold text-white">20%</p>
+                                <p class="text-xs text-gray-300">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.newOpportunities') }}</p>
+                                <p class="text-lg font-bold text-white">{{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.newOpportunitiesPercentage') }}</p>
                               </div>
                             </div>
                           </div>
                         </div>
                         <p class="text-sm text-gray-400">
-                          Spreading your money across different types of investments helps protect you if one area performs poorly.
-                          It's like not wearing all your warm clothes on one day - you need some for other days too!
+                          {{ t('tutorial.portfolioManagement.diversification.dontPutAllEggs.description') }}
                         </p>
                       </div>
                     </div>
                     
                     <!-- Risk Explained Simply -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Understanding Risk</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.portfolioManagement.risk.title') }}</h3>
                       <div class="grid md:grid-cols-3 gap-4 mb-4">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Low Risk</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.portfolioManagement.risk.lowRisk.title') }}</h4>
                           <div class="bg-blue-500/20 h-4 rounded-full mb-2"></div>
                           <p class="text-sm text-gray-400">
-                            Safer investments with steady but smaller returns. 
-                            Like taking a slow but reliable bus.
+                            {{ t('tutorial.portfolioManagement.risk.lowRisk.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Medium Risk</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.portfolioManagement.risk.mediumRisk.title') }}</h4>
                           <div class="bg-yellow-500/20 h-4 rounded-full mb-2"></div>
                           <p class="text-sm text-gray-400">
-                            Balanced investments with moderate growth potential.
-                            Like riding a bike - faster than walking but still controlled.
+                            {{ t('tutorial.portfolioManagement.risk.mediumRisk.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">High Risk</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.portfolioManagement.risk.highRisk.title') }}</h4>
                           <div class="bg-red-500/20 h-4 rounded-full mb-2"></div>
                           <p class="text-sm text-gray-400">
-                            More volatile investments with bigger potential gains or losses.
-                            Like riding a rollercoaster - thrilling but not for everyone.
+                            {{ t('tutorial.portfolioManagement.risk.highRisk.description') }}
                           </p>
                         </div>
                       </div>
@@ -715,32 +685,32 @@ const setActiveSection = (section: string) => {
                     
                     <!-- When to Change Your Portfolio -->
                     <div class="bg-white/5 p-6 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-3 text-green-400">When to Make Changes</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.portfolioManagement.whenToChange.title') }}</h3>
                       <div class="space-y-4">
                         <div class="flex items-start gap-3">
                           <font-awesome-icon icon="calendar-days" class="text-green-400 mt-1" />
                           <div>
-                            <h4 class="font-medium text-white">Regular Check-ups</h4>
+                            <h4 class="font-medium text-white">{{ t('tutorial.portfolioManagement.whenToChange.regularCheckups.title') }}</h4>
                             <p class="text-sm text-gray-400">
-                              Look at your investments every 3-6 months, like getting a regular health check-up
+                              {{ t('tutorial.portfolioManagement.whenToChange.regularCheckups.description') }}
                             </p>
                           </div>
                         </div>
                         <div class="flex items-start gap-3">
                           <font-awesome-icon icon="life-ring" class="text-green-400 mt-1" />
                           <div>
-                            <h4 class="font-medium text-white">Life Changes</h4>
+                            <h4 class="font-medium text-white">{{ t('tutorial.portfolioManagement.whenToChange.lifeChanges.title') }}</h4>
                             <p class="text-sm text-gray-400">
-                              Major life events (marriage, new job, retirement) might mean you need to adjust your investment strategy
+                              {{ t('tutorial.portfolioManagement.whenToChange.lifeChanges.description') }}
                             </p>
                           </div>
                         </div>
                         <div class="flex items-start gap-3">
                           <font-awesome-icon icon="scale-balanced" class="text-green-400 mt-1" />
                           <div>
-                            <h4 class="font-medium text-white">Rebalancing</h4>
+                            <h4 class="font-medium text-white">{{ t('tutorial.portfolioManagement.whenToChange.rebalancing.title') }}</h4>
                             <p class="text-sm text-gray-400">
-                              If one type of investment grows a lot, you might need to sell some and buy others to maintain your balance
+                              {{ t('tutorial.portfolioManagement.whenToChange.rebalancing.description') }}
                             </p>
                           </div>
                         </div>
@@ -749,13 +719,13 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Beginner Portfolio Tips -->
                     <div class="bg-green-500/10 border-l-4 border-green-400 p-4 rounded-lg">
-                      <h4 class="text-lg font-medium mb-2 text-white">Tips for Beginners</h4>
+                      <h4 class="text-lg font-medium mb-2 text-white">{{ t('tutorial.portfolioManagement.tips.title') }}</h4>
                       <ul class="list-disc list-inside text-gray-300 space-y-2">
-                        <li>Start with investments you understand - don't buy what you don't know</li>
-                        <li>Think long-term rather than trying to make quick profits</li>
-                        <li>Invest regularly in small amounts rather than all at once</li>
-                        <li>Keep some money in cash for emergencies</li>
-                        <li>Remember that past performance doesn't guarantee future results</li>
+                        <li>{{ t('tutorial.portfolioManagement.tips.tip1') }}</li>
+                        <li>{{ t('tutorial.portfolioManagement.tips.tip2') }}</li>
+                        <li>{{ t('tutorial.portfolioManagement.tips.tip3') }}</li>
+                        <li>{{ t('tutorial.portfolioManagement.tips.tip4') }}</li>
+                        <li>{{ t('tutorial.portfolioManagement.tips.tip5') }}</li>
                       </ul>
                     </div>
                   </div>
@@ -772,70 +742,69 @@ const setActiveSection = (section: string) => {
                 <div class="panel-inner">
                   <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
                     <font-awesome-icon icon="chart-pie" class="text-green-400" />
-                    Understanding the Market
+                    {{ t('tutorial.marketAnalysis.title') }}
                   </h2>
                   
                   <div class="space-y-6">
                     <p class="text-gray-300 mb-6">
-                      Market analysis is simply looking at information to decide whether to buy, sell, or hold investments.
-                      Think of it like checking the weather forecast before deciding what to wear.
+                      {{ t('tutorial.marketAnalysis.description') }}
                     </p>
                     
                     <!-- Two Main Ways to Analyze -->
                     <div class="grid md:grid-cols-2 gap-6 mb-6">
                       <div class="bg-white/5 p-4 rounded-lg border border-white/10">
                         <div class="flex justify-between items-start mb-3">
-                          <h3 class="text-lg font-medium text-green-400">Looking at Companies</h3>
+                          <h3 class="text-lg font-medium text-green-400">{{ t('tutorial.marketAnalysis.twoWays.fundamental.title') }}</h3>
                           <font-awesome-icon icon="building" class="text-green-400" />
                         </div>
                         <p class="text-sm text-gray-400 mb-3">
-                          Fundamental analysis means looking at the company itself - its finances, products, management, and growth.
+                          {{ t('tutorial.marketAnalysis.twoWays.fundamental.description') }}
                         </p>
                         <p class="text-sm text-gray-400">
-                          <strong>Like:</strong> Checking a car's engine, history, and condition before buying
+                          {{ t('tutorial.marketAnalysis.twoWays.fundamental.like') }}
                         </p>
                       </div>
                       
                       <div class="bg-white/5 p-4 rounded-lg border border-white/10">
                         <div class="flex justify-between items-start mb-3">
-                          <h3 class="text-lg font-medium text-green-400">Looking at Charts</h3>
+                          <h3 class="text-lg font-medium text-green-400">{{ t('tutorial.marketAnalysis.twoWays.technical.title') }}</h3>
                           <font-awesome-icon icon="chart-line" class="text-green-400" />
                         </div>
                         <p class="text-sm text-gray-400 mb-3">
-                          Technical analysis means looking at price charts and patterns to predict future movements.
+                          {{ t('tutorial.marketAnalysis.twoWays.technical.description') }}
                         </p>
                         <p class="text-sm text-gray-400">
-                          <strong>Like:</strong> Looking at a car's speed history to predict how fast it will go
+                          {{ t('tutorial.marketAnalysis.twoWays.technical.like') }}
                         </p>
                       </div>
                     </div>
                     
                     <!-- Simple Indicators Anyone Can Use -->
                     <div>
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Simple Things to Watch</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.marketAnalysis.simpleIndicators.title') }}</h3>
                       <div class="grid md:grid-cols-2 gap-4 mb-4">
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Company News</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.marketAnalysis.simpleIndicators.companyNews.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Big announcements like new products, partnerships, or leadership changes can affect price
+                            {{ t('tutorial.marketAnalysis.simpleIndicators.companyNews.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Trading Volume</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.marketAnalysis.simpleIndicators.tradingVolume.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            How many shares are being bought and sold - higher volume often means something important is happening
+                            {{ t('tutorial.marketAnalysis.simpleIndicators.tradingVolume.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Overall Market Trends</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.marketAnalysis.simpleIndicators.marketTrends.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Most stocks move in the same direction as the overall market ("a rising tide lifts all boats")
+                            {{ t('tutorial.marketAnalysis.simpleIndicators.marketTrends.description') }}
                           </p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                          <h4 class="font-medium text-white mb-2">Industry Changes</h4>
+                          <h4 class="font-medium text-white mb-2">{{ t('tutorial.marketAnalysis.simpleIndicators.industryChanges.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            News affecting an entire industry (like new regulations) will affect all companies in that sector
+                            {{ t('tutorial.marketAnalysis.simpleIndicators.industryChanges.description') }}
                           </p>
                         </div>
                       </div>
@@ -843,30 +812,30 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Market Analysis Framework -->
                     <div class="bg-white/5 p-6 rounded-lg border border-white/10">
-                      <h3 class="text-lg font-medium mb-3 text-green-400">Simple Steps to Analyze</h3>
+                      <h3 class="text-lg font-medium mb-3 text-green-400">{{ t('tutorial.marketAnalysis.framework.title') }}</h3>
                       <div class="space-y-4">
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-1">Step 1: What's the Big Picture?</h4>
+                          <h4 class="font-medium text-white mb-1">{{ t('tutorial.marketAnalysis.framework.step1.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Look at the overall economy and market direction - are things generally going up or down?
+                            {{ t('tutorial.marketAnalysis.framework.step1.description') }}
                           </p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-1">Step 2: How's the Industry Doing?</h4>
+                          <h4 class="font-medium text-white mb-1">{{ t('tutorial.marketAnalysis.framework.step2.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Is this type of business generally doing well right now?
+                            {{ t('tutorial.marketAnalysis.framework.step2.description') }}
                           </p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-1">Step 3: Is This Specific Investment Good?</h4>
+                          <h4 class="font-medium text-white mb-1">{{ t('tutorial.marketAnalysis.framework.step3.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Now look at the specific stock, cryptocurrency, or currency pair you're interested in
+                            {{ t('tutorial.marketAnalysis.framework.step3.description') }}
                           </p>
                         </div>
                         <div class="bg-white/10 p-3 rounded-lg">
-                          <h4 class="font-medium text-white mb-1">Step 4: What's Your Time Frame?</h4>
+                          <h4 class="font-medium text-white mb-1">{{ t('tutorial.marketAnalysis.framework.step4.title') }}</h4>
                           <p class="text-sm text-gray-400">
-                            Are you investing for days, months, or years? This affects what type of analysis matters most
+                            {{ t('tutorial.marketAnalysis.framework.step4.description') }}
                           </p>
                         </div>
                       </div>
@@ -874,16 +843,16 @@ const setActiveSection = (section: string) => {
                     
                     <!-- Common Beginner Mistakes -->
                     <div class="bg-green-500/10 border-l-4 border-green-400 p-4 rounded-lg">
-                      <h4 class="text-lg font-medium mb-2 text-white">Common Beginner Mistakes</h4>
+                      <h4 class="text-lg font-medium mb-2 text-white">{{ t('tutorial.marketAnalysis.mistakes.title') }}</h4>
                       <ul class="list-disc list-inside text-gray-300 space-y-2">
-                        <li>Following random tips without doing your own research</li>
-                        <li>Focusing only on price without understanding why it's changing</li>
-                        <li>Getting emotionally attached to investments</li>
-                        <li>Trying to time the market perfectly (almost impossible!)</li>
-                        <li>Forgetting that past performance doesn't guarantee future results</li>
+                        <li>{{ t('tutorial.marketAnalysis.mistakes.mistake1') }}</li>
+                        <li>{{ t('tutorial.marketAnalysis.mistakes.mistake2') }}</li>
+                        <li>{{ t('tutorial.marketAnalysis.mistakes.mistake3') }}</li>
+                        <li>{{ t('tutorial.marketAnalysis.mistakes.mistake4') }}</li>
+                        <li>{{ t('tutorial.marketAnalysis.mistakes.mistake5') }}</li>
                       </ul>
                       <p class="mt-3 text-gray-300">
-                        Remember: Even professional analysts get things wrong. The market can be unpredictable!
+                        {{ t('tutorial.marketAnalysis.mistakes.reminder') }}
                       </p>
                     </div>
                   </div>

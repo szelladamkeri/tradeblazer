@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useUserStore } from './stores/userStore'
+import i18n from './i18n'
 
 /* Import FontAwesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -73,6 +74,8 @@ import {
   faSpinner,
   faArrowRight,
   faBell,
+  faLanguage,
+  faFlag
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -139,6 +142,8 @@ library.add(
   faSpinner,
   faArrowRight,
   faBell,
+  faLanguage,
+  faFlag
 )
 
 const app = createApp(App)
@@ -149,6 +154,7 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.use(pinia)
 app.use(router)
+app.use(i18n)
 
 const userStore = useUserStore()
 userStore.initializeFromStorage()

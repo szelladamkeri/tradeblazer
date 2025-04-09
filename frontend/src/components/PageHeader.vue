@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import HeaderLink from './HeaderLink.vue'
 import { useUserStore } from '@/stores/userStore'
+import { useLanguageStore } from '@/stores/languageStore'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useI18n } from 'vue-i18n'
 
 const userStore = useUserStore()
+const languageStore = useLanguageStore()
 const router = useRouter()
+const { t, locale } = useI18n()
 const isMenuOpen = ref(false)
 
 const handleSignOut = () => {
@@ -169,6 +173,34 @@ const closeSearchResultsOnClickOutside = (event: MouseEvent) => {
   }
 }
 
+// Change language function
+const changeLanguage = (lang: string) => {
+  console.log('Changing language to:', lang)
+  languageStore.setLanguage(lang)
+  locale.value = lang
+  showLanguageDropdown.value = false
+}
+
+// Set up language dropdown
+const showLanguageDropdown = ref(false)
+const languageDropdownRef = ref<HTMLDivElement | null>(null)
+
+const toggleLanguageDropdown = () => {
+  showLanguageDropdown.value = !showLanguageDropdown.value
+  console.log('Language dropdown toggled:', showLanguageDropdown.value)
+}
+
+const closeLanguageDropdown = () => {
+  showLanguageDropdown.value = false
+}
+
+// Close language dropdown when clicking outside
+const closeLanguageDropdownOnClickOutside = (event: MouseEvent) => {
+  if (languageDropdownRef.value && !languageDropdownRef.value.contains(event.target as Node)) {
+    closeLanguageDropdown()
+  }
+}
+
 onMounted(async () => {
   if (userStore.isAuthenticated) {
     await userStore.checkAvatar()
@@ -176,12 +208,17 @@ onMounted(async () => {
   window.addEventListener('resize', updateMenuOnResize)
   document.addEventListener('click', closeDropdownOnClickOutside)
   document.addEventListener('click', closeSearchResultsOnClickOutside)
+  document.addEventListener('click', closeLanguageDropdownOnClickOutside)
+
+  // Set initial language from store
+  locale.value = languageStore.currentLanguage
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateMenuOnResize)
   document.removeEventListener('click', closeDropdownOnClickOutside)
   document.removeEventListener('click', closeSearchResultsOnClickOutside)
+  document.removeEventListener('click', closeLanguageDropdownOnClickOutside)
 })
 
 // Add a debug computed property to help troubleshoot
@@ -321,7 +358,7 @@ const handleMouseMove = (event: MouseEvent) => {
                   <template #icon>
                     <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
                       <font-awesome-icon icon="chart-line" class="mr-2" />
-                      <span>Dashboard</span>
+                      <span>{{ t('navigation.dashboard') }}</span>
                     </router-link>
                   </template>
                 </HeaderLink>
@@ -330,7 +367,17 @@ const handleMouseMove = (event: MouseEvent) => {
                   <template #icon>
                     <router-link to="/markets" class="text-gray-300 hover:text-green-400 flex items-center">
                       <font-awesome-icon icon="chart-pie" class="mr-2" />
-                      <span>Markets</span>
+                      <span>{{ t('navigation.markets') }}</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
+                <!-- Add Tutorial Link -->
+                <HeaderLink>
+                  <template #icon>
+                    <router-link to="/tutorial" class="text-gray-300 hover:text-green-400 flex items-center">
+                      <font-awesome-icon icon="graduation-cap" class="mr-2" />
+                      <span>{{ t('navigation.tutorial') }}</span>
                     </router-link>
                   </template>
                 </HeaderLink>
@@ -340,7 +387,7 @@ const handleMouseMove = (event: MouseEvent) => {
                     <template #icon>
                       <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 flex items-center">
                         <font-awesome-icon icon="wallet" class="mr-2" />
-                        <span>Portfolio</span>
+                        <span>{{ t('navigation.portfolio') }}</span>
                       </router-link>
                     </template>
                   </HeaderLink>
@@ -364,11 +411,45 @@ const handleMouseMove = (event: MouseEvent) => {
                     <template #icon>
                       <router-link to="/login" class="text-gray-300 hover:text-green-400 flex items-center">
                         <font-awesome-icon icon="right-to-bracket" class="mr-2" />
-                        <span>Login</span>
+                        <span>{{ t('navigation.login') }}</span>
                       </router-link>
                     </template>
                   </HeaderLink>
                 </template>
+
+                <!-- Add Language Selector -->
+                <div class="relative ml-1" ref="languageDropdownRef">
+                  <button @click="toggleLanguageDropdown" type="button" :class="[
+                    'flex items-center px-3 py-2 rounded-lg transition-all duration-200',
+                    showLanguageDropdown ? 'bg-green-500/20 text-green-400' : 'text-gray-300 hover:bg-white/10 hover:text-green-400'
+                  ]">
+                    <font-awesome-icon icon="language" class="mr-2" />
+                    <span class="text-sm">{{ languageStore.currentLanguage.toUpperCase() }}</span>
+                  </button>
+
+                  <!-- Language Dropdown -->
+                  <div v-show="showLanguageDropdown"
+                    class="absolute right-0 top-full mt-2 w-40 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
+                    <!-- Connecting triangle -->
+                    <div
+                      class="absolute -top-2 right-4 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
+                    </div>
+
+                    <button @click="changeLanguage('en')" type="button"
+                      class="w-full text-left px-4 py-2 hover:bg-white/10 transition-all duration-200 flex items-center"
+                      :class="languageStore.currentLanguage === 'en' ? 'text-green-400' : 'text-gray-300 hover:text-green-400'">
+                      <span class="mr-2">🇺🇸</span>
+                      <span>English</span>
+                    </button>
+
+                    <button @click="changeLanguage('hu')" type="button"
+                      class="w-full text-left px-4 py-2 hover:bg-white/10 transition-all duration-200 flex items-center"
+                      :class="languageStore.currentLanguage === 'hu' ? 'text-green-400' : 'text-gray-300 hover:text-green-400'">
+                      <span class="mr-2">🇭🇺</span>
+                      <span>Magyar</span>
+                    </button>
+                  </div>
+                </div>
               </nav>
 
               <!-- User Profile Section -->
@@ -519,7 +600,7 @@ const handleMouseMove = (event: MouseEvent) => {
                       class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
                       :class="$route.path === '/' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
                       <font-awesome-icon icon="chart-line" class="text-lg mr-3" />
-                      <span class="font-medium">Dashboard</span>
+                      <span class="font-medium">{{ t('navigation.dashboard') }}</span>
                     </router-link>
                   </template>
                 </HeaderLink>
@@ -530,7 +611,19 @@ const handleMouseMove = (event: MouseEvent) => {
                       class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
                       :class="$route.path.startsWith('/markets') ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
                       <font-awesome-icon icon="chart-pie" class="text-lg mr-3" />
-                      <span class="font-medium">Markets</span>
+                      <span class="font-medium">{{ t('navigation.markets') }}</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
+                <!-- Add Tutorial Link to mobile menu -->
+                <HeaderLink @click="closeMenu">
+                  <template #icon>
+                    <router-link to="/tutorial"
+                      class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                      :class="$route.path === '/tutorial' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                      <font-awesome-icon icon="graduation-cap" class="text-lg mr-3" />
+                      <span class="font-medium">{{ t('navigation.tutorial') }}</span>
                     </router-link>
                   </template>
                 </HeaderLink>
@@ -605,6 +698,25 @@ const handleMouseMove = (event: MouseEvent) => {
                     </template>
                   </HeaderLink>
                 </template>
+
+                <!-- Add language selector to mobile menu -->
+                <div class="mt-4 pt-4 border-t border-white/10">
+                  <div class="text-sm text-gray-400 mb-2 px-3">Language / Nyelv</div>
+                  <div class="flex space-x-2 px-3">
+                    <button @click="changeLanguage('en'); closeMenu();"
+                      class="flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                      :class="languageStore.currentLanguage === 'en' ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-gray-300'">
+                      <span>🇺🇸</span>
+                      <span>English</span>
+                    </button>
+                    <button @click="changeLanguage('hu'); closeMenu();"
+                      class="flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                      :class="languageStore.currentLanguage === 'hu' ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-gray-300'">
+                      <span>🇭🇺</span>
+                      <span>Magyar</span>
+                    </button>
+                  </div>
+                </div>
               </nav>
             </div>
 
@@ -661,7 +773,8 @@ h3 {
   border: 1px solid rgba(74, 222, 128, 0.08);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
   border-radius: 0.75rem;
-  overflow: hidden;
+  overflow: visible !important;
+  /* IMPORTANT: Change this from 'hidden' to 'visible' */
 }
 
 /* Remove all conflicting background/border styles from header element */
@@ -845,15 +958,6 @@ nav {
   overflow: visible !important;
 }
 
-/* Remove conflicting z-index utilities */
-.z-\[50\],
-.z-\[51\],
-.z-\[52\],
-.z-\[60\],
-.z-\[70\] {
-  z-index: unset !important;
-}
-
 /* Add z-index for dropdown */
 .z-50 {
   z-index: 50;
@@ -878,6 +982,19 @@ nav {
 .z-\[101\],
 .z-\[102\] {
   z-index: unset;
+}
+
+/* Ensure language dropdown is visible */
+div[v-show="showLanguageDropdown"] {
+  z-index: 9999 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Fix language dropdown parent positioning */
+[ref="languageDropdownRef"] {
+  position: relative !important;
+  overflow: visible !important;
 }
 
 /* Add background color for .bg-black */
@@ -940,8 +1057,10 @@ button:hover {
 }
 
 /* Override any remaining hover:bg classes */
-[class*='hover:bg'] {
-  @apply hover:bg-transparent !important;
+.mobile-nav-item,
+:deep(a),
+:deep(button) {
+  @apply hover:bg-white/5 !important;
 }
 
 /* Keep text color transitions */
@@ -1596,5 +1715,67 @@ button:hover,
 /* Remove any conflicting hover:bg overrides */
 [class*='hover:bg'] {
   @apply hover:bg-white/10;
-}
-</style>
+
+  /* Fix all dropdowns - ensure they're visible */
+  .page-header {
+    overflow: visible !important;
+  }
+
+  /* Highest z-index for dropdowns - but don't force visibility */
+  div[v-show="showLanguageDropdown"],
+  div[v-show="showProfileDropdown"] {
+    z-index: 9999 !important;
+    position: absolute !important;
+    pointer-events: auto !important;
+    /* Remove these lines that force visibility:
+  visibility: visible !important;
+  display: block !important;
+  */
+  }
+
+  /* Explicitly set position and overflow for dropdown containers */
+  [ref="languageDropdownRef"],
+  [ref="dropdownRef"] {
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  /* Fix z-index classes with !important to prevent overrides */
+  .z-\[50\] {
+    z-index: 50 !important;
+  }
+
+  .z-\[60\] {
+    z-index: 60 !important;
+  }
+
+  .z-\[70\] {
+    z-index: 70 !important;
+  }
+
+  /* Modify language dropdown styling - don't force display */
+  .absolute.right-0.top-full {
+    position: absolute !important;
+    right: 0 !important;
+    top: 100% !important;
+    z-index: 9999 !important;
+    /* Remove this line:
+  display: block !important;
+  */
+  }
+
+  /* Remove any parent elements that might clip the dropdown */
+  .page-header-wrapper,
+  .component-global-wrapper,
+  header,
+  .content-container,
+  nav {
+    overflow: visible !important;
+  }
+
+  /* Make dropdown elements clickable but don't force visibility */
+  div[v-show="showLanguageDropdown"] button,
+  div[v-show="showProfileDropdown"] a,
+  div[v-show="showProfileDropdown"] button {
+    pointer-events: auto !important;
+  }</style>
