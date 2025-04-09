@@ -1,0 +1,23 @@
+{
+  "navigation": {
+    "dashboard": "Irányítópult",
+    "markets": "Piacok",
+    "portfolio": "Portfólió",
+    "admin": "Admin",
+    "tutorial": "Útmutató",
+    "login": "Bejelentkezés",
+    "register": "Regisztráció",
+    "profile": "Profil",
+    "signout": "Kijelentkezés"
+  },
+  "language": {
+    "english": "Angol",
+    "hungarian": "Magyar"
+  },
+  "search": {
+    "placeholder": "Eszközök keresése...",
+    "noResults": "Nincs találat",
+    "searching": "Keresés...",
+    "viewAll": "Összes találat megtekintése"
+  }
+}

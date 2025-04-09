@@ -1,0 +1,23 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "markets": "Markets",
+    "portfolio": "Portfolio",
+    "admin": "Admin",
+    "tutorial": "Tutorial",
+    "login": "Login",
+    "register": "Register",
+    "profile": "Profile",
+    "signout": "Sign out"
+  },
+  "language": {
+    "english": "English",
+    "hungarian": "Hungarian"
+  },
+  "search": {
+    "placeholder": "Search assets...",
+    "noResults": "No results found",
+    "searching": "Searching...",
+    "viewAll": "View all results"
+  }
+}
