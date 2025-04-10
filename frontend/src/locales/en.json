@@ -18,7 +18,9 @@
     "placeholder": "Search assets...",
     "noResults": "No results found",
     "searching": "Searching...",
-    "viewAll": "View all results"
+    "viewAll": "View all results",
+    "error": "Failed to perform search",
+    "resultsCount": "{count} results found"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -292,13 +292,13 @@ const handleMouseMove = (event: MouseEvent) => {
                     <!-- Loading State -->
                     <div v-if="searchLoading" class="py-4 px-4 text-center">
                       <LoadingSpinner class="h-6 w-6 mx-auto" />
-                      <p class="mt-2 text-gray-400">Searching...</p>
+                      <p class="mt-2 text-gray-400">{{ t('search.searching') }}</p>
                     </div>
 
                     <!-- Error State -->
                     <div v-else-if="searchError" class="py-4 px-4 text-center">
                       <font-awesome-icon icon="exclamation-triangle" class="text-red-400 text-xl mb-2" />
-                      <p class="text-red-400">{{ searchError }}</p>
+                      <p class="text-red-400">{{ t('search.error') }}</p>
                     </div>
 
                     <!-- Results -->
@@ -329,7 +329,7 @@ const handleMouseMove = (event: MouseEvent) => {
                         <a @click="closeSearchResults" href="#"
                           class="text-green-400 hover:text-green-300 text-sm transition-colors">
                           <font-awesome-icon icon="list" class="mr-1" />
-                          View all results
+                          {{ t('search.viewAll') }}
                         </a>
                       </div>
                     </div>
@@ -338,7 +338,7 @@ const handleMouseMove = (event: MouseEvent) => {
                     <div v-if="searchResults.length === 0 && !searchLoading && !searchError"
                       class="py-6 px-4 text-center">
                       <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
-                      <p class="text-gray-400">No results found</p>
+                      <p class="text-gray-400">{{ t('search.noResults') }}</p>
                     </div>
                   </div>
                 </transition>
@@ -540,13 +540,13 @@ const handleMouseMove = (event: MouseEvent) => {
                     <!-- Loading State -->
                     <div v-if="searchLoading" class="py-4 px-4 text-center">
                       <LoadingSpinner class="h-6 w-6 mx-auto" />
-                      <p class="mt-2 text-gray-400">Searching...</p>
+                      <p class="mt-2 text-gray-400">{{ t('search.searching') }}</p>
                     </div>
 
                     <!-- Error State -->
                     <div v-else-if="searchError" class="py-4 px-4 text-center">
                       <font-awesome-icon icon="triangle-exclamation" class="text-red-400 text-xl mb-2" />
-                      <p class="text-red-400">{{ searchError }}</p>
+                      <p class="text-red-400">{{ t('search.error') }}</p>
                     </div>
 
                     <!-- Results -->
@@ -577,7 +577,7 @@ const handleMouseMove = (event: MouseEvent) => {
                         <a @click="closeSearchResults" href="#"
                           class="text-green-400 hover:text-green-300 text-sm transition-colors">
                           <font-awesome-icon icon="list" class="mr-1" />
-                          View all results
+                          {{ t('search.viewAll') }}
                         </a>
                       </div>
                     </div>
@@ -586,7 +586,7 @@ const handleMouseMove = (event: MouseEvent) => {
                     <div v-if="searchResults.length === 0 && !searchLoading && !searchError"
                       class="py-6 px-4 text-center">
                       <font-awesome-icon icon="search" class="text-gray-400 text-xl mb-2" />
-                      <p class="text-gray-400">No results found</p>
+                      <p class="text-gray-400">{{ t('search.noResults') }}</p>
                     </div>
                   </div>
                 </transition>
@@ -1010,6 +1010,14 @@ button:hover {
   @apply text-green-400;
 }
 
+.text-gray-300 {
+  @apply hover:text-green-400 transition-colors;
+}
+
+.text-red-400 {
+  @apply hover:text-red-300 transition-colors;
+}
+
 /* Update dropdown menu items to preserve the glow effect */
 :deep(.dropdown-item:hover) {
   @apply text-green-400 bg-white/10;
@@ -1063,15 +1071,6 @@ button:hover {
   @apply hover:bg-white/5 !important;
 }
 
-/* Keep text color transitions */
-.text-gray-300 {
-  @apply hover:text-green-400 transition-colors;
-}
-
-.text-red-400 {
-  @apply hover:text-red-300 transition-colors;
-}
-
 /* Update router-link-active for profile dropdown */
 .router-link.router-link-active {
   @apply bg-green-500/10 text-green-400;
@@ -1100,14 +1099,9 @@ button {
   @apply hover:bg-white/5;
 }
 
-/* Keep the router-link-active styling */
+/* Allow background change on hover for active route */
 .router-link.router-link-active {
   @apply bg-green-500/10 text-green-400;
-}
-
-/* Allow background change on hover for active route */
-.router-link.router-link-active:hover {
-  @apply bg-green-500/20;
 }
 
 /* Add these styles for better avatar centering */

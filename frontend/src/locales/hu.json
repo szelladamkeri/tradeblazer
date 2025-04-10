@@ -18,8 +18,11 @@
     "placeholder": "Eszközök keresése...",
     "noResults": "Nincs találat",
     "searching": "Keresés...",
-    "viewAll": "Összes találat megtekintése"
-  }, "dashboard": {
+    "viewAll": "Összes találat megtekintése",
+    "error": "Sikertelen keresés",
+    "resultsCount": "{count} találat"
+  },
+  "dashboard": {
     "title": "Irányítópult",
     "welcome": "Üdvözöljük a TradeBlazer-ben",
     "welcomeMessage": "Az Ön mindent-egyben kereskedési platformja részvényekhez, kriptovalutákhoz és devizákhoz. Kezdje el a kereskedést magabiztosan.",
@@ -209,7 +212,8 @@
       "users": "felhasználó",
       "page": "Oldal"
     }
-  },  "tutorial": {
+  },
+  "tutorial": {
     "title": "Oktatóanyag",
     "subtitle": "Útmutató a TradeBlazer használatához",
     "basicConcepts": "Alapfogalmak",
@@ -244,13 +248,14 @@
           "title": "2. lépés: Profiladatok kitöltése",
           "description": "Adja meg nevét és preferenciáit. Ez segít személyre szabni kereskedési élményét."
         }
-      },"whatYouCanDo": {
-          "title": "Mit tehet a TradeBlazer-en",        
-          "description": "Íme, a platformunkon végezhető fő tevékenységek:",
-          "exploreMarkets": "Piacok felfedezése",
-          "buySell": "Vétel & Eladás",
-          "trackPerformance": "Teljesítmény követése",
-          "learnGrow": "Tanulás & Fejlődés"
+      },
+      "whatYouCanDo": {
+        "title": "Mit tehet a TradeBlazer-en",
+        "description": "Íme, a platformunkon végezhető fő tevékenységek:",
+        "exploreMarkets": "Piacok felfedezése",
+        "buySell": "Vétel & Eladás",
+        "trackPerformance": "Teljesítmény követése",
+        "learnGrow": "Tanulás & Fejlődés"
       },
       "quickTips": {
         "title": "Kezdő tippek",
@@ -343,7 +348,8 @@
         "liveChat": "Élő chat",
         "emailSupport": "E-mail támogatás"
       }
-    },    "tradingBasics": {
+    },
+    "tradingBasics": {
       "title": "Kereskedés alapjai",
       "whatAreMarkets": {
         "title": "Mik azok a piacok?",
@@ -514,7 +520,8 @@
           "title": "Újrakalibrálás",
           "description": "Ha egyes befektetései túlteljesítenek, a portfólió egyensúlya felborulhat. Az újrakalibrálás helyreállítja a kívánt egyensúlyt."
         }
-      },      "tips": {
+      },
+      "tips": {
         "title": "Portfólió kezelési tippek",
         "tip1": "Kezdje a hosszú távú célok meghatározásával, mielőtt egyetlen befektetést is megvásárolna.",
         "tip2": "Diverzifikáljon nem csak eszközök között, hanem iparágak és régiók között is.",
@@ -537,7 +544,8 @@
           "description": "Az árgrafikonok és statisztikai adatok vizsgálata a jövőbeli ármozgások előrejelzése érdekében korábbi minták alapján.",
           "like": "Olyan, mint időjárási mintákat elemezni az előrejelzés készítéséhez."
         }
-      },      "simpleIndicators": {
+      },
+      "simpleIndicators": {
         "title": "Egyszerű indikátorok, amelyeket bárki használhat",
         "companyNews": {
           "title": "Vállalati hírek",
