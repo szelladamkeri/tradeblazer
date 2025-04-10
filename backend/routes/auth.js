@@ -1,5 +1,7 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const { createVerificationToken, sendVerificationEmail } = require('../services/verificationService');
 
 /**
  * Authentication routes module
@@ -7,131 +9,158 @@ const router = express.Router()
  */
 module.exports = (pool, asyncHandler) => {
   /**
-   * User Registration
-   * Creates a new user account
+   * User registration with email verification
    */
   router.post('/register', asyncHandler(async (req, res) => {
-    const { username, email, password } = req.body
-    console.log('Register attempt:', { username, email })
-
+    const { name, email, password, full_name, address } = req.body;
+    
     // Validate required fields
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        error: 'Missing credentials',
-        message: 'Username, email and password are required',
-      })
+    if (!name || !email || !password || !full_name || !address) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        message: 'Username, email, password, full name, and address are all required'
+      });
     }
-
-    // Check if email already exists
-    pool.query('SELECT id FROM users WHERE email = ?', 
-      [email], 
-      (err, result) => {
-        if (err) {
-          console.error('Email check error:', err)
-          return res.status(500).json({
-            error: 'Database error',
-            message: 'Internal server error',
-          })
-        }
-
-        if (result && result.length > 0) {
-          return res.status(400).json({
-            error: 'Registration failed',
-            message: 'Email already exists',
-          })
-        }
-
-        // Create new user
-        pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', 
-          [username, email, password], 
-          (insertErr) => {
-            if (insertErr) {
-              console.error('User creation error:', insertErr)
-              return res.status(500).json({
-                error: 'Registration failed',
-                message: 'Could not create user',
-              })
-            }
-
-            res.status(201).json({
-              success: true,
-              message: 'Registration successful',
-            })
-          }
-        )
+    
+    // Check if user already exists by email or username
+    pool.query('SELECT id, email, username FROM users WHERE email = ? OR username = ?', [email, name], (err, results) => {
+      if (err) {
+        console.error('Registration error:', err);
+        return res.status(500).json({ message: 'Database error' });
       }
-    )
-  }))
-
-  /**
-   * User Login
-   * Authenticates a user and returns their data
-   */
+      
+      // Check for existing user with same email or username
+      if (results && results.length > 0) {
+        const existingUser = results[0];
+        
+        if (existingUser.email === email) {
+          return res.status(409).json({ message: 'User with this email already exists' });
+        }
+        
+        if (existingUser.username === name) {
+          return res.status(409).json({ message: 'Username is already taken' });
+        }
+        
+        return res.status(409).json({ message: 'User already exists' });
+      }
+      
+      // Create verification token with expiry
+      const { token, expiry } = createVerificationToken();
+      
+      // Hash password
+      bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+        if (hashErr) {
+          console.error('Password hashing error:', hashErr);
+          return res.status(500).json({ message: 'Error creating account' });
+        }
+        
+        // Create user with verification_needed status
+        const insertQuery = `
+          INSERT INTO users (username, email, password, verification_status, verification_token, token_expiry, full_name, address)
+          VALUES (?, ?, ?, 'verification_needed', ?, ?, ?, ?)
+        `;
+        
+        pool.query(
+          insertQuery, 
+          [name, email, hashedPassword, token, expiry, full_name, address], 
+          async (insertErr, result) => {
+            if (insertErr) {
+              console.error('User insert error:', insertErr.message);
+              
+              // Provide specific error message for duplicate entries
+              if (insertErr.code === 'ER_DUP_ENTRY') {
+                // Check which field is duplicate
+                if (insertErr.message.includes('username')) {
+                  return res.status(409).json({ message: 'Username is already taken' });
+                } else if (insertErr.message.includes('email')) {
+                  return res.status(409).json({ message: 'Email address is already registered' });
+                }
+              }
+              
+              return res.status(500).json({ message: 'Failed to create account' });
+            }
+            
+            const userId = result.insertId;
+            
+            try {
+              // Send verification email
+              await sendVerificationEmail({ id: userId, name, email }, token);
+              
+              res.status(201).json({
+                message: 'Registration successful. Please check your email to verify your account.',
+                verification_needed: true
+              });
+            } catch (emailErr) {
+              console.error('Verification email error:', emailErr);
+              
+              // Delete user if email fails
+              pool.query('DELETE FROM users WHERE id = ?', [userId]);
+              
+              res.status(500).json({
+                error: 'Email error',
+                message: 'Failed to send verification email. Please try again.'
+              });
+            }
+          }
+        );
+      });
+    });
+  }));
+  
+  // Login endpoint with verification check
   router.post('/login', asyncHandler(async (req, res) => {
-    console.log('Login request received:', req.body)
-    const { emailOrUsername, password } = req.body
-
+    const { emailOrUsername, password } = req.body;
+    
     // Validate required fields
     if (!emailOrUsername || !password) {
-      console.log('Missing credentials')
-      return res.status(400).json({
-        error: 'Missing credentials',
-        message: 'Username/Email and password are required',
-      })
+      return res.status(400).json({ message: 'Email/username and password are required' });
     }
-
-    // Find user by email or username
-    pool.query(
-      `SELECT id, username, email, type, created_at FROM users 
-       WHERE email = ? OR username = ? LIMIT 1`,
-      [emailOrUsername, emailOrUsername],
-      (err, result) => {
-        if (err) {
-          console.error('Login query error usercheck:', err)
-          return res.status(500).json({
-            error: 'Database error',
-            message: 'Internal server error',
-          })
-        }
-
-        if (!result || result.length === 0) {
-          return res.status(401).json({
-            error: 'Authentication failed',
-            message: 'Invalid email or username',
-          })
-        }
-
-        const user = result[0]
-        
-        // Verify password
-        pool.query(
-          `SELECT id FROM users 
-           WHERE (email = ? OR username = ?) AND password = ? LIMIT 1`,
-          [emailOrUsername, emailOrUsername, password],
-          (err, result) => {
-            if (err || !result || result.length === 0) {
-              return res.status(401).json({
-                error: 'Authentication failed',
-                message: 'Invalid password',
-              })
-            }
-
-            console.log('Login successful', user)
-            res.json({
-              success: true,
-              user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                type: user.type,  // FIXED: Return type instead of role
-                created_at: user.created_at,
-              },
-            })
-          }
-        )
+    
+    const query = `
+      SELECT id, username as name, email, password, verification_status, type
+      FROM users
+      WHERE email = ? OR username = ?
+    `;
+    
+    pool.query(query, [emailOrUsername, emailOrUsername], (err, results) => {
+      if (err) {
+        console.error('Login error:', err);
+        return res.status(500).json({ message: 'Database error' });
       }
-    )
-  }))
+      
+      if (!results || results.length === 0) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      const user = results[0];
+      
+      bcrypt.compare(password, user.password, (bcryptErr, match) => {
+        if (bcryptErr) {
+          console.error('Password comparison error:', bcryptErr);
+          return res.status(500).json({ message: 'Authentication error' });
+        }
+        
+        if (!match) {
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        
+        // Check if the user is verified
+        if (user.verification_status === 'verification_needed') {
+          return res.status(403).json({
+            message: 'Please verify your email before logging in',
+            verification_needed: true
+          });
+        }
+        
+        // User is authenticated and verified
+        const { password, ...userWithoutPassword } = user;
+        res.json({
+          message: 'Login successful',
+          user: userWithoutPassword
+        });
+      });
+    });
+  }));
 
-  return router
-}
+  return router;
+};

@@ -29,6 +29,10 @@ export const useUserStore = defineStore('user', () => {
       // Use type instead of role since that's what's in the database
       user.value = {
         ...userData,
+        // Ensure username is available - the backend might provide it as 'name' 
+        username: userData.username || userData.name,
+        // Ensure displayName is available
+        displayName: userData.displayName || userData.username || userData.name,
         type: userData.type || 'U',
         role: userData.type || 'U' // Keep role for backward compatibility
       }
@@ -82,13 +86,21 @@ export const useUserStore = defineStore('user', () => {
       if (userData) {
         user.value = {
           ...userData,
-          displayName: userData.displayName || userData.username,
+          // Ensure username is available - the backend might provide it as 'name' 
+          username: userData.username || userData.name,
+          // Ensure displayName is available
+          displayName: userData.displayName || userData.username || userData.name,
           role: userData.role || userData.type,
           type: userData.type || userData.role
         }
         avatarTimestamp.value = Date.now()
         await checkAvatar()
-        localStorage.setItem('user', JSON.stringify({ user: user.value }))
+        
+        // Store both user data AND the current token
+        localStorage.setItem('user', JSON.stringify({ 
+          user: user.value,
+          token: token.value 
+        }))
       }
     } catch (error) {
       console.error('Error refreshing user data:', error)

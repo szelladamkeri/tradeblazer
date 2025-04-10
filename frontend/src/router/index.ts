@@ -86,6 +86,11 @@ const router = createRouter({
       component: () => import('../views/TutorialView.vue'),
       props: true
     },
+    {
+      path: '/verify',
+      name: 'verify',
+      component: () => import('../views/VerifyView.vue'),
+    },
   ]
 })
 

@@ -158,10 +158,69 @@ pool.getConnection(function (err, connection) {
 app.use('/api', require('./routes')(pool, asyncHandler))
 app.use('/api/portfolio', require('./routes/portfolio')(pool, asyncHandler))
 
-/**
- * Asset Search API Endpoint
- * Allows searching assets by name or symbol
- */
+// Auth routes
+app.use('/api/auth', require('./routes/auth')(pool, asyncHandler));
+
+// Verification routes
+app.use('/api/verification', require('./routes/verification')(pool, asyncHandler));
+
+// Add an endpoint to resend verification email
+app.post('/api/verification/resend', asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+  
+  // Get user details
+  pool.query(
+    'SELECT id, name, email, verification_status FROM users WHERE email = ?',
+    [email],
+    async (err, results) => {
+      if (err) {
+        console.error('Resend verification error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      
+      if (!results || results.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const user = results[0];
+      
+      if (user.verification_status === 'verified') {
+        return res.status(400).json({ message: 'Account is already verified' });
+      }
+      
+      // Create new verification token
+      const verificationService = require('./services/verificationService');
+      const { token, expiry } = verificationService.createVerificationToken();
+      
+      // Update token in database
+      pool.query(
+        'UPDATE users SET verification_token = ?, token_expiry = ? WHERE id = ?',
+        [token, expiry, user.id],
+        async (updateErr) => {
+          if (updateErr) {
+            console.error('Token update error:', updateErr);
+            return res.status(500).json({ message: 'Failed to generate verification token' });
+          }
+          
+          try {
+            // Send verification email
+            await verificationService.sendVerificationEmail(user, token);
+            res.json({ message: 'Verification email sent successfully' });
+          } catch (emailErr) {
+            console.error('Verification email error:', emailErr);
+            res.status(500).json({ message: 'Failed to send verification email' });
+          }
+        }
+      );
+    }
+  );
+}));
+
+// Asset Search API Endpoint
 app.get('/api/assets/search', (req, res) => {
   const searchQuery = req.query.q?.toString().toLowerCase()
   

@@ -101,6 +101,24 @@ module.exports = (pool, asyncHandler) => {
   }))
   
   /**
+   * Temporary email verification redirect handler
+   * This catches incorrectly formatted verification URLs and redirects to the correct endpoint
+   */
+  router.get('/verify', asyncHandler(async (req, res) => {
+    const { token } = req.query;
+    
+    if (!token) {
+      return res.status(400).json({
+        error: 'Missing token',
+        message: 'Verification token is required'
+      });
+    }
+    
+    // Redirect to the correct verification endpoint
+    res.redirect(`/api/verification/verify/${token}`);
+  }));
+
+  /**
    * Get Asset Statistics
    * Returns trade count, volume, and active assets
    */

@@ -429,13 +429,20 @@ CREATE TABLE `users` (
   `display_name` varchar(100) DEFAULT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `type` char(1) NOT NULL,
+  `type` char(1) DEFAULT 'U',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `balance` decimal(15,2) DEFAULT 0.00,
   `avatar` varchar(200) DEFAULT NULL,
   `full_name` varchar(255) NOT NULL,
   `address` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Add these columns to your existing users table
+ALTER TABLE users 
+ADD COLUMN verification_status ENUM('verification_needed', 'verified') DEFAULT 'verification_needed',
+ADD COLUMN verification_token VARCHAR(255),
+ADD COLUMN token_expiry TIMESTAMP;
+
 
 --
 -- A tábla adatainak kiíratása `users`
