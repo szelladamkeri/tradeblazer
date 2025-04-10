@@ -272,7 +272,7 @@ const handleMouseMove = (event: MouseEvent) => {
               <!-- Search Bar - Centered and optimized -->
               <div ref="searchContainerRef" class="relative flex-1 mx-3 md:mx-8 max-w-md hidden lg:block">
                 <div class="relative group">
-                  <input v-model="searchQuery" type="text" placeholder="Search assets..."
+                  <input v-model="searchQuery" type="text" :placeholder="t('markets.searchAssets')"
                     class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200 group-hover:bg-white/15" />
                   <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
                     <font-awesome-icon v-if="searchLoading" icon="spinner" class="text-gray-400 animate-spin" />

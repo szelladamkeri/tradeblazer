@@ -574,7 +574,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <div class="mt-4 flex items-center justify-between px-4">
                       <div class="text-sm text-gray-400">
                         {{ t('admin.pagination.showing') }} {{ users.length ? ((currentPage - 1) * visibleItems) + 1 : 0
-                        }} to
+                        }} -
                         {{ Math.min(currentPage * visibleItems, users.length) }} {{ t('admin.pagination.of') }}
                         {{ users.length }} {{ t('admin.pagination.users') }}
                       </div>

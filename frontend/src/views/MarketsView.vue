@@ -345,50 +345,50 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   </tbody>
                 </table>
               </div>
+              
+              <!-- Pagination controls moved INSIDE panel-inner to match PortfolioView -->
+              <div class="mt-4 flex items-center justify-between px-4 border-t border-white/10 pt-4">
+                <div class="text-sm text-gray-400">
+                  {{ t('markets.pagination.showing') }} {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }}
+                  <!-- {{ t('markets.pagination.to') }} -->
+                  -
+                  {{ Math.min(currentPage * visibleItems, filteredAssets.length) }} {{ t('markets.pagination.of') }}
+                  {{ filteredAssets.length }} {{ t('markets.pagination.assets') }}
+                </div>
+                <div class="flex items-center gap-2">
+                  <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-lg transition-colors"
+                    :class="[
+                      currentPage === 1
+                        ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    ]">
+                    <font-awesome-icon icon="chevron-left" />
+                  </button>
+
+                  <span class="text-gray-400">
+                    {{ t('markets.pagination.page') }} {{ currentPage }} {{ t('markets.pagination.of') }} {{ totalPages }}
+                  </span>
+
+                  <button @click="nextPage" :disabled="currentPage === totalPages"
+                    class="px-3 py-1 rounded-lg transition-colors" :class="[
+                      currentPage === totalPages
+                        ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    ]">
+                    <font-awesome-icon icon="chevron-right" />
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="corner-decor top-left"></div>
             <div class="corner-decor top-right"></div>
             <div class="corner-decor bottom-left"></div>
             <div class="corner-decor bottom-right"></div>
-
-            <!-- Moved pagination controls inside panel-inner -->
-            <div class="mt-4 flex items-center justify-between px-4 border-t border-white/10 pt-4">
-              <div class="text-sm text-gray-400">
-                Showing {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to
-                {{ Math.min(currentPage * visibleItems, filteredAssets.length) }} of
-                {{ filteredAssets.length }} assets
-              </div>
-              <div class="flex items-center gap-2">
-                <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-lg transition-colors"
-                  :class="[
-                    currentPage === 1
-                      ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                      : 'bg-white/10 text-white hover:bg-white/20'
-                  ]">
-                  <font-awesome-icon icon="chevron-left" />
-                </button>
-
-                <span class="text-gray-400">
-                  Page {{ currentPage }} of {{ totalPages }}
-                </span>
-
-                <button @click="nextPage" :disabled="currentPage === totalPages"
-                  class="px-3 py-1 rounded-lg transition-colors" :class="[
-                    currentPage === totalPages
-                      ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                      : 'bg-white/10 text-white hover:bg-white/20'
-                  ]">
-                  <font-awesome-icon icon="chevron-right" />
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
 </template>
 
 <style scoped>
@@ -446,17 +446,18 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   }
 }
 
-/* Add dashboard panel styling from HomeView */
+/* Update panel styling to match TutorialView */
 .dashboard-panel {
-  @apply relative;
+  @apply relative overflow-hidden;
   border-radius: 0.75rem;
+  height: auto !important;
   min-height: 200px;
   display: flex;
   flex-direction: column;
 }
 
 .panel-inner {
-  @apply p-4 border border-white/10 rounded-xl;
+  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
   background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
   backdrop-filter: blur(15px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
@@ -467,15 +468,25 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   min-height: 100%;
 }
 
-/* Remove the pagination container styles as they're no longer needed */
-/* Remove .dashboard-panel>div:last-of-type:not(.corner-decor) styles */
-
-.corner-decor {
+/* Futuristic border/line effects just like in TutorialView */
+.panel-inner::before {
+  content: '';
   position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 1px solid rgba(74, 222, 128, 0.3);
-  z-index: 2;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.panel-inner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
 }
 
 /* Update corner decorations z-index */
@@ -519,8 +530,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   border-left: none;
   border-top: none;
 }
-
-/* Remove all the animation effects previously added */
 
 /* Fix layout issues */
 .markets-view {

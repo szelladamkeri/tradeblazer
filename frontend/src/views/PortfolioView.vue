@@ -285,7 +285,7 @@ const { t } = useI18n()
                   <!-- Replace the pagination section -->
                   <div class="mt-4 flex items-center justify-between px-4">
                     <div class="text-sm text-gray-400">
-                      {{ t('portfolio.pagination.showing') }} {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} to
+                      {{ t('portfolio.pagination.showing') }} {{ portfolioData.assets?.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }} -
                       {{ Math.min(currentPage * visibleItems, portfolioData.assets?.length || 0) }} {{ t('portfolio.pagination.of') }}
                       {{ portfolioData.assets?.length || 0 }} {{ t('portfolio.pagination.positions') }}
                     </div>
