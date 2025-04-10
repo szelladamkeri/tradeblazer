@@ -299,13 +299,16 @@ const createChart = (data: { timestamps: Date[], prices: number[], volumes: numb
 }
 
 // Add debug email function
-const sendDebugEmail = async () => {
+const sendDebugEmail = async (recipient = '') => {
     try {
         const response = await fetch('http://localhost:3000/api/debug/email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                recipient: recipient
+            })
         })
         const data = await response.text()
         if (!response.ok) {
@@ -317,6 +320,7 @@ const sendDebugEmail = async () => {
         alert(`Debug email error: ${err instanceof Error ? err.message : String(err)}`)
     }
 }
+//sendDebugEmail("aranyosi.daniel-2020@keri.mako.hu");
 
 const destroyChart = () => {
     if (chart.value) {

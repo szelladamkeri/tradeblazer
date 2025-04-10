@@ -481,9 +481,12 @@ app.post('/api/reconnect', async (req, res) => {
 // Add debug email endpoint
 app.post('/api/debug/email', asyncHandler(async (req, res) => {
   try {
+    // Get recipient from request body or use default
+    const recipient = req.body.recipient //|| process.env.EMAIL_USER;
+    
     const mailOptions = {
       from: process.env.EMAIL_FROM,
-      to: process.env.EMAIL_USER,
+      to: recipient,
       subject: `${process.env.EMAIL_SUBJECT_PREFIX} Debug Test`,
       html: mailGenerator.generate({
         body: {
@@ -495,7 +498,7 @@ app.post('/api/debug/email', asyncHandler(async (req, res) => {
     }
 
     await transporter.sendMail(mailOptions)
-    res.json({ message: 'Debug email sent successfully' })
+    res.json({ message: `Debug email sent successfully to ${recipient}` })
   } catch (error) {
     console.error('Email error:', error)
     res.status(500).json({
