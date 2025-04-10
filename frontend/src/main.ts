@@ -67,6 +67,8 @@ import {
   faCalendarDays,
   faLifeRing,
   faBuilding,
+  faLanguage,
+  faFlag,
   faChevronCircleDown,
   faChevronDown,
   faList,
@@ -74,8 +76,6 @@ import {
   faSpinner,
   faArrowRight,
   faBell,
-  faLanguage,
-  faFlag
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -135,6 +135,8 @@ library.add(
   faCalendarDays,
   faLifeRing,
   faBuilding,
+  faLanguage,
+  faFlag,
   faChevronCircleDown,
   faChevronDown,
   faList,
@@ -142,8 +144,6 @@ library.add(
   faSpinner,
   faArrowRight,
   faBell,
-  faLanguage,
-  faFlag
 )
 
 const app = createApp(App)

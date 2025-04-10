@@ -7,6 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { handleApiError } from '@/utils/errorHandler'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useI18n } from 'vue-i18n'
 import {
   faChartPie, faBolt, faListCheck, faChartLine,
   faClockRotateLeft, faEye, faGaugeHigh, faShieldHalved,
@@ -191,26 +192,17 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="home-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
-    <div class="w-full pt-12 pb-8 px-4 view-content">
-      <div class="max-w-7xl mx-auto">
-        <!-- Main Content Wrapper -->
-        <div
-          class="bg-[rgba(18,24,38,0.95)] backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/10 p-8">
-          <div class="flex items-center gap-3 mb-6">
-            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
-            </div>
-            <div>
-              <h1 class="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
-              <p class="text-gray-400 mt-1">Your financial overview at a glance</p>
-            </div>
-          </div>
 
+    <PageMain>
+      <div class="w-full px-2 sm:px-4 py-4">
+        <div class="max-w-7xl mx-auto">
           <!-- Panels Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <div v-for="panel in dashboardPanels" :key="panel.id" v-show="panel.visible" class="dashboard-panel">
@@ -218,7 +210,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                 <div class="flex items-center justify-between mb-4">
                   <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
                     <font-awesome-icon :icon="panel.icon" class="panel-icon" />
-                    {{ panel.title }}
+                    {{ t(`dashboard.${panel.id}`) }}
                   </h2>
                 </div>
 
@@ -234,13 +226,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <!-- Top row - larger stats -->
                     <div class="flex gap-3 flex-1">
                       <div class="flex-1 bg-white/5 rounded-lg p-3">
-                        <div class="text-sm text-gray-400">24h Volume</div>
+                        <div class="text-sm text-gray-400">{{ t('dashboard.volume24h') }}</div>
                         <div class="text-xl text-white font-medium mt-1">
                           ${{ marketStats.totalVolume.toLocaleString() }}
                         </div>
                       </div>
                       <div class="flex-1 bg-white/5 rounded-lg p-3">
-                        <div class="text-sm text-gray-400">Total Trades</div>
+                        <div class="text-sm text-gray-400">{{ t('dashboard.totalTrades') }}</div>
                         <div class="text-xl text-white font-medium mt-1">
                           {{ marketStats.totalTrades.toLocaleString() }}
                         </div>
@@ -249,11 +241,11 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <!-- Bottom row - smaller stats -->
                     <div class="flex gap-3">
                       <div class="flex-1 bg-green-500/10 rounded-lg p-2 flex items-center justify-between">
-                        <span class="text-sm text-gray-400">Market Status</span>
-                        <span class="text-sm text-green-400 font-medium">Open</span>
+                        <span class="text-sm text-gray-400">{{ t('dashboard.marketStatus') }}</span>
+                        <span class="text-sm text-green-400 font-medium">{{ t('dashboard.open') }}</span>
                       </div>
                       <div class="flex-1 bg-white/5 rounded-lg p-2 flex items-center justify-between">
-                        <span class="text-sm text-gray-400">Active Assets</span>
+                        <span class="text-sm text-gray-400">{{ t('dashboard.activeAssets') }}</span>
                         <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
                       </div>
                     </div>
@@ -316,35 +308,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="corner-decor bottom-right"></div>
             </div>
           </div>
-
-          <!-- Add corner decorations to match other views -->
-          <div class="corner-decor top-left"></div>
-          <div class="corner-decor top-right"></div>
-          <div class="corner-decor bottom-left"></div>
-          <div class="corner-decor bottom-right"></div>
         </div>
       </div>
-    </div>
+    </PageMain>
   </div>
 </template>
 
 <style scoped>
-/* Dashboard Gradient Effect Implementation
- * This view serves as the reference implementation for the interactive gradient effect
- * used across all views in the application. Key features:
- * 
- * 1. Mouse tracking for dynamic gradient positioning
- * 2. Consistent z-index hierarchy (see App.vue for global z-index variables)
- * 3. Hardware-accelerated animations using transform and opacity
- * 4. Mobile optimization by disabling effects on smaller screens
- * 
- * Implementation pattern:
- * - Add mousemove event handlers to both PageHeader and PageMain
- * - Use CSS custom properties --mouse-x and --mouse-y for positioning
- * - Apply radial gradient with theme-consistent colors
- * - Handle z-index properly to avoid conflicts with dropdowns
- */
-
 .dashboard-panel {
   @apply relative overflow-hidden;
   height: 290px;
@@ -627,5 +597,14 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 /* Adjust the panel section spacing */
 .home-view>.w-full {
   padding-top: 1rem !important;
+}
+
+/* Override PageMain styling */
+:deep(.page-main) {
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: visible !important;
 }
 </style>

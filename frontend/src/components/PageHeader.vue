@@ -201,14 +201,6 @@ const closeLanguageDropdownOnClickOutside = (event: MouseEvent) => {
   }
 }
 
-// Add More dropdown state
-const showMoreMenu = ref(false)
-const moreMenuRef = ref<HTMLDivElement | null>(null)
-
-const toggleMoreMenu = () => {
-  showMoreMenu.value = !showMoreMenu.value
-}
-
 onMounted(async () => {
   if (userStore.isAuthenticated) {
     await userStore.checkAvatar()
@@ -247,27 +239,6 @@ const handleMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-y', `${y}%`);
 };
 
-const formatBalance = (balance?: number) => {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(balance || 0)
-}
-
-// Add comment for future navigation items
-/**
- * Navigation Item Priority Guide
- * Primary (always visible):
- * - Dashboard
- * - Markets
- * - Portfolio (if authenticated)
- * 
- * Secondary (move to dropdown on medium screens):
- * - Tutorial
- * - Any new pages/features added in the future
- * - Profile settings
- * Note: Admin should stay visible if user is admin
- */
 </script>
 
 <template>
@@ -382,7 +353,6 @@ const formatBalance = (balance?: number) => {
 
               <!-- Desktop Navigation -->
               <nav class="hidden lg:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto">
-
                 <!-- Changed space-x-4 to space-x-2 for tighter spacing -->
                 <HeaderLink>
                   <template #icon>
@@ -402,6 +372,16 @@ const formatBalance = (balance?: number) => {
                   </template>
                 </HeaderLink>
 
+                <!-- Add Tutorial Link -->
+                <HeaderLink>
+                  <template #icon>
+                    <router-link to="/tutorial" class="text-gray-300 hover:text-green-400 flex items-center">
+                      <font-awesome-icon icon="graduation-cap" class="mr-2" />
+                      <span>{{ t('navigation.tutorial') }}</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
                 <template v-if="userStore.isAuthenticated">
                   <HeaderLink>
                     <template #icon>
@@ -411,46 +391,31 @@ const formatBalance = (balance?: number) => {
                       </router-link>
                     </template>
                   </HeaderLink>
-                </template>
 
-                <!-- More Dropdown - Hide on xl screens -->
-                <div class="relative hidden lg:block xl:hidden" ref="moreMenuRef">
-                  <HeaderLink>
+                  <!-- Add admin link with proper condition -->
+                  <HeaderLink v-if="userStore.isAdmin">
                     <template #icon>
-                      <button @click="toggleMoreMenu" type="button" 
-                        class="text-gray-300 hover:text-green-400 flex items-center">
-                        <span>{{ t('navigation.more') }}</span>
-                        <font-awesome-icon icon="chevron-down" class="ml-2 text-xs transition-transform"
-                          :class="{ 'rotate-180': showMoreMenu }" />
-                      </button>
-                    </template>
-                  </HeaderLink>
-
-                  <!-- More Menu Dropdown -->
-                  <div v-show="showMoreMenu"
-                    class="absolute right-0 top-[calc(100%+0.5rem)] min-w-[180px] py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
-                    <!-- Triangle indicator -->
-                    <div class="absolute -top-2 right-4 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
-                    </div>
-
-                    <router-link to="/tutorial"
-                      class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200 flex items-center"
-                      :class="$route.path === '/tutorial' ? 'bg-green-500/20 text-green-400' : ''">
-                      <font-awesome-icon icon="graduation-cap" class="mr-2" />
-                      <span>{{ t('navigation.tutorial') }}</span>
-                    </router-link>
-
-                    <template v-if="userStore.isAdmin">
-                      <div class="w-full h-px bg-white/10 my-1"></div>
-                      <router-link to="/admin"
-                        class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200 flex items-center"
-                        :class="$route.path === '/admin' ? 'bg-green-500/20 text-green-400' : ''">
+                      <router-link to="/admin" :class="[
+                        'text-gray-300 hover:text-green-400 flex items-center',
+                        $route.path === '/admin' ? 'text-green-400' : ''
+                      ]">
                         <font-awesome-icon icon="shield" class="mr-2" />
                         <span>Admin</span>
                       </router-link>
                     </template>
-                  </div>
-                </div>
+                  </HeaderLink>
+                </template>
+
+                <template v-else>
+                  <HeaderLink>
+                    <template #icon>
+                      <router-link to="/login" class="text-gray-300 hover:text-green-400 flex items-center">
+                        <font-awesome-icon icon="right-to-bracket" class="mr-2" />
+                        <span>{{ t('navigation.login') }}</span>
+                      </router-link>
+                    </template>
+                  </HeaderLink>
+                </template>
 
                 <!-- Add Language Selector -->
                 <div class="relative ml-1" ref="languageDropdownRef">
@@ -686,12 +651,6 @@ const formatBalance = (balance?: number) => {
                     </template>
                   </HeaderLink>
 
-                  <!-- Add balance display -->
-                  <div class="flex items-center p-3 w-full rounded-lg bg-white/10">
-                    <font-awesome-icon icon="wallet" class="text-lg mr-3 text-green-400" />
-                    <span class="font-medium text-green-400">${{ formatBalance(userStore.user?.balance) }}</span>
-                  </div>
-
                   <div class="w-full h-px bg-white/10 my-1"></div>
 
                   <HeaderLink @click="closeMenu">
@@ -774,76 +733,438 @@ const formatBalance = (balance?: number) => {
 </template>
 
 <style scoped>
-/* Base Layout */
-.component-global-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-top: 1rem;
-  margin-bottom: 1rem;
-  box-sizing: border-box;
+h1 {
+  font-weight: 500;
+  font-size: 2.6rem;
+  position: relative;
+  top: -10px;
 }
 
-/* Header Container */
+h3 {
+  font-size: 1.2rem;
+}
+
+.greetings h1,
+.greetings h3 {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+
+  .greetings h1,
+  .greetings h3 {
+    text-align: left;
+  }
+}
+
+.router-link-active {
+  @apply text-green-400;
+}
+
+/* CRITICAL: Match exactly PageMain's styling */
 .page-header {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
   background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(74, 222, 128, 0.08);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
   border-radius: 0.75rem;
-  overflow: visible;
-  position: relative;
-  z-index: 50;
+  overflow: visible !important;
+  /* IMPORTANT: Change this from 'hidden' to 'visible' */
 }
 
-/* Interactive Gradient Effect */
-.page-header::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(74, 222, 128, 0.08) 0%,
-    transparent 60%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  z-index: 1;
-  border-radius: 0.75rem;
+/* Remove all conflicting background/border styles from header element */
+header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-.page-header:hover::after {
-  opacity: 1;
+/* Prevent any additional styling that would override */
+header::before,
+header::after {
+  display: none !important;
 }
 
-/* Navigation */
+/* The wrapper element needs appropriate spacing */
+.component-global-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding-top: 1rem !important;
+  margin-bottom: 1rem !important;
+  box-sizing: border-box !important;
+}
+
+.page-header-wrapper {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix media queries to match PageMain exactly */
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  .component-global-wrapper {
+    padding-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Cleanup conflicting styles */
+.futuristic-bg,
+.corner-accent,
+.corner-decor {
+  display: none !important;
+}
+
+/* Add proper backdrop filter */
+header {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  min-width: unset;
+  width: 100%;
+}
+
 nav {
   flex-shrink: 0;
   scrollbar-width: none;
+  /* Firefox */
   -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 nav::-webkit-scrollbar {
   display: none;
+  /* Chrome, Safari, Opera */
 }
 
-/* Dropdowns */
-.dropdown-container {
-  overflow: visible;
+/* Adjust breakpoint for mobile menu */
+@media (max-width: 1024px) {
+  .sm\:hidden {
+    display: block;
+  }
+
+  .sm\:flex {
+    display: none;
+  }
+}
+
+@media (min-width: 1025px) {
+  .sm\:hidden {
+    display: none;
+  }
+
+  .sm\:flex {
+    display: flex;
+  }
+}
+
+/* Keep nav items from shrinking */
+:deep(.header-link) {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Match PageMain blur effect */
+header {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Ensure nav items don't shrink */
+nav {
+  flex-shrink: 0;
+}
+
+/* Make nav links more compact on smaller screens */
+@media (max-width: 768px) {
+  nav {
+    font-size: 0.875rem;
+  }
+}
+
+/* Ensure HeaderLink components don't shrink */
+:deep(.header-link) {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Add z-index documentation and standardization */
+/* Z-index hierarchy documentation
+ * This component establishes the base z-index hierarchy used throughout the application.
+ * The values are defined in App.vue and used consistently across all views:
+ * 
+ * --z-background: 1    (Background elements)
+ * --z-base: 10        (Base content layer)
+ * --z-content: 20     (Main content)
+ * --z-header: 50      (Header container)
+ * --z-dropdown: 60    (Dropdown menus)
+ * --z-mobile-menu: 70 (Mobile navigation)
+ * --z-modal: 100      (Modal overlays)
+ * --z-dialog: 150     (Dialog boxes)
+ * 
+ * Usage:
+ * - Header container: var(--z-header)
+ * - Dropdown menus: var(--z-dropdown)
+ * - Mobile menu: var(--z-mobile-menu)
+ */
+
+/* Override any existing z-index values */
+.page-header {
+  z-index: var(--z-header) !important;
   position: relative;
+}
+
+.dropdown-menu {
+  z-index: var(--z-dropdown) !important;
+}
+
+.mobile-menu {
+  z-index: var(--z-mobile-menu) !important;
+}
+
+/* Ensure proper stacking context */
+.page-header {
   isolation: isolate;
 }
 
-/* Transitions */
+/* Allow dropdowns to overflow */
+.dropdown-container {
+  overflow: visible !important;
+}
+
+/* Add z-index for dropdown */
+.z-50 {
+  z-index: 50;
+}
+
+/* Update z-index classes */
+.z-\[50\] {
+  z-index: 50;
+}
+
+.z-\[51\] {
+  z-index: 51;
+}
+
+/* Profile dropdown should be higher than header */
+.absolute.right-0 {
+  z-index: 52;
+}
+
+/* Remove any lower z-index values that might conflict */
+.z-\[100\],
+.z-\[101\],
+.z-\[102\] {
+  z-index: unset;
+}
+
+/* Ensure language dropdown is visible */
+div[v-show="showLanguageDropdown"] {
+  z-index: 9999 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Fix language dropdown parent positioning */
+[ref="languageDropdownRef"] {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Add background color for .bg-black */
+.bg-black {
+  background-color: #000000;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Remove hover backgrounds and only keep text color changes */
+router-link:hover,
+button:hover {
+  @apply text-green-400;
+}
+
+/* Update dropdown menu items to preserve the glow effect */
+:deep(.dropdown-item:hover) {
+  @apply text-green-400 bg-white/10;
+}
+
+/* Remove any remaining hover:bg classes */
+[class*='hover:bg'] {}
+
+/* Update hover behaviors to preserve the glow */
+.router-link-active {
+  @apply text-green-400 bg-green-500/20;
+}
+
+/* Keep the glow effect - remove these overrides */
+:deep(a),
+:deep(button) {
+  @apply transition-colors;
+}
+
+/* Update dropdown menu items to only change text color on hover */
+:deep(.dropdown-item:hover) {
+  @apply text-green-400;
+  background: none;
+}
+
+/* Remove any remaining hover:bg classes */
+[class*='hover:bg'] {
+  @apply hover:bg-transparent !important;
+}
+
+/* Update hover behaviors */
+.router-link-active {
+  @apply text-green-400;
+}
+
+/* Remove hover backgrounds and only keep text color changes */
+:deep(a),
+:deep(button) {
+  @apply hover:bg-transparent transition-colors;
+}
+
+/* Ensure mobile menu items follow the same pattern */
+.mobile-nav-item {
+  @apply hover:bg-transparent;
+}
+
+/* Override any remaining hover:bg classes */
+.mobile-nav-item,
+:deep(a),
+:deep(button) {
+  @apply hover:bg-white/5 !important;
+}
+
+/* Keep text color transitions */
+.text-gray-300 {
+  @apply hover:text-green-400 transition-colors;
+}
+
+.text-red-400 {
+  @apply hover:text-red-300 transition-colors;
+}
+
+/* Update router-link-active for profile dropdown */
+.router-link.router-link-active {
+  @apply bg-green-500/10 text-green-400;
+}
+
+/* Remove the general background removal for this specific case */
+.router-link.router-link-active:hover {
+  @apply bg-green-500/10;
+}
+
+/* Update dropdown styling */
+.router-link,
+button {
+  @apply relative hover:bg-white/5 transition-all duration-200;
+}
+
+/* Remove conflicting hover styles */
+[class*='hover:bg'] {
+  @apply hover:bg-white/5 !important;
+}
+
+/* Override any remaining hover:bg-transparent rules */
+.mobile-nav-item,
+:deep(a),
+:deep(button) {
+  @apply hover:bg-white/5;
+}
+
+/* Keep the router-link-active styling */
+.router-link.router-link-active {
+  @apply bg-green-500/10 text-green-400;
+}
+
+/* Allow background change on hover for active route */
+.router-link.router-link-active:hover {
+  @apply bg-green-500/20;
+}
+
+/* Add these styles for better avatar centering */
+button img,
+button div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.text-lg {
+  line-height: 1;
+}
+
+/* Add these new styles */
+button {
+  cursor: pointer;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+/* Add smooth hover transitions */
+.router-link,
+button {
+  @apply transition-all duration-200 ease-out;
+}
+
+/* Add hover scale effect to active elements */
+.router-link:hover,
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* Add bounce animation for notifications or updates */
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Update slide animation to be faster */
 .slide-enter-active,
-.slide-leave-active,
-.scale-enter-active,
-.scale-leave-active {
+.slide-leave-active {
   transition: all 150ms ease-out;
 }
 
@@ -853,13 +1174,36 @@ nav::-webkit-scrollbar {
   opacity: 0;
 }
 
+.slide-enter-to,
+.slide-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Add scale transition for dropdown */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 150ms ease-out;
+}
+
 .scale-enter-from,
 .scale-leave-to {
   opacity: 0;
   transform: scale(0.95) translateY(-10px);
 }
 
-/* Scrollbars */
+.scale-enter-to,
+.scale-leave-from {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Add styling for search dropdown */
+.max-h-96 {
+  max-height: 24rem;
+}
+
+/* Ensure the search results scroll properly */
 .overflow-y-auto {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -878,17 +1222,380 @@ nav::-webkit-scrollbar {
   border-radius: 20px;
 }
 
-/* Hover Effects */
-router-link:hover,
-button:hover,
-:deep(a:hover),
-:deep(button:hover),
-.dropdown-item:hover {
-  @apply text-green-400 bg-white/10;
-  transform: translateY(-1px);
+/* Improve search dropdown styling */
+.max-h-96 {
+  max-height: 24rem;
 }
 
-/* Mobile Menu */
+.max-h-64 {
+  max-height: 16rem;
+}
+
+/* Enhance scrollbar styling */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Add subtle hover effect to search input */
+input[type="text"]:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Update header container styles */
+header {
+  width: 100%;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  header {
+    height: 3.5rem;
+  }
+}
+
+/* Add consistent width styling for the header wrapper that exactly matches PageMain */
+.page-header {
+  width: 1280px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(74, 222, 128, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset !important;
+  border-radius: 0.75rem !important;
+}
+
+.component-global-wrapper,
+.page-header-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  margin-bottom: 1rem !important;
+}
+
+.page-header-wrapper {
+  padding-top: 1rem !important;
+}
+
+.content-container {
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+header {
+  width: 100% !important;
+  border-radius: 0.75rem !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+header>.content-container>div {
+  padding: 0.75rem 1rem !important;
+}
+
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  .component-global-wrapper {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .page-header-wrapper {
+    padding-top: 0.5rem !important;
+  }
+}
+
+/* IMPORTANT: Fix avatar dropdown z-index issues */
+.z-30 {
+  z-index: 30 !important;
+}
+
+.z-50 {
+  z-index: 50 !important;
+}
+
+/* Ensure dropdown appears above other elements */
+div[v-show="showProfileDropdown"] {
+  z-index: 9999 !important;
+  /* Force very high z-index */
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Fix profile dropdown styling */
+.absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 0.5rem) !important;
+  z-index: 9999 !important;
+}
+
+/* Fix dropdown to be clickable */
+button,
+.router-link,
+.absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
+  pointer-events: auto !important;
+}
+
+/* Ensure avatar and dropdown are correctly positioned */
+.relative {
+  position: relative !important;
+}
+
+.page-header {
+  overflow: visible !important;
+  /* Allow dropdowns to be visible outside header */
+  z-index: 50 !important;
+  /* Ensure header is above other content */
+}
+
+/* Reset any problematic hover styles */
+[class*='hover:bg'] {
+  transition: background-color 0.2s ease !important;
+}
+
+/* Reset router link hover styles to ensure they work */
+router-link:hover,
+.router-link:hover,
+.block.px-4.py-2:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgb(74, 222, 128) !important;
+}
+
+/* Reset button hover styles */
+button:hover {
+  transform: translateY(-1px) !important;
+  color: rgb(74, 222, 128) !important;
+}
+
+/* Ensure PageHeader matches HomeView styling */
+.page-header {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: visible !important;
+  /* Allow dropdowns to be visible */
+  position: relative !important;
+  z-index: 50 !important;
+}
+
+/* Panel styling to match HomeView */
+.panel-inner {
+  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
+  transition: all 0.4s ease;
+  border-radius: 0.75rem;
+}
+
+/* Futuristic border effects from HomeView */
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
+}
+
+/* Corner decoration styling from HomeView */
+.corner-decor {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(74, 222, 128, 0.3);
+  z-index: 1;
+}
+
+.corner-decor.top-left {
+  top: 8px;
+  left: 8px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.corner-decor.top-right {
+  top: 8px;
+  right: 8px;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+.corner-decor.bottom-left {
+  bottom: 8px;
+  left: 8px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.corner-decor.bottom-right {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Consistent scrollbar styling across components */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgba(74, 222, 128, 0.4), rgba(34, 211, 238, 0.4));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgba(74, 222, 128, 0.6), rgba(34, 211, 238, 0.6));
+}
+
+/* Add consistent hover effects */
+.panel-inner:hover,
+button:hover,
+a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
+}
+
+/* Base header styling */
+.page-header {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
+  border-radius: 0.75rem;
+  overflow: visible !important;
+  position: relative;
+  z-index: 50;
+}
+
+/* Interactive gradient effect */
+.page-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(74, 222, 128, 0.08) 0%,
+      transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+  border-radius: 0.75rem;
+}
+
+.page-header:hover::after {
+  opacity: 1;
+}
+
+/* Futuristic border effects */
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1400px) {
+  .page-header {
+    width: 95vw !important;
+    max-width: 1366px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-header {
+    width: 90vw !important;
+    max-width: 1024px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    width: calc(100vw - 2rem) !important;
+    height: 3.5rem;
+  }
+}
+
+/* Enhanced Mobile Menu Styling */
 .mobile-menu {
   --menu-height: calc(100vh - 4.5rem);
   max-height: var(--menu-height);
@@ -897,49 +1604,159 @@ button:hover,
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-/* Dropdown visibility */
-[v-show*="showMoreMenu"],
-[v-show*="showLanguageDropdown"],
-[v-show*="showProfileDropdown"] {
-  z-index: 60;
+/* Mobile menu scrollbar styling */
+.mobile-menu {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-/* Ensure dropdowns are properly positioned */
-.relative {
-  position: relative !important;
+.mobile-menu::-webkit-scrollbar {
+  width: 4px;
 }
 
-/* Media Queries */
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw;
-    max-width: 1366px;
+.mobile-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* Enhanced mobile navigation items */
+.mobile-menu :deep(a),
+.mobile-menu :deep(button) {
+  @apply flex items-center w-full rounded-lg transition-all duration-200 font-medium;
+}
+
+.mobile-menu :deep(a:active),
+.mobile-menu :deep(button:active) {
+  transform: scale(0.98);
+}
+
+/* Mobile menu corner decorations - match desktop styling */
+.mobile-menu .corner-decor {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(74, 222, 128, 0.3);
+  z-index: 2;
+}
+
+.mobile-menu .corner-decor.top-left {
+  top: 12px;
+  left: 12px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.mobile-menu .corner-decor.top-right {
+  top: 12px;
+  right: 12px;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+.mobile-menu .corner-decor.bottom-left {
+  bottom: 12px;
+  left: 12px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.mobile-menu .corner-decor.bottom-right {
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Hover effect improvements */
+@media (hover: hover) {
+
+  .mobile-menu :deep(a:hover),
+  .mobile-menu :deep(button:hover) {
+    @apply bg-white/10;
+    transform: translateY(-1px);
   }
 }
 
-@media (max-width: 1100px) {
-  .page-header {
-    width: 90vw;
-    max-width: 1024px;
-  }
-}
-
-@media (max-width: 640px) {
-  .page-header {
-    width: calc(100vw - 2rem);
-    height: 3.5rem;
-  }
-  
-  .component-global-wrapper {
-    padding-top: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-}
-
-/* iOS Safari fixes */
+/* iOS Safari specific fixes */
 @supports (-webkit-touch-callout: none) {
   .mobile-menu {
+    /* Fix for iOS Safari 100vh issue */
     height: -webkit-fill-available;
   }
+}
+
+/* Improved mobile breakpoint handling */
+@media (min-width: 640px) {
+  .mobile-menu {
+    display: none;
+  }
+}
+
+/* Fix all dropdowns - ensure they're visible */
+.page-header {
+  overflow: visible !important;
+}
+
+/* Highest z-index for dropdowns - but don't force visibility */
+div[v-show="showLanguageDropdown"],
+div[v-show="showProfileDropdown"] {
+  z-index: 9999 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+  /* Remove these lines that force visibility:
+  visibility: visible !important;
+  display: block !important;
+  */
+}
+
+/* Explicitly set position and overflow for dropdown containers */
+[ref="languageDropdownRef"],
+[ref="dropdownRef"] {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Fix z-index classes with !important to prevent overrides */
+.z-\[50\] {
+  z-index: 50 !important;
+}
+
+.z-\[60\] {
+  z-index: 60 !important;
+}
+
+.z-\[70\] {
+  z-index: 70 !important;
+}
+
+/* Modify language dropdown styling - don't force display */
+.absolute.right-0.top-full {
+  position: absolute !important;
+  right: 0 !important;
+  top: 100% !important;
+  z-index: 9999 !important;
+  /* Remove this line:
+  display: block !important;
+  */
+}
+
+/* Remove any parent elements that might clip the dropdown */
+.page-header-wrapper,
+.component-global-wrapper,
+header,
+.content-container,
+nav {
+  overflow: visible !important;
+}
+
+/* Make dropdown elements clickable but don't force visibility */
+div[v-show="showLanguageDropdown"] button,
+div[v-show="showProfileDropdown"] a,
+div[v-show="showProfileDropdown"] button {
+  pointer-events: auto !important;
 }
 </style>
