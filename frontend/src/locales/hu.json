@@ -19,14 +19,14 @@
     "noResults": "Nincs találat",
     "searching": "Keresés...",
     "viewAll": "Összes találat megtekintése"
-  },
-  "dashboard": {
+  }, "dashboard": {
     "title": "Irányítópult",
     "welcome": "Üdvözöljük a TradeBlazer-ben",
     "welcomeMessage": "Az Ön mindent-egyben kereskedési platformja részvényekhez, kriptovalutákhoz és devizákhoz. Kezdje el a kereskedést magabiztosan.",
     "marketOverview": "Piaci áttekintés",
     "trending": "Népszerű",
     "recentActivity": "Legutóbbi tevékenység",
+    "recent-activity": "Legutóbbi tevékenység",
     "portfolioSummary": "Portfólió összefoglaló",
     "watchlist": "Megfigyelési lista",
     "addToWatchlist": "Hozzáadás a megfigyelési listához",
@@ -50,9 +50,10 @@
     "title": "Piacok",
     "allAssets": "Összes eszköz",
     "crypto": "Kripto",
-    "stocks": "Részvények",
+    "stock": "Részvény",
     "forex": "Deviza",
     "search": "Piacok keresése",
+    "searchAssets": "Eszközök keresése...",
     "type": "Típus",
     "name": "Név",
     "symbol": "Szimbólum",
@@ -67,7 +68,13 @@
     "marketAssets": "Piaci eszközök",
     "noAssetsFound": "Nincs találat",
     "actions": "Műveletek",
-    "subtitle": "Fedezzen fel és kereskedjen különféle eszközökkel"
+    "subtitle": "Fedezzen fel és kereskedjen különféle eszközökkel",
+    "pagination": {
+      "showing": "Megjelenítés",
+      "of": "/",
+      "assets": "eszköz",
+      "page": "Oldal"
+    }
   },
   "portfolio": {
     "title": "Portfólió",
@@ -91,7 +98,6 @@
       "positions": "pozíció",
       "page": "Oldal"
     },
-    "holdings": "Eszközök",
     "transactions": "Tranzakciók",
     "performance": "Teljesítmény",
     "asset": "Eszköz",
@@ -165,14 +171,13 @@
     "addAsset": "Eszköz hozzáadása",
     "editAsset": "Eszköz szerkesztése",
     "deleteAsset": "Eszköz törlése",
-    "userManagement": "Felhasználók kezelése",
     "assetManagement": "Eszközök kezelése",
     "status": "Állapot",
     "actions": "Műveletek",
     "confirmDelete": "Biztosan törölni szeretnéd?",
     "userDetails": "Felhasználó részletei",
     "assetDetails": "Eszköz részletei",
-    "title": "Admin Felület",
+    "interfaceTitle": "Admin Felület",
     "userManagement": "Felhasználó kezelés",
     "table": {
       "id": "Azonosító",
@@ -204,11 +209,9 @@
       "users": "felhasználó",
       "page": "Oldal"
     }
-  },
-  "tutorial": {
-    "title": "Útmutató",
+  },  "tutorial": {
+    "title": "Oktatóanyag",
     "subtitle": "Útmutató a TradeBlazer használatához",
-    "gettingStarted": "Kezdeti lépések",
     "basicConcepts": "Alapfogalmak",
     "howToTrade": "Hogyan kereskedj",
     "riskManagement": "Kockázatkezelés",
@@ -217,7 +220,6 @@
     "previous": "Előző",
     "readMore": "Bővebben",
     "watchVideo": "Videó megtekintése",
-    "title": "Oktatóanyag",
     "sections": {
       "gettingStarted": "Kezdő lépések",
       "websiteNavigation": "Weboldal navigáció",
@@ -242,16 +244,15 @@
           "title": "2. lépés: Profiladatok kitöltése",
           "description": "Adja meg nevét és preferenciáit. Ez segít személyre szabni kereskedési élményét."
         }
+      },"whatYouCanDo": {
+          "title": "Mit tehet a TradeBlazer-en",        
+          "description": "Íme, a platformunkon végezhető fő tevékenységek:",
+          "exploreMarkets": "Piacok felfedezése",
+          "buySell": "Vétel & Eladás",
+          "trackPerformance": "Teljesítmény követése",
+          "learnGrow": "Tanulás & Fejlődés"
       },
-      "features": {
-        "title": "Mit tehet a TradeBlazer-en",
-        "description": "Íme, a platformunkon végezhető fő tevékenységek:",
-        "exploreMarkets": "Piacok felfedezése",
-        "buySell": "Vétel & Eladás",
-        "trackPerformance": "Teljesítmény követése",
-        "learnGrow": "Tanulás & Fejlődés"
-      },
-      "tips": {
+      "quickTips": {
         "title": "Kezdő tippek",
         "tip1": "Kezdje a \"Weboldal navigáció\" oktatóanyaggal, hogy megtanulja, hogyan használja platformunkat",
         "tip2": "Kezdje kis összegekkel, amíg nem érzi magát komfortosan a kereskedéssel",
@@ -264,6 +265,345 @@
       "helpCenter": "Segítségközpont",
       "liveChat": "Élő chat",
       "emailSupport": "Email támogatás"
+    },
+    "websiteTutorial": {
+      "title": "Weboldal navigáció",
+      "dashboard": {
+        "title": "Irányítópult áttekintése",
+        "description": "Az Irányítópult a TradeBlazer központi központja. Innen gyorsan hozzáférhet minden fontos információhoz és funkcióhoz.",
+        "marketOverview": {
+          "title": "Piaci áttekintés",
+          "description": "Átfogó pillantás a pénzügyi piacokra, beleértve a népszerű eszközöket és a legújabb piaci tendenciákat."
+        },
+        "yourPortfolio": {
+          "title": "Az Ön portfóliója",
+          "description": "Követheti befektetései értékét, nyereségét és teljesítményét egy helyen."
+        },
+        "watchlist": {
+          "title": "Megfigyelési lista",
+          "description": "Tartsa szemmel a kedvenc eszközeit és kapjon értesítéseket az árváltozásokról."
+        },
+        "recentActivity": {
+          "title": "Legutóbbi tevékenység",
+          "description": "Tekintse meg legutóbbi tranzakcióit és fiókaktivitását a gyors hivatkozáshoz."
+        }
+      },
+      "mainMenu": {
+        "title": "Főmenü",
+        "description": "A platformon való navigáláshoz használja az oldal tetején található főmenüt. Itt láthatja a különböző oldalak és funkciók ismertetését:",
+        "table": {
+          "menuItem": "Menüpont",
+          "whatItDoes": "Mit csinál",
+          "home": "Kezdőlap",
+          "homeDescription": "Visszatérés a fő irányítópultra átfogó áttekintésért.",
+          "markets": "Piacok",
+          "marketsDescription": "Böngésszen a rendelkezésre álló eszközök között, és nézzen részletes információkat róluk.",
+          "portfolio": "Portfólió",
+          "portfolioDescription": "Kezelje pozícióit és kövesse befektetései teljesítményét.",
+          "watchlist": "Megfigyelési lista",
+          "watchlistDescription": "Kezelje a figyelt eszközök listáját, és állítson be értesítéseket.",
+          "profile": "Profil",
+          "profileDescription": "Kezelje fiókbeállításait és személyes adatait."
+        }
+      },
+      "howToTrade": {
+        "title": "Hogyan kereskedjünk",
+        "step1": {
+          "title": "Eszköz kiválasztása",
+          "description": "Böngésszen a Piacok oldalon vagy használja a keresőt a kívánt eszköz megtalálásához."
+        },
+        "step2": {
+          "title": "Elemezze az eszközt",
+          "description": "Vizsgálja meg az ártörténetet, piaci trendeket és az eszközről szóló információkat, mielőtt kereskedési döntést hozna."
+        },
+        "step3": {
+          "title": "Kereskedési megbízás létrehozása",
+          "description": "Válassza ki a kívánt mennyiséget, állítsa be a megbízás típusát (piaci, limit), majd kattintson a \"Megbízás leadása\" gombra."
+        },
+        "step4": {
+          "title": "Pozíció kezelése",
+          "description": "Kövesse pozícióit a Portfólió oldalon és hozzon megfelelő döntéseket a piaci változások alapján."
+        }
+      },
+      "accountManagement": {
+        "title": "Fiókkezelés",
+        "depositingFunds": {
+          "title": "Pénz befizetése",
+          "description": "Kattintson a Profil oldalon a \"Befizetés\" gombra, és kövesse a fedezet növelésére vonatkozó lépéseket."
+        },
+        "withdrawingFunds": {
+          "title": "Pénz kivétele",
+          "description": "A Profil oldalon válassza a \"Kifizetés\" lehetőséget, adja meg az összeget és a banki adatait a kivételhez."
+        }
+      },
+      "gettingHelp": {
+        "title": "Segítség kérése",
+        "description": "Bármikor kérhet segítséget több csatornán keresztül:",
+        "helpCenter": "Segítségközpont",
+        "liveChat": "Élő chat",
+        "emailSupport": "E-mail támogatás"
+      }
+    },    "tradingBasics": {
+      "title": "Kereskedés alapjai",
+      "whatAreMarkets": {
+        "title": "Mik azok a piacok?",
+        "description": "A pénzügyi piacok olyan platformok, ahol különféle pénzügyi eszközökkel kereskednek, beleértve részvényeket, kriptodevizákat, devizákat és árukat. Ezek a piacok összekötik a vevőket és eladókat, lehetővé téve a kereskedést és az árképzést."
+      },
+      "marketTypes": {
+        "title": "Piactípusok",
+        "table": {
+          "marketType": "Piac típusa",
+          "whatItIs": "Mi ez",
+          "example": "Példa",
+          "stocks": "Részvények",
+          "stocksDescription": "Vállalatok tulajdonrészeit képviselő értékpapírok.",
+          "stocksExample": "Apple (AAPL), Tesla (TSLA)",
+          "cryptocurrencies": "Kriptovaluták",
+          "cryptocurrenciesDescription": "Digitális vagy virtuális valuták, amelyek titkosítással védettek.",
+          "cryptocurrenciesExample": "Bitcoin (BTC), Ethereum (ETH)",
+          "forex": "Deviza",
+          "forexDescription": "Egy ország valutájának egy másikra való cseréje.",
+          "forexExample": "EUR/USD, GBP/JPY"
+        }
+      },
+      "basicConcepts": {
+        "title": "Alapvető fogalmak",
+        "buyingSelling": {
+          "title": "Vétel és eladás",
+          "description": "A kereskedés alapja az eszközök megvásárlása alacsony áron, majd magasabb áron történő eladása (vagy fordítva shortolásnál)."
+        },
+        "priceMovements": {
+          "title": "Ármozgások",
+          "description": "Az eszközök árai a kínálat és kereslet, piaci hangulat, hírek és különféle gazdasági tényezők alapján változnak."
+        },
+        "orderTypes": {
+          "title": "Megbízás típusok",
+          "description": "A piaci megbízások azonnal teljesülnek az aktuális áron, míg a limitáras megbízások csak egy meghatározott áron vagy annál jobb áron teljesülnek."
+        },
+        "riskManagement": {
+          "title": "Kockázatkezelés",
+          "description": "A kereskedők veszteségkorlátozó megbízásokat használnak, és csak tőkéjük egy részét kockáztatják egyes kereskedéseknél."
+        }
+      },
+      "profitLoss": {
+        "title": "Profit és veszteség megértése",
+        "profitExample": {
+          "title": "Nyereséges kereskedés példa",
+          "step1": "1. Megvásárol 1 BTC-t 40,000 USD-ért",
+          "step2": "2. A BTC ára 45,000 USD-re emelkedik",
+          "step3": "3. Eladja a BTC-t az új áron",
+          "result": "Eredmény: 5,000 USD profit"
+        },
+        "lossExample": {
+          "title": "Veszteséges kereskedés példa",
+          "step1": "1. Megvásárol 10 részvényt egyenként 50 USD-ért",
+          "step2": "2. A részvények ára 45 USD-re csökken",
+          "step3": "3. Eladja a részvényeket az új áron",
+          "result": "Eredmény: 50 USD veszteség"
+        },
+        "reminder": "Emlékezzen: Minden kereskedés kockázatot hordoz. Ne kockáztasson többet, mint amit megengedhet magának, hogy elveszítsen."
+      },
+      "faq": {
+        "title": "Gyakori kérdések kezdőknek",
+        "question1": {
+          "title": "Mennyi pénzre van szükségem a kezdéshez?",
+          "answer": "A TradeBlazer-en kisebb összegekkel is elkezdheti a kereskedést. Javasoljuk, hogy csak olyan összeggel kezdjen kereskedni, amelynek elvesztése nem okoz anyagi problémát."
+        },
+        "question2": {
+          "title": "Mennyi időt vesz igénybe a kereskedés tanulása?",
+          "answer": "A kereskedés elsajátítása folyamatos tanulási folyamat. Időt kell szakítani az alapok megértésére, kezdjen kis mennyiségű befektetésekkel, és fokozatosan fejlessze tudását."
+        },
+        "question3": {
+          "title": "Kell speciális képzettség a kereskedéshez?",
+          "answer": "Nem szükséges speciális képzettség vagy diploma, de szükséges a pénzügyi alapfogalmak, piacok és elemzési eszközök megértése."
+        },
+        "question4": {
+          "title": "Hol találhatok további oktatási anyagokat?",
+          "answer": "A TradeBlazer platformon rendszeres webináriumokat, részletes útmutatókat és oktatóvideókat kínálunk. Ezenkívül érdemes szakkönyveket és online kurzusokat is felkeresnie."
+        }
+      }
+    },
+    "advancedTools": {
+      "title": "Haladó eszközök",
+      "description": "Ismerje meg a haladó kereskedési eszközöket, amelyek segíthetnek jobb döntéseket hozni a piacon.",
+      "chartTools": {
+        "title": "Diagram eszközök",
+        "movingAverages": {
+          "title": "Mozgóátlagok",
+          "description": "A mozgóátlagok egy meghatározott időszak átlagárát mutatják, segítenek azonosítani a trendeket és a lehetséges támogatási/ellenállási szinteket."
+        },
+        "rsi": {
+          "title": "Relatív erősség index (RSI)",
+          "description": "Az RSI egy momentum oszcillátor, amely méri az ármozgások sebességét és változását, jelezve a túlvett vagy túladott feltételeket."
+        }
+      },
+      "chartPatterns": {
+        "title": "Diagram minták",
+        "description": "A diagram minták olyan alakzatok, amelyek az árgrafikonokon jelennek meg, és segíthetnek előre jelezni a jövőbeli ármozgásokat.",
+        "uptrend": {
+          "title": "Emelkedő trend",
+          "description": "Magasabb mélypontok és magasabb csúcsok sorozata, amely az árak általános emelkedését jelzi."
+        },
+        "downtrend": {
+          "title": "Csökkenő trend",
+          "description": "Alacsonyabb csúcsok és alacsonyabb mélypontok sorozata, amely az árak általános csökkenését jelzi."
+        }
+      },
+      "orderTypes": {
+        "title": "Megbízás típusok",
+        "stopLoss": {
+          "title": "Stop Loss",
+          "description": "Olyan megbízás, amely automatikusan lezárja a pozícióját egy előre meghatározott árszinten, korlátozva a lehetséges veszteséget."
+        },
+        "takeProfit": {
+          "title": "Take Profit",
+          "description": "Előre beállított megbízás, amely automatikusan lezárja a pozícióját nyereséggel, amikor az ár eléri a célárát."
+        }
+      },
+      "tips": {
+        "title": "Tippek haladóknak",
+        "tip1": "Mindig használjon stop-loss megbízásokat a potenciális veszteségek korlátozására.",
+        "tip2": "Ne feledje, hogy a technikai elemzés egy eszköz, nem pedig garancia.",
+        "tip3": "Gyakoroljon demo számlán, mielőtt valódi pénzzel kereskedne.",
+        "tip4": "A divergenciák (amikor az indikátorok és az ár ellentétes irányba mozog) erős jelzések lehetnek.",
+        "tip5": "Diverzifikálja kereskedéseit különböző eszközökre a kockázat csökkentése érdekében."
+      }
+    },
+    "portfolioManagement": {
+      "title": "Portfólió kezelés",
+      "description": "A portfólió kezelése több, mint csak eszközök vásárlása és eladása. Ez a szakasz bemutatja a befektetéskezelés alapjait.",
+      "diversification": {
+        "title": "Diverzifikáció",
+        "dontPutAllEggs": {
+          "title": "Ne tegye minden tojását egy kosárba",
+          "stocks": "Részvények",
+          "stocksPercentage": "40%",
+          "saferInvestments": "Biztonságosabb befektetések",
+          "saferInvestmentsPercentage": "40%",
+          "newOpportunities": "Új lehetőségek",
+          "newOpportunitiesPercentage": "20%",
+          "description": "Különböző típusú befektetések kombinálása csökkentheti a kockázatot és javíthatja a hosszú távú eredményeket."
+        }
+      },
+      "risk": {
+        "title": "Kockázat megértése",
+        "lowRisk": {
+          "title": "Alacsony kockázat",
+          "description": "Általában alacsonyabb hozamok, de nagyobb biztonság. Példák: államkötvények, pénzpiaci alapok."
+        },
+        "mediumRisk": {
+          "title": "Közepes kockázat",
+          "description": "Kiegyensúlyozott kockázat és hozam. Példák: nagy vállalatok részvényei, minőségi vállalati kötvények."
+        },
+        "highRisk": {
+          "title": "Magas kockázat",
+          "description": "Magasabb potenciális hozam, de nagyobb veszteség lehetősége. Példák: kisebb vállalatok részvényei, kriptovaluták."
+        }
+      },
+      "whenToChange": {
+        "title": "Mikor változtassuk meg a portfóliónkat",
+        "regularCheckups": {
+          "title": "Rendszeres ellenőrzések",
+          "description": "Évente legalább egyszer nézze át a befektetéseit, hogy továbbra is megfelelnek-e a céljainak."
+        },
+        "lifeChanges": {
+          "title": "Élethelyzet változások",
+          "description": "Házasság, gyermekvállalás vagy nyugdíjhoz közeledés befolyásolhatja a kockázati toleranciáját és befektetési időhorizontját."
+        },
+        "rebalancing": {
+          "title": "Újrakalibrálás",
+          "description": "Ha egyes befektetései túlteljesítenek, a portfólió egyensúlya felborulhat. Az újrakalibrálás helyreállítja a kívánt egyensúlyt."
+        }
+      },      "tips": {
+        "title": "Portfólió kezelési tippek",
+        "tip1": "Kezdje a hosszú távú célok meghatározásával, mielőtt egyetlen befektetést is megvásárolna.",
+        "tip2": "Diverzifikáljon nem csak eszközök között, hanem iparágak és régiók között is.",
+        "tip3": "Ne reagáljon túl a rövid távú piaci mozgásokra; maradjon a stratégiája mellett.",
+        "tip4": "Használja a költségátlagolást - rendszeresen fektessen be, függetlenül a piaci feltételektől.",
+        "tip5": "Vegye figyelembe az adózási hatásokat a befektetési döntések meghozatalakor."
+      }
+    },
+    "marketAnalysis": {
+      "title": "Piaci elemzés",
+      "description": "A piaci elemzés segít megérteni a mögöttes tényezőket, amelyek befolyásolják az eszközök árát és a piaci tendenciákat.",
+      "twoWays": {
+        "fundamental": {
+          "title": "Fundamentális elemzés",
+          "description": "A vállalati pénzügyek, gazdasági mutatók és piaci feltételek vizsgálata az eszköz belső értékének meghatározása érdekében.",
+          "like": "Olyan, mint megvizsgálni egy autó motorját és műszaki állapotát, mielőtt megvásárolná."
+        },
+        "technical": {
+          "title": "Technikai elemzés",
+          "description": "Az árgrafikonok és statisztikai adatok vizsgálata a jövőbeli ármozgások előrejelzése érdekében korábbi minták alapján.",
+          "like": "Olyan, mint időjárási mintákat elemezni az előrejelzés készítéséhez."
+        }
+      },      "simpleIndicators": {
+        "title": "Egyszerű indikátorok, amelyeket bárki használhat",
+        "companyNews": {
+          "title": "Vállalati hírek",
+          "description": "A vállalati bejelentések, negyedéves eredmények és fontosabb fejlemények jelentős hatással lehetnek az árfolyamra."
+        },
+        "tradingVolume": {
+          "title": "Kereskedési volumen",
+          "description": "A magas forgalom mutatja, hogy nagy az érdeklődés egy eszköz iránt, míg az alacsony forgalom alacsonyabb érdeklődést jelez."
+        },
+        "marketTrends": {
+          "title": "Piaci trendek",
+          "description": "A piac általános iránya segít megérteni az átfogó környezetet, amelyben egy adott eszköz működik."
+        },
+        "industryChanges": {
+          "title": "Iparági változások",
+          "description": "Az egész iparágat érintő változások gyakran hatással vannak az összes kapcsolódó vállalatra."
+        }
+      },
+      "readingCharts": {
+        "title": "Diagramok olvasása",
+        "description": "A grafikonok a vizuális eszközök, amelyek a történelmi árakat és volumeneket mutatják be könnyen értelmezhető formában.",
+        "candlesticks": {
+          "title": "Gyertyatest diagramok",
+          "description": "Ezek a grafikonok egy időszak nyitó, záró, legmagasabb és legalacsonyabb árát jelenítik meg, segítve a piaci hangulat értelmezését."
+        },
+        "patterns": {
+          "title": "Gyakori minták",
+          "description": "Bizonyos árminták, mint például a \"fej és vállak\" vagy a \"dupla fenék\", hasznos jelzéseket adhatnak a jövőbeli ármozgásokról."
+        }
+      },
+      "framework": {
+        "title": "Piacelemzési keretrendszer",
+        "step1": {
+          "title": "1. Lépés: Általános piaci feltételek elemzése",
+          "description": "Kezdje a nagyobb piaci környezet megértésével - gazdasági jelzések, piaci hangulat és makrogazdasági tényezők."
+        },
+        "step2": {
+          "title": "2. Lépés: Iparági elemzés",
+          "description": "Értékelje az iparág egészségét és trendjeit, amelyben az eszköz működik, beleértve a növekedési potenciált és a kihívásokat."
+        },
+        "step3": {
+          "title": "3. Lépés: Egyedi elemzés",
+          "description": "Vizsgálja meg a konkrét eszköz mutatóit, versenyhelyzetét és értékelési metrikáit."
+        },
+        "step4": {
+          "title": "4. Lépés: Technikai elemzés kiegészítésként",
+          "description": "Használjon árgrafikonokat és technikai indikátorokat az időzítés és a belépési pontok meghatározásához."
+        }
+      },
+      "mistakes": {
+        "title": "Kezdők gyakori hibái",
+        "mistake1": "A túlzott önbizalom az elemzésben - mindig jegyezze meg, hogy a piacok kiszámíthatatlanok lehetnek.",
+        "mistake2": "Túl sok időt tölteni irreleváns információk elemzésével az alapvető tényezők helyett.",
+        "mistake3": "Nem követni a szélesebb gazdasági változásokat, amelyek minden eszközt befolyásolhatnak.",
+        "mistake4": "Túlreagálni a rövid távú zajra és figyelmen kívül hagyni a hosszabb távú trendeket.",
+        "mistake5": "Csak egy elemzési módszert használni - az erősebb elemzés kombinálja a fundamentális és technikai megközelítéseket.",
+        "reminder": "Emlékezzen: A siker a piaci elemzésben a tanulás folyamatos folyamatából és a különböző nézőpontok integrálásából származik."
+      },
+      "commonMistakes": {
+        "title": "Gyakori hibák",
+        "tip1": "Túlreagálás a rövid távú hírekre vagy ármozgásokra.",
+        "tip2": "Túl sok indikátor használata, ami zavaró lehet és ellentétes jelzéseket adhat.",
+        "tip3": "Az érzelmi döntéshozatal hagyása az adatok alapú elemzés helyett.",
+        "tip4": "Csak egy típusú elemzésre hagyatkozni a teljesebb kép helyett.",
+        "tip5": "A kockázatkezelés mellőzése a potenciális hozamok túlhangsúlyozása mellett."
+      }
     }
   },
   "auth": {

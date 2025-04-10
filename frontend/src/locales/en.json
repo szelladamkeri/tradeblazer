@@ -24,9 +24,9 @@
     "title": "Dashboard",
     "welcome": "Welcome to TradeBlazer",
     "welcomeMessage": "Your all-in-one trading platform for stocks, cryptocurrencies, and forex. Start trading with confidence.",
-    "marketOverview": "Market Overview",
-    "trending": "Trending",
+    "marketOverview": "Market Overview",    "trending": "Trending",
     "recentActivity": "Recent Activity",
+    "recent-activity": "Recent Activity",
     "portfolioSummary": "Portfolio Summary",
     "watchlist": "Watchlist",
     "addToWatchlist": "Add to Watchlist",
@@ -53,6 +53,7 @@
     "stocks": "Stocks",
     "forex": "Forex",
     "search": "Search Markets",
+    "searchAssets": "Search assets...",
     "type": "Type",
     "name": "Name",
     "symbol": "Symbol",
@@ -67,7 +68,13 @@
     "marketAssets": "Market Assets",
     "noAssetsFound": "No assets found",
     "actions": "Actions",
-    "subtitle": "Explore and trade a variety of assets"
+    "subtitle": "Explore and trade a variety of assets",
+    "pagination": {
+      "showing": "Showing",
+      "of": "of",
+      "assets": "assets",
+      "page": "Page"
+    }
   },
   "portfolio": {
     "title": "Portfolio",
@@ -166,9 +173,17 @@
       "users": "users",
       "page": "Page"
     }
-  },
-  "tutorial": {
+  },  "tutorial": {
     "title": "Tutorial Guide",
+    "subtitle": "Guide to using TradeBlazer",
+    "basicConcepts": "Basic Concepts",
+    "howToTrade": "How To Trade",
+    "riskManagement": "Risk Management",
+    "advancedStrategies": "Advanced Strategies",
+    "next": "Next",
+    "previous": "Previous",
+    "readMore": "Read More",
+    "watchVideo": "Watch Video",
     "sections": {
       "gettingStarted": "Getting Started",
       "websiteNavigation": "Website Navigation",
@@ -194,7 +209,7 @@
           "description": "Add your name and preferences. This helps us personalize your trading experience."
         }
       },
-      "features": {
+      "whatYouCanDo": {
         "title": "What You Can Do on TradeBlazer",
         "description": "Here are the main things you can do on our platform:",
         "exploreMarkets": "Explore Markets",
@@ -202,12 +217,354 @@
         "trackPerformance": "Track Performance",
         "learnGrow": "Learn & Grow"
       },
-      "tips": {
+      "quickTips": {
         "title": "Beginner Tips",
         "tip1": "Start with the \"Website Navigation\" tutorial to learn how to use our platform",
         "tip2": "Begin with small amounts until you feel comfortable with trading",
         "tip3": "Use the Demo mode to practice without using real money",
         "tip4": "Don't hesitate to contact our support team if you need help!"
+      }
+    },
+    "websiteTutorial": {
+      "title": "Website Navigation",
+      "dashboard": {
+        "title": "Dashboard Overview",
+        "description": "The Dashboard is TradeBlazer's central hub. From here, you can quickly access all important information and features.",
+        "marketOverview": {
+          "title": "Market Overview",
+          "description": "A comprehensive look at financial markets including popular assets and the latest market trends."
+        },
+        "yourPortfolio": {
+          "title": "Your Portfolio",
+          "description": "Track the value, profit, and performance of your investments in one place."
+        },
+        "watchlist": {
+          "title": "Watchlist",
+          "description": "Keep an eye on your favorite assets and get notifications about price changes."
+        },
+        "recentActivity": {
+          "title": "Recent Activity",
+          "description": "View your recent transactions and account activity for quick reference."
+        }
+      },
+      "mainMenu": {
+        "title": "Main Menu",
+        "description": "Use the main menu at the top of the page to navigate the platform. Here's an overview of the different pages and features:",
+        "table": {
+          "menuItem": "Menu Item",
+          "whatItDoes": "What It Does",
+          "home": "Home",
+          "homeDescription": "Return to the main dashboard for a comprehensive overview.",
+          "markets": "Markets",
+          "marketsDescription": "Browse available assets and see detailed information about them.",
+          "portfolio": "Portfolio",
+          "portfolioDescription": "Manage your positions and track your investment performance.",
+          "watchlist": "Watchlist",
+          "watchlistDescription": "Manage your list of watched assets and set up alerts.",
+          "profile": "Profile",
+          "profileDescription": "Manage your account settings and personal information."
+        }
+      },
+      "howToTrade": {
+        "title": "How To Trade",
+        "step1": {
+          "title": "Select an Asset",
+          "description": "Browse the Markets page or use the search to find your desired asset."
+        },
+        "step2": {
+          "title": "Analyze the Asset",
+          "description": "Examine price history, market trends, and information about the asset before making a trading decision."
+        },
+        "step3": {
+          "title": "Create a Trade Order",
+          "description": "Choose the quantity you want, set the order type (market, limit), and click 'Place Order'."
+        },
+        "step4": {
+          "title": "Manage Your Position",
+          "description": "Track your positions from the Portfolio page and make appropriate decisions based on market changes."
+        }
+      },
+      "accountManagement": {
+        "title": "Account Management",
+        "depositingFunds": {
+          "title": "Depositing Funds",
+          "description": "Click on the 'Deposit' button in the Profile page and follow the steps to increase your balance."
+        },
+        "withdrawingFunds": {
+          "title": "Withdrawing Funds",
+          "description": "Select 'Withdraw' from the Profile page, enter the amount and your banking details to make a withdrawal."
+        }
+      },
+      "gettingHelp": {
+        "title": "Getting Help",
+        "description": "You can ask for help through multiple channels anytime:",
+        "helpCenter": "Help Center",
+        "liveChat": "Live Chat",
+        "emailSupport": "Email Support"
+      }
+    },
+    "tradingBasics": {
+      "title": "Trading Basics",
+      "whatAreMarkets": {
+        "title": "What Are Markets?",
+        "description": "Financial markets are platforms where various financial instruments are traded, including stocks, cryptocurrencies, currencies, and commodities. These markets connect buyers and sellers, enabling trading and price discovery."
+      },
+      "marketTypes": {
+        "title": "Market Types",
+        "table": {
+          "marketType": "Market Type",
+          "whatItIs": "What It Is",
+          "example": "Example",
+          "stocks": "Stocks",
+          "stocksDescription": "Securities representing ownership pieces of companies.",
+          "stocksExample": "Apple (AAPL), Tesla (TSLA)",
+          "cryptocurrencies": "Cryptocurrencies",
+          "cryptocurrenciesDescription": "Digital or virtual currencies that are secured by cryptography.",
+          "cryptocurrenciesExample": "Bitcoin (BTC), Ethereum (ETH)",
+          "forex": "Forex",
+          "forexDescription": "The exchange of one country's currency for another.",
+          "forexExample": "EUR/USD, GBP/JPY"
+        }
+      },
+      "basicConcepts": {
+        "title": "Basic Concepts",
+        "buyingSelling": {
+          "title": "Buying and Selling",
+          "description": "The foundation of trading is buying assets at a low price and selling them at a higher price (or vice versa for shorting)."
+        },
+        "priceMovements": {
+          "title": "Price Movements",
+          "description": "Asset prices change based on supply and demand, market sentiment, news, and various economic factors."
+        },
+        "orderTypes": {
+          "title": "Order Types",
+          "description": "Market orders execute immediately at the current price, while limit orders only execute at a specified price or better."
+        },
+        "riskManagement": {
+          "title": "Risk Management",
+          "description": "Traders use stop-loss orders and only risk a portion of their capital on individual trades."
+        }
+      },
+      "profitLoss": {
+        "title": "Understanding Profit and Loss",
+        "profitExample": {
+          "title": "Profitable Trade Example",
+          "step1": "1. You buy 1 BTC for $40,000",
+          "step2": "2. BTC price rises to $45,000",
+          "step3": "3. You sell the BTC at the new price",
+          "result": "Result: $5,000 profit"
+        },
+        "lossExample": {
+          "title": "Loss-making Trade Example",
+          "step1": "1. You buy 10 shares at $50 each",
+          "step2": "2. The share price drops to $45",
+          "step3": "3. You sell the shares at the new price",
+          "result": "Result: $50 loss"
+        },
+        "reminder": "Remember: All trading involves risk. Never risk more than you can afford to lose."
+      },
+      "faq": {
+        "title": "Beginner's FAQ",
+        "question1": {
+          "title": "How much money do I need to start?",
+          "answer": "You can start trading with small amounts on TradeBlazer. We recommend beginning with an amount that you'd be comfortable losing."
+        },
+        "question2": {
+          "title": "How long does it take to learn trading?",
+          "answer": "Learning to trade is an ongoing process. You'll need to spend time understanding the basics, starting with small investments, and gradually building your knowledge."
+        },
+        "question3": {
+          "title": "Do I need special qualifications to trade?",
+          "answer": "No special qualifications or degrees are required, but you need to understand financial basics, markets, and analytical tools."
+        },
+        "question4": {
+          "title": "Where can I find more educational materials?",
+          "answer": "We offer regular webinars, detailed guides, and tutorial videos on the TradeBlazer platform. You might also want to check out finance books and online courses."
+        }
+      }
+    },
+    "advancedTools": {
+      "title": "Advanced Tools",
+      "description": "Learn about advanced trading tools that can help you make better decisions in the market.",
+      "chartTools": {
+        "title": "Chart Tools",
+        "movingAverages": {
+          "title": "Moving Averages",
+          "description": "Moving averages show the average price over a specific period, helping identify trends and potential support/resistance levels."
+        },
+        "rsi": {
+          "title": "Relative Strength Index (RSI)",
+          "description": "RSI is a momentum oscillator that measures the speed and change of price movements, indicating overbought or oversold conditions."
+        }
+      },
+      "chartPatterns": {
+        "title": "Chart Patterns",
+        "description": "Chart patterns are shapes that appear on price charts and can help predict future price movements.",
+        "uptrend": {
+          "title": "Uptrend",
+          "description": "A series of higher lows and higher highs, indicating an overall rise in prices."
+        },
+        "downtrend": {
+          "title": "Downtrend",
+          "description": "A series of lower highs and lower lows, indicating an overall decline in prices."
+        }
+      },
+      "orderTypes": {
+        "title": "Order Types",
+        "stopLoss": {
+          "title": "Stop Loss",
+          "description": "An order that automatically closes your position at a predetermined price level, limiting potential loss."
+        },
+        "takeProfit": {
+          "title": "Take Profit",
+          "description": "A preset order that automatically closes your position at a profit when the price reaches your target price."
+        }
+      },
+      "tips": {
+        "title": "Tips for Advanced Users",
+        "tip1": "Always use stop-loss orders to limit potential losses.",
+        "tip2": "Remember that technical analysis is a tool, not a guarantee.",
+        "tip3": "Practice on a demo account before trading with real money.",
+        "tip4": "Divergences (when indicators and price move in opposite directions) can be powerful signals.",
+        "tip5": "Diversify your trades across different assets to reduce risk."
+      }
+    },
+    "portfolioManagement": {
+      "title": "Portfolio Management",
+      "description": "Portfolio management is more than just buying and selling assets. This section introduces the basics of investment management.",
+      "diversification": {
+        "title": "Diversification",
+        "dontPutAllEggs": {
+          "title": "Don't Put All Your Eggs in One Basket",
+          "stocks": "Stocks",
+          "stocksPercentage": "40%",
+          "saferInvestments": "Safer Investments",
+          "saferInvestmentsPercentage": "40%",
+          "newOpportunities": "New Opportunities",
+          "newOpportunitiesPercentage": "20%",
+          "description": "Combining different types of investments can reduce risk and improve long-term results."
+        }
+      },
+      "risk": {
+        "title": "Understanding Risk",
+        "lowRisk": {
+          "title": "Low Risk",
+          "description": "Generally lower returns but greater safety. Examples: government bonds, money market funds."
+        },
+        "mediumRisk": {
+          "title": "Medium Risk",
+          "description": "Balanced risk and return. Examples: blue-chip stocks, quality corporate bonds."
+        },
+        "highRisk": {
+          "title": "High Risk",
+          "description": "Higher potential returns but greater possibility of loss. Examples: small-cap stocks, cryptocurrencies."
+        }
+      },
+      "whenToChange": {
+        "title": "When to Change Your Portfolio",
+        "regularCheckups": {
+          "title": "Regular Checkups",
+          "description": "Review your investments at least once a year to ensure they still align with your goals."
+        },
+        "lifeChanges": {
+          "title": "Life Changes",
+          "description": "Marriage, having children, or approaching retirement can affect your risk tolerance and investment horizon."
+        },
+        "rebalancing": {
+          "title": "Rebalancing",
+          "description": "If some investments outperform others, your portfolio balance can become skewed. Rebalancing restores your desired balance."
+        }
+      },
+      "tips": {
+        "title": "Portfolio Management Tips",
+        "tip1": "Start by defining long-term goals before purchasing any investment.",
+        "tip2": "Diversify not just across assets but also across industries and regions.",
+        "tip3": "Don't overreact to short-term market movements; stick to your strategy.",
+        "tip4": "Use dollar-cost averaging - invest regularly regardless of market conditions.",
+        "tip5": "Consider tax implications when making investment decisions."
+      }
+    },
+    "marketAnalysis": {
+      "title": "Market Analysis",
+      "description": "Market analysis helps you understand underlying factors that affect asset prices and market trends.",
+      "twoWays": {
+        "fundamental": {
+          "title": "Fundamental Analysis",
+          "description": "Examining corporate finances, economic indicators, and market conditions to determine an asset's intrinsic value.",
+          "like": "It's like examining a car's engine and mechanical condition before buying it."
+        },
+        "technical": {
+          "title": "Technical Analysis",
+          "description": "Examining price charts and statistical data to forecast future price movements based on past patterns.",
+          "like": "It's like analyzing weather patterns to create a forecast."
+        }
+      },
+      "simpleIndicators": {
+        "title": "Simple Indicators Anyone Can Use",
+        "companyNews": {
+          "title": "Company News",
+          "description": "Corporate announcements, quarterly results, and major developments can significantly impact stock prices."
+        },
+        "tradingVolume": {
+          "title": "Trading Volume",
+          "description": "High volume shows there's strong interest in an asset, while low volume indicates lower interest."
+        },
+        "marketTrends": {
+          "title": "Market Trends",
+          "description": "The general direction of the market helps understand the broader environment in which a particular asset operates."
+        },
+        "industryChanges": {
+          "title": "Industry Changes",
+          "description": "Changes affecting an entire industry often impact all related companies."
+        }
+      },
+      "readingCharts": {
+        "title": "Reading Charts",
+        "description": "Charts are visual tools that display historical prices and volumes in an easy-to-understand format.",
+        "candlesticks": {
+          "title": "Candlestick Charts",
+          "description": "These charts show the opening, closing, high, and low prices for a period, helping interpret market sentiment."
+        },
+        "patterns": {
+          "title": "Common Patterns",
+          "description": "Certain price patterns, such as 'head and shoulders' or 'double bottom', can provide useful signals about future price movements."
+        }
+      },
+      "framework": {
+        "title": "Market Analysis Framework",
+        "step1": {
+          "title": "Step 1: Analyze General Market Conditions",
+          "description": "Start by understanding the broader market environment - economic signals, market sentiment, and macroeconomic factors."
+        },
+        "step2": {
+          "title": "Step 2: Industry Analysis",
+          "description": "Evaluate the health and trends of the industry in which the asset operates, including growth potential and challenges."
+        },
+        "step3": {
+          "title": "Step 3: Individual Analysis",
+          "description": "Examine specific asset metrics, competitive position, and valuation metrics."
+        },
+        "step4": {
+          "title": "Step 4: Technical Analysis as a Supplement",
+          "description": "Use price charts and technical indicators to determine timing and entry points."
+        }
+      },
+      "mistakes": {
+        "title": "Common Beginner Mistakes",
+        "mistake1": "Overconfidence in analysis - always remember markets can be unpredictable.",
+        "mistake2": "Spending too much time analyzing irrelevant information instead of focusing on key factors.",
+        "mistake3": "Not following broader economic changes that can affect all assets.",
+        "mistake4": "Overreacting to short-term noise and ignoring longer-term trends.",
+        "mistake5": "Using only one method of analysis - stronger analysis combines fundamental and technical approaches.",
+        "reminder": "Remember: Success in market analysis comes from continuous learning and integrating different perspectives."
+      },
+      "commonMistakes": {
+        "title": "Common Mistakes",
+        "tip1": "Overreacting to short-term news or price movements.",
+        "tip2": "Using too many indicators, which can be confusing and give contradictory signals.",
+        "tip3": "Letting emotions drive decisions instead of data-based analysis.",
+        "tip4": "Relying on only one type of analysis instead of a more complete picture.",
+        "tip5": "Neglecting risk management while overemphasizing potential returns."
       }
     },
     "common": {
