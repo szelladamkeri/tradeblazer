@@ -19,8 +19,11 @@
     "noResults": "Nincs találat",
     "searching": "Keresés...",
     "viewAll": "Összes találat megtekintése",
-    "error": "Sikertelen keresés",
-    "resultsCount": "{count} találat"
+    "error": "A keresés sikertelen",
+    "resultsCount": "{count} találat",
+    "assetTypestock": "Részvény",
+    "assetTypecrypto": "Kriptovaluta",
+    "assetTypeforex": "Forex"
   },
   "dashboard": {
     "title": "Irányítópult",

@@ -310,7 +310,7 @@ const handleMouseMove = (event: MouseEvent) => {
                             <div class="font-medium text-white flex items-center">
                               {{ result.symbol }}
                               <span class="ml-2 px-2 py-0.5 text-xs bg-white/10 rounded-full text-gray-400">
-                                {{ result.type }}
+                                {{ t('search.assetType' + result.type) }}
                               </span>
                             </div>
                             <div class="text-sm text-gray-400 truncate max-w-[220px]">{{ result.name }}</div>
@@ -558,7 +558,7 @@ const handleMouseMove = (event: MouseEvent) => {
                             <div class="font-medium text-white flex items-center">
                               {{ result.symbol }}
                               <span class="ml-2 px-2 py-0.5 text-xs bg-white/10 rounded-full text-gray-400">
-                                {{ result.type }}
+                                {{ t('search.assetType' + result.type) }}
                               </span>
                             </div>
                             <div class="text-sm text-gray-400 truncate max-w-[220px]">{{ result.name }}</div>
