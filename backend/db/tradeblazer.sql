@@ -372,6 +372,7 @@ CREATE TABLE `transactions` (
   `user_id` int(11) NOT NULL,
   `type` enum('deposit','withdrawal') NOT NULL,
   `amount` decimal(15,2) NOT NULL,
+  `method` varchar(50) DEFAULT NULL, -- Added payment method column
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -617,6 +618,7 @@ ADD COLUMN `alert_triggered` tinyint(1) DEFAULT 0;
 ALTER TABLE `activity_log`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
 
 --
 -- A tábla indexei `assets`

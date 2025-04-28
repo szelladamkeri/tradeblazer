@@ -1,4 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/LoginView.vue'
+import RegisterView from '../views/RegisterView.vue'
+import ProfileView from '../views/ProfileView.vue'
+import EditProfileView from '../views/EditProfileView.vue'
+import MarketsView from '../views/MarketsView.vue'
+import PortfolioView from '../views/PortfolioView.vue'
+import TradeView from '../views/TradeView.vue'
+import AdminView from '../views/AdminView.vue'
+import TutorialView from '../views/TutorialView.vue'
+import DepositView from '../views/DepositView.vue' // Import DepositView
+import NotFoundView from '../views/NotFoundView.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
@@ -7,7 +19,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/HomeView.vue')
+      component: HomeView
     },
     {
       path: '/about',
@@ -17,7 +29,7 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('../views/ProfileView.vue'),
+      component: ProfileView,
       meta: {
         requiresAuth: true
       }
@@ -33,17 +45,17 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/LoginView.vue')
+      component: LoginView
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../views/RegisterView.vue')
+      component: RegisterView
     },
     {
       path: '/edit-profile',
       name: 'editProfile',
-      component: () => import('../views/EditProfileView.vue'),
+      component: EditProfileView,
       meta: {
         requiresAuth: true
       }
@@ -51,7 +63,7 @@ const router = createRouter({
     {
       path: '/404',
       name: 'not-found',
-      component: () => import('../views/NotFoundView.vue')
+      component: NotFoundView
     },
     {
       path: '/:pathMatch(.*)*',
@@ -60,19 +72,19 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin',
-      component: () => import('../views/AdminView.vue'),
+      component: AdminView,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
       path: '/trade/:id',
       name: 'trade',
-      component: () => import('../views/TradeView.vue'),
+      component: TradeView,
       props: true
     },
     {
       path: '/markets',
       name: 'markets',
-      component: () => import('../views/MarketsView.vue')
+      component: MarketsView
     },
     {
       path: '/markets/:id',
@@ -90,6 +102,12 @@ const router = createRouter({
       path: '/verify',
       name: 'verify',
       component: () => import('../views/VerifyView.vue'),
+    },
+    {
+      path: '/deposit', // Add deposit route
+      name: 'deposit',
+      component: DepositView,
+      meta: { requiresAuth: true }
     },
   ]
 })
