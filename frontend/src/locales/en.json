@@ -20,7 +20,10 @@
     "searching": "Searching...",
     "viewAll": "View all results",
     "error": "Failed to perform search",
-    "resultsCount": "{count} results found"
+    "resultsCount": "{count} results found",
+    "assetTypestock": "Stock",
+    "assetTypecrypto": "Crypto",
+    "assetTypeforex": "Forex"
   },
   "dashboard": {
     "title": "Dashboard",

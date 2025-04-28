@@ -155,7 +155,12 @@ const {
   nextPage,
   prevPage,
   visibleItems // Add this
-} = usePagination(filteredAssets)
+} = usePagination(filteredAssets, {
+  rowHeight: 72, // Keep default or adjust if needed
+  headerHeight: 180, // Keep default or adjust if needed
+  tableHeaderHeight: 56, // Keep default or adjust if needed
+  maxItems: 5 // Reverted maxItems back to 5
+})
 
 // Remove the old paginatedAssets computed property
 
@@ -194,200 +199,202 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   <FullPageError v-else-if="error" :message="error.message" :error-type="error.type" @retry="fetchAssets" />
 
   <!-- Only render normal page when there's no error -->
-  <div v-else class="markets-view view-container">
+  <div v-else class="markets-view view-container flex flex-col">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
 
-    <div class="w-full pt-12 pb-8 px-4 view-content">
-      <div class="max-w-7xl mx-auto">
-        <!-- Header section with improved icons -->
-        <div v-if="!error && !loading"
-          class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
-            </div>
-            <div>
-              <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ t('markets.title') }}</h1>
-              <p class="text-gray-400 mt-1">{{ t('markets.subtitle') }}</p>
-            </div>
-          </div>
-
-          <!-- Controls -->
-          <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <div class="relative w-full sm:w-64">
-              <input type="text" v-model="searchTerm" :placeholder="t('markets.search')"
-                class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200" />
-              <font-awesome-icon icon="search"
-                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    <PageMain @mousemove="handleHeaderMouseMove">
+      <div class="w-full h-full overflow-y-auto px-2 sm:px-4 py-4">
+        <div class="max-w-7xl mx-auto">
+          <!-- Header section with improved icons -->
+          <div v-if="!error && !loading"
+            class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                <font-awesome-icon icon="chart-pie" class="text-2xl text-green-400" />
+              </div>
+              <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ t('markets.title') }}</h1>
+                <p class="text-gray-400 mt-1">{{ t('markets.subtitle') }}</p>
+              </div>
             </div>
 
-            <!-- Improved custom dropdown -->
-            <div class="relative w-full sm:w-44">
-              <div class="custom-select-wrapper">
-                <select v-model="selectedType"
-                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200">
-                  <option value="all">{{ t('common.all') }}</option>
-                  <option value="stock">{{ t('markets.stock') }}</option>
-                  <option value="crypto">{{ t('markets.crypto') }}</option>
-                  <option value="forex">{{ t('markets.forex') }}</option>
-                </select>
-                <div class="custom-select-icon">
-                  <font-awesome-icon icon="chevron-down" class="text-gray-400" />
+            <!-- Controls -->
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <div class="relative w-full sm:w-64">
+                <input type="text" v-model="searchTerm" :placeholder="t('markets.search')"
+                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200" />
+                <font-awesome-icon icon="search"
+                  class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+
+              <!-- Improved custom dropdown -->
+              <div class="relative w-full sm:w-44">
+                <div class="custom-select-wrapper">
+                  <select v-model="selectedType"
+                    class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200">
+                    <option value="all">{{ t('common.all') }}</option>
+                    <option value="stock">{{ t('markets.stock') }}</option>
+                    <option value="crypto">{{ t('markets.crypto') }}</option>
+                    <option value="forex">{{ t('markets.forex') }}</option>
+                  </select>
+                  <div class="custom-select-icon">
+                    <font-awesome-icon icon="chevron-down" class="text-gray-400" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Loading state -->
-        <div v-if="loading" class="flex justify-center items-center py-12">
-          <LoadingSpinner />
-        </div>
-
-        <!-- Empty state -->
-        <div v-else-if="filteredAssets.length === 0" class="grid grid-cols-1 gap-6">
-          <div class="dashboard-panel">
-            <div class="panel-inner flex items-center justify-center p-8 max-w-md text-center">
-              <div class="flex flex-col items-center">
-                <font-awesome-icon icon="search" class="text-3xl text-gray-400 mb-4 panel-icon-lg" />
-                <p class="text-gray-400">{{ t('markets.noAssetsFound') }}</p>
-              </div>
-            </div>
-            <div class="corner-decor top-left"></div>
-            <div class="corner-decor top-right"></div>
-            <div class="corner-decor bottom-left"></div>
-            <div class="corner-decor bottom-right"></div>
+          <!-- Loading state -->
+          <div v-if="loading" class="flex justify-center items-center py-12">
+            <LoadingSpinner />
           </div>
-        </div>
 
-        <!-- Content state - Using grid layout like HomeView -->
-        <div v-if="!loading && !error && filteredAssets.length > 0" class="grid grid-cols-1 gap-6">
-          <div class="dashboard-panel">
-            <div class="panel-inner">
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
-                  <font-awesome-icon icon="list" class="panel-icon" />
-                  {{ t('markets.marketAssets') }}
-                </h2>
+          <!-- Empty state -->
+          <div v-else-if="filteredAssets.length === 0" class="grid grid-cols-1 gap-6">
+            <div class="dashboard-panel">
+              <div class="panel-inner flex items-center justify-center p-8 max-w-md text-center">
+                <div class="flex flex-col items-center">
+                  <font-awesome-icon icon="search" class="text-3xl text-gray-400 mb-4 panel-icon-lg" />
+                  <p class="text-gray-400">{{ t('markets.noAssetsFound') }}</p>
+                </div>
               </div>
+              <div class="corner-decor top-left"></div>
+              <div class="corner-decor top-right"></div>
+              <div class="corner-decor bottom-left"></div>
+              <div class="corner-decor bottom-right"></div>
+            </div>
+          </div>
 
-              <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                  <thead>
-                    <tr>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10">
-                        <div class="flex items-center gap-2">
-                          <font-awesome-icon icon="coins" class="text-green-400" />
-                          {{ t('markets.type') }}
-                        </div>
-                      </th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
-                        <div class="flex items-center gap-2 justify-end">
-                          <font-awesome-icon icon="dollar-sign" class="text-green-400" />
-                          {{ t('markets.price') }}
-                        </div>
-                      </th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
-                        <div class="flex items-center gap-2 justify-end">
-                          <font-awesome-icon icon="chart-line" class="text-green-400" />
-                          {{ t('markets.change') }}
-                        </div>
-                      </th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
-                        <div class="flex items-center gap-2 justify-end">
-                          <font-awesome-icon icon="sack-dollar" class="text-green-400" />
-                          {{ t('markets.marketCap') }}
-                        </div>
-                      </th>
-                      <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
-                        {{ t('markets.actions') }}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-white/10">
-                    <tr v-for="asset in paginatedAssets" :key="asset.id"
-                      class="hover:bg-white/5 transition-colors group">
-                      <td class="py-4 px-4">
-                        <div class="flex items-center gap-3">
-                          <div
-                            class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
-                            <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
+          <!-- Content state - Using grid layout like HomeView -->
+          <div v-if="!loading && !error && filteredAssets.length > 0" class="grid grid-cols-1 gap-6">
+            <div class="dashboard-panel">
+              <div class="panel-inner">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="text-lg font-medium text-white flex items-center gap-2 glow-text">
+                    <font-awesome-icon icon="list" class="panel-icon" />
+                    {{ t('markets.marketAssets') }}
+                  </h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr>
+                        <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon icon="coins" class="text-green-400" />
+                            {{ t('markets.type') }}
                           </div>
-                          <div>
-                            <div class="font-medium text-white">{{ asset.name }}</div>
-                            <div class="text-sm text-gray-400">{{ asset.symbol }}</div>
+                        </th>
+                        <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                          <div class="flex items-center gap-2 justify-end">
+                            <font-awesome-icon icon="dollar-sign" class="text-green-400" />
+                            {{ t('markets.price') }}
                           </div>
-                        </div>
-                      </td>
-                      <td class="py-4 px-4 text-right font-medium text-white">{{ formatPrice(asset.price) }}</td>
-                      <td class="py-4 px-4 text-right">
-                        <span :class="getChangeClass(asset.change_24h)" class="flex items-center justify-end gap-1">
-                          <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
-                          {{ formatChange(asset.change_24h) }}
-                        </span>
-                      </td>
-                      <td class="py-4 px-4 text-right text-gray-300">{{ formatMarketCap(asset.market_cap) }}</td>
-                      <td class="py-4 px-4 text-right">
-                        <div class="flex gap-2 justify-end">
-                          <button @click="goToTrade(asset.id)"
-                            class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors flex items-center gap-2">
-                            <font-awesome-icon icon="exchange-alt" />
-                            {{ t('markets.trade') }}
-                          </button>
-                          <button v-if="isLoggedIn" @click="addToWatchlist(asset.id)"
-                            class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
-                            :title="'Add ' + asset.symbol + ' to watchlist'">
-                            <font-awesome-icon icon="star" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              
-              <!-- Pagination controls moved INSIDE panel-inner to match PortfolioView -->
-              <div class="mt-4 flex items-center justify-between px-4 border-t border-white/10 pt-4">
-                <div class="text-sm text-gray-400">
-                  {{ t('markets.pagination.showing') }} {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }}
-                  <!-- {{ t('markets.pagination.to') }} -->
-                  -
-                  {{ Math.min(currentPage * visibleItems, filteredAssets.length) }} {{ t('markets.pagination.of') }}
-                  {{ filteredAssets.length }} {{ t('markets.pagination.assets') }}
+                        </th>
+                        <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                          <div class="flex items-center gap-2 justify-end">
+                            <font-awesome-icon icon="chart-line" class="text-green-400" />
+                            {{ t('markets.change') }}
+                          </div>
+                        </th>
+                        <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                          <div class="flex items-center gap-2 justify-end">
+                            <font-awesome-icon icon="sack-dollar" class="text-green-400" />
+                            {{ t('markets.marketCap') }}
+                          </div>
+                        </th>
+                        <th class="py-4 px-4 font-medium text-gray-300 border-b border-white/10 text-right">
+                          {{ t('markets.actions') }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                      <tr v-for="asset in paginatedAssets" :key="asset.id"
+                        class="hover:bg-white/5 transition-colors group">
+                        <td class="py-4 px-4">
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                              <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
+                            </div>
+                            <div>
+                              <div class="font-medium text-white">{{ asset.name }}</div>
+                              <div class="text-sm text-gray-400">{{ asset.symbol }}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="py-4 px-4 text-right font-medium text-white">{{ formatPrice(asset.price) }}</td>
+                        <td class="py-4 px-4 text-right">
+                          <span :class="getChangeClass(asset.change_24h)" class="flex items-center justify-end gap-1">
+                            <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
+                            {{ formatChange(asset.change_24h) }}
+                          </span>
+                        </td>
+                        <td class="py-4 px-4 text-right text-gray-300">{{ formatMarketCap(asset.market_cap) }}</td>
+                        <td class="py-4 px-4 text-right">
+                          <div class="flex gap-2 justify-end">
+                            <button @click="goToTrade(asset.id)"
+                              class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors flex items-center gap-2">
+                              <font-awesome-icon icon="exchange-alt" />
+                              {{ t('markets.trade') }}
+                            </button>
+                            <button v-if="isLoggedIn" @click="addToWatchlist(asset.id)"
+                              class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                              :title="'Add ' + asset.symbol + ' to watchlist'">
+                              <font-awesome-icon icon="star" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-                <div class="flex items-center gap-2">
-                  <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-lg transition-colors"
-                    :class="[
-                      currentPage === 1
-                        ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                        : 'bg-white/10 text-white hover:bg-white/20'
-                    ]">
-                    <font-awesome-icon icon="chevron-left" />
-                  </button>
+                
+                <!-- Pagination controls moved INSIDE panel-inner to match PortfolioView -->
+                <div class="mt-4 flex items-center justify-between px-4 border-t border-white/10 pt-4">
+                  <div class="text-sm text-gray-400">
+                    {{ t('markets.pagination.showing') }} {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }}
+                    <!-- {{ t('markets.pagination.to') }} -->
+                    -
+                    {{ Math.min(currentPage * visibleItems, filteredAssets.length) }} {{ t('markets.pagination.of') }}
+                    {{ filteredAssets.length }} {{ t('markets.pagination.assets') }}
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-lg transition-colors"
+                      :class="[
+                        currentPage === 1
+                          ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                          : 'bg-white/10 text-white hover:bg-white/20'
+                      ]">
+                      <font-awesome-icon icon="chevron-left" />
+                    </button>
 
-                  <span class="text-gray-400">
-                    {{ t('markets.pagination.page') }} {{ currentPage }} {{ t('markets.pagination.of') }} {{ totalPages }}
-                  </span>
+                    <span class="text-gray-400">
+                      {{ t('markets.pagination.page') }} {{ currentPage }} {{ t('markets.pagination.of') }} {{ totalPages }}
+                    </span>
 
-                  <button @click="nextPage" :disabled="currentPage === totalPages"
-                    class="px-3 py-1 rounded-lg transition-colors" :class="[
-                      currentPage === totalPages
-                        ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                        : 'bg-white/10 text-white hover:bg-white/20'
-                    ]">
-                    <font-awesome-icon icon="chevron-right" />
-                  </button>
+                    <button @click="nextPage" :disabled="currentPage === totalPages"
+                      class="px-3 py-1 rounded-lg transition-colors" :class="[
+                        currentPage === totalPages
+                          ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                          : 'bg-white/10 text-white hover:bg-white/20'
+                      ]">
+                      <font-awesome-icon icon="chevron-right" />
+                    </button>
+                  </div>
                 </div>
               </div>
+              <div class="corner-decor top-left"></div>
+              <div class="corner-decor top-right"></div>
+              <div class="corner-decor bottom-left"></div>
+              <div class="corner-decor bottom-right"></div>
             </div>
-            <div class="corner-decor top-left"></div>
-            <div class="corner-decor top-right"></div>
-            <div class="corner-decor bottom-left"></div>
-            <div class="corner-decor bottom-right"></div>
           </div>
         </div>
       </div>
-    </div>
+    </PageMain>
   </div>
 </template>
 
