@@ -454,14 +454,20 @@ const handleMouseMove = (event: MouseEvent) => {
 
               <!-- User Profile Section -->
               <div v-if="userStore.isAuthenticated" class="relative flex items-center" ref="dropdownRef">
-                <!-- Replace displayName with username -->
+                <!-- Replace displayName with username and add balance -->
                 <div class="hidden sm:block">
-                  <span :class="[
-                    'mr-3 transition-colors',
-                    $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
-                  ]">
-                    {{ userStore.user?.username }}
-                  </span>
+                  <div class="flex items-center gap-4">
+                    <span :class="[
+                      'transition-colors',
+                      $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
+                    ]">
+                      {{ userStore.user?.username }}
+                    </span>
+                    <div class="px-3 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
+                      <font-awesome-icon icon="wallet" class="text-green-400" />
+                      <span class="text-green-400">${{ (userStore.user?.balance || 0).toFixed(2) }}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Avatar button and dropdown container -->
