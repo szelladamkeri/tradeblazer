@@ -233,7 +233,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                   <select v-model="selectedType"
                     class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 sm:py-2 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200">
                     <option value="all">{{ t('common.all') }}</option>
-                    <option value="stock">{{ t('markets.stock') }}</option>
+                    <option value="stock">{{ t('markets.stocks') }}</option> <!-- Changed key from markets.stock to markets.stocks -->
                     <option value="crypto">{{ t('markets.crypto') }}</option>
                     <option value="forex">{{ t('markets.forex') }}</option>
                   </select>

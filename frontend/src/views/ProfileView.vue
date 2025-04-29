@@ -100,8 +100,11 @@ const handleDeleteConfirm = async () => {
   }
 }
 
+const { t, locale } = useI18n() // Destructure locale as well
+
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  // Use the current locale for date formatting
+  return new Date(dateString).toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -117,9 +120,11 @@ const firstLetter = computed(() => {
 const userRoleDisplay = computed(() => {
   switch (userStore.user?.type) {
     case 'A':
-      return { text: 'Administrator', color: 'text-red-400' }
+      // Use translation keys for roles
+      return { text: t('profile.roleAdmin'), color: 'text-red-400' }
     default:
-      return { text: 'User', color: 'text-gray-400' }
+      // Use translation keys for roles
+      return { text: t('profile.roleUser'), color: 'text-gray-400' }
   }
 })
 
@@ -137,7 +142,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-y', `${y}%`);
 };
 
-const { t } = useI18n()
 </script>
 
 <template>
@@ -184,7 +188,7 @@ const { t } = useI18n()
                 class="w-full h-full object-cover"
                 :key="refreshTimestamp"
                 alt="User avatar"
-              ></img>
+              />
               <div v-else class="w-full h-full flex items-center justify-center bg-green-500">
                 <span class="text-white text-3xl font-semibold">{{ firstLetter }}</span>
               </div>
@@ -212,11 +216,11 @@ const { t } = useI18n()
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-              <h3 class="text-white text-lg font-semibold mb-2">Account Status</h3>
-              <p class="text-green-400">Active</p>
+              <h3 class="text-white text-lg font-semibold mb-2">{{ t('profile.accountStatus') }}</h3>
+              <p class="text-green-400">{{ t('profile.statusActive') }}</p>
             </div>
             <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-              <h3 class="text-white text-lg font-semibold mb-2">Member Since</h3>
+              <h3 class="text-white text-lg font-semibold mb-2">{{ t('profile.memberSince') }}</h3>
               <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
             </div>
           </div>
@@ -226,13 +230,13 @@ const { t } = useI18n()
               @click="router.push('/edit-profile')"
               class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
-              Edit Profile
+              {{ t('profile.editProfile') }}
             </button>
             <button
               @click="initiateDelete"
               class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
-              Delete Account
+              {{ t('profile.deleteAccount') }}
             </button>
           </div>
         </div>
@@ -241,9 +245,9 @@ const { t } = useI18n()
   </div>
   <ConfirmDialog
     :show="showDeleteConfirm"
-    title="Delete Account"
-    message="Are you sure you want to delete your account? This action cannot be undone and you will lose all your data."
-    confirm-text="Delete Account"
+    :title="t('profile.confirmDeleteTitle')"
+    :message="t('profile.confirmDeleteMessage')"
+    :confirm-text="t('profile.deleteAccount')"
     confirm-button-class="bg-red-600 hover:bg-red-700"
     type="delete"
     @confirm="handleDeleteConfirm"

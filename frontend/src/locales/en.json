@@ -144,7 +144,16 @@
     "save": "Save Changes",
     "successfulUpdate": "Profile updated successfully",
     "uploadAvatar": "Upload Avatar",
-    "removeAvatar": "Remove Avatar"
+    "removeAvatar": "Remove Avatar",
+    "accountStatus": "Account Status",
+    "statusActive": "Active",
+    "memberSince": "Member Since",
+    "editProfile": "Edit Profile",
+    "deleteAccount": "Delete Account",
+    "confirmDeleteTitle": "Delete Account",
+    "confirmDeleteMessage": "Are you sure you want to delete your account? This action cannot be undone and you will lose all your data.",
+    "roleAdmin": "Administrator",
+    "roleUser": "User"
   },
   "admin": {
     "title": "Admin Dashboard",
