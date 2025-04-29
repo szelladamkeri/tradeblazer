@@ -180,13 +180,21 @@ const handleDeposit = async () => {
     }
 
     const result = await response.json();
-    successMessage.value = t('deposit.successMessage', { amount: amount.value?.toFixed(2) });
-    amount.value = null; // Reset amount
-    selectedMethod.value = null; // Reset method
-    formTouched.value = false; // Reset touch state
-    await userStore.refreshUser(); // Corrected: Use refreshUser instead of refreshBalance
+    const depositAmount = amount.value; // Store amount before resetting for the message
+    successMessage.value = t('deposit.successMessage', { amount: depositAmount?.toFixed(2) });
 
-    // Optionally redirect or show persistent success state
+    // Reset form immediately
+    amount.value = null;
+    selectedMethod.value = null;
+    formTouched.value = false;
+
+    // Refresh user data immediately after success
+    await userStore.refreshUser(); // Call refreshUser right away
+
+    // Optional: Clear success message after a few seconds
+    // setTimeout(() => { successMessage.value = null; }, 5000);
+
+    // Optional redirect after refresh
     // setTimeout(() => router.push('/portfolio'), 3000);
 
   } catch (err) {

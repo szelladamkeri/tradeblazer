@@ -78,32 +78,45 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function refreshUser() {
+    if (!user.value?.id) {
+      console.error('refreshUser called without user ID.');
+      return;
+    }
     try {
-      const response = await fetch('http://localhost:3000/api/user/' + user.value?.id)
-      if (!response.ok) throw new Error('Failed to fetch user data')
+      const response = await fetch('http://localhost:3000/api/user/' + user.value.id, {
+        headers: getAuthHeader() // Ensure auth header is sent
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch user data: ${response.status} ${errorText}`);
+      }
 
-      const userData = await response.json()
+      const userData = await response.json();
+      console.log('[userStore] Fetched user data in refreshUser:', userData); // Log fetched data
+
       if (userData) {
         user.value = {
+          ...user.value, // Keep existing properties like token if not in userData
           ...userData,
-          // Ensure username is available - the backend might provide it as 'name' 
           username: userData.username || userData.name,
-          // Ensure displayName is available
           displayName: userData.displayName || userData.username || userData.name,
           role: userData.role || userData.type,
           type: userData.type || userData.role
-        }
-        avatarTimestamp.value = Date.now()
-        await checkAvatar()
-        
-        // Store both user data AND the current token
+        };
+        console.log('[userStore] Updated user.value in store:', JSON.parse(JSON.stringify(user.value))); // Log updated store state
+
+        avatarTimestamp.value = Date.now();
+        await checkAvatar();
+
         localStorage.setItem('user', JSON.stringify({ 
           user: user.value,
           token: token.value 
-        }))
+        }));
+      } else {
+        console.warn('[userStore] refreshUser received empty data.');
       }
     } catch (error) {
-      console.error('Error refreshing user data:', error)
+      console.error('[userStore] Error refreshing user data:', error);
     }
   }
 

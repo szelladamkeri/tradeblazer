@@ -58,7 +58,7 @@
     "title": "Piacok",
     "allAssets": "Összes eszköz",
     "crypto": "Kripto",
-    "stock": "Részvény",
+    "stocks": "Részvények",
     "forex": "Deviza",
     "search": "Piacok keresése",
     "searchAssets": "Eszközök keresése...",
@@ -164,7 +164,16 @@
     "save": "Módosítások mentése",
     "successfulUpdate": "Profil sikeresen frissítve",
     "uploadAvatar": "Profilkép feltöltése",
-    "removeAvatar": "Profilkép eltávolítása"
+    "removeAvatar": "Profilkép eltávolítása",
+    "accountStatus": "Fiók állapota",
+    "statusActive": "Aktív",
+    "memberSince": "Tagság kezdete",
+    "editProfile": "Profil szerkesztése",
+    "deleteAccount": "Fiók törlése",
+    "confirmDeleteTitle": "Fiók törlése",
+    "confirmDeleteMessage": "Biztosan törölni szeretné a fiókját? Ez a művelet nem vonható vissza, és minden adata elvész.",
+    "roleAdmin": "Adminisztrátor",
+    "roleUser": "Felhasználó"
   },
   "admin": {
     "title": "Admin irányítópult",
@@ -716,7 +725,8 @@
     "applyAndContinue": "Alkalmaz és Folytat",
     "updateProfilePicture": "Profilkép Frissítése",
     "updateProfilePictureConfirmation": "Biztosan frissíti a profilképét?",
-    "update": "Frissítés"
+    "update": "Frissítés",
+    "uploadHint": "Max 2MB. JPG, PNG, GIF engedélyezett."
   },
   "deposit": {
     "title": "Egyenleg Feltöltése",
