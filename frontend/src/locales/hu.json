@@ -691,5 +691,29 @@
     "loading": "Megfigyelési lista betöltése...",
     "alertPrice": "Riasztási ár",
     "currentPrice": "Jelenlegi ár"
+  },
+  "editProfile": {
+    "title": "Profil Szerkesztése",
+    "profilePicture": "Profilkép",
+    "profileInformation": "Profil Információk",
+    "displayName": "Megjelenített Név",
+    "displayNameHint": "Ez a név fog megjelenni a többi felhasználó számára",
+    "emailAddress": "Email Cím",
+    "currentPassword": "Jelenlegi Jelszó",
+    "currentPasswordHint": "Szükséges a személyazonosság ellenőrzéséhez",
+    "newPassword": "Új Jelszó",
+    "optional": "opcionális",
+    "newPasswordPlaceholder": "Hagyja üresen a jelenlegi jelszó megtartásához",
+    "confirmNewPassword": "Új Jelszó Megerősítése",
+    "passwordMismatch": "A jelszavak nem egyeznek",
+    "passwordSettings": "Jelszó Beállítások",
+    "passwordHint": "A jelenlegi jelszó szükséges. Az új jelszó nem kötelező – hagyja üresen a jelenlegi jelszó megtartásához.",
+    "cancel": "Mégsem",
+    "saveChanges": "Változtatások Mentése",
+    "cropProfilePicture": "Profilkép Vágása",
+    "applyAndContinue": "Alkalmaz és Folytat",
+    "updateProfilePicture": "Profilkép Frissítése",
+    "updateProfilePictureConfirmation": "Biztosan frissíti a profilképét?",
+    "update": "Frissítés"
   }
 }

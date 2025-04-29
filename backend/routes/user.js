@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
+const path = require('path')
 
 /**
  * Configure file storage for user avatars
@@ -10,7 +11,8 @@ const storage = multer.diskStorage({
     cb(null, '../frontend/src/assets/avatars/')
   },
   filename: function (req, file, cb) {
-    cb(null, req.body.username + '.jpg')
+    const ext = path.extname(file.originalname)
+    cb(null, req.body.username + ext)
   },
 })
 
@@ -21,12 +23,6 @@ const upload = multer({
   storage: storage,
   limits: {
     fileSize: 2 * 1024 * 1024, // 2MB limit
-  },
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype !== 'image/jpeg') {
-      return cb(new Error('Only JPG files are allowed'))
-    }
-    cb(null, true)
   },
 })
 

@@ -653,5 +653,29 @@
     "loading": "Loading your watchlist...",
     "alertPrice": "Alert Price",
     "currentPrice": "Current Price"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "profilePicture": "Profile Picture",
+    "profileInformation": "Profile Information",
+    "displayName": "Display Name",
+    "displayNameHint": "This is how your name will appear to other users",
+    "emailAddress": "Email Address",
+    "currentPassword": "Current Password",
+    "currentPasswordHint": "Required to verify your identity",
+    "newPassword": "New Password",
+    "optional": "optional",
+    "newPasswordPlaceholder": "Leave blank to keep current password",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordMismatch": "Passwords don't match",
+    "passwordSettings": "Password Settings",
+    "passwordHint": "Current password is required. New password is optional – leave blank to keep your current password.",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "cropProfilePicture": "Crop Profile Picture",
+    "applyAndContinue": "Apply & Continue",
+    "updateProfilePicture": "Update Profile Picture",
+    "updateProfilePictureConfirmation": "Are you sure you want to update your profile picture?",
+    "update": "Update"
   }
 }

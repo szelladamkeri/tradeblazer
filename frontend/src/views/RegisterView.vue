@@ -169,7 +169,7 @@ const showFAQ = ref(false)
   <div class="register-view view-container">
     <PageHeader @mousemove="handleMouseMove" class="custom-header" />
     <PageMain @mousemove="handleMouseMove" class="flex-grow">
-      <div class="w-full px-4 py-8">
+      <div class="w-full px-4 py-8 overflow-auto">
         <div class="max-w-4xl mx-auto">
           <div class="pb-8">
             <!-- Registration Form Card -->

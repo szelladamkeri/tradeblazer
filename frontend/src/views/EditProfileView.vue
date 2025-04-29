@@ -12,6 +12,9 @@ import 'vue-advanced-cropper/dist/style.css'
 import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
+import { useI18n } from 'vue-i18n'   // Added
+
+const { t } = useI18n()   // Added
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -110,17 +113,11 @@ onMounted(() => {
 
 const handleAvatarChange = (event: Event) => {
   const input = event.target as HTMLInputElement
-  fileError.value = ''
-
+  fileError.value = '' 
   if (input.files && input.files[0]) {
     const file = input.files[0]
     if (file.size > 2 * 1024 * 1024) {
-      fileError.value = 'Avatar file must be less than 2MB'
-      input.value = ''
-      return
-    }
-    if (file.type !== 'image/jpeg') {
-      fileError.value = 'Only JPG files are allowed'
+      fileError.value = t('editProfile.avatarSizeError')  // updated
       input.value = ''
       return
     }
@@ -247,10 +244,10 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   <!-- First check API heartbeat status -->
   <FullPageError v-if="!isApiAvailable && apiError" :message="apiError.message" :error-type="apiError.type"
     @retry="checkApiHeartbeat" />
-
+  
   <!-- Then check for other errors -->
   <FullPageError v-else-if="error" :message="error.message" :error-type="error.type" @retry="router.push('/profile')" />
-
+  
   <!-- Only render normal page when there's no error -->
   <div class="edit-profile-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
@@ -259,16 +256,22 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
         <div class="max-w-4xl mx-auto w-full flex-1 flex flex-col">
           <div class="flex items-center gap-3 mb-3">
             <font-awesome-icon icon="user-pen" class="text-green-400 text-2xl" />
-            <h1 class="text-2xl sm:text-3xl font-bold text-white">Edit Profile</h1>
+            <!-- Changed heading to use translation -->
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">
+              {{ t('editProfile.title') }}
+            </h1>
           </div>
 
           <!-- Main content area - use grid for better space utilization -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
             <!-- Left column -->
             <div class="flex flex-col space-y-3">
-              <!-- Avatar Section - Made more compact -->
+              <!-- Avatar Section -->
               <div class="bg-white/10 rounded-xl p-4 border border-white/10 flex-shrink-0">
-                <h2 class="text-lg font-bold text-white mb-2">Profile Picture</h2>
+                <!-- Section heading via translation -->
+                <h2 class="text-lg font-bold text-white mb-2">
+                  {{ t('editProfile.profilePicture') }}
+                </h2>
 
                 <div class="flex flex-row items-center gap-4">
                   <!-- Current Avatar Display -->
@@ -283,19 +286,19 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     </div>
                   </div>
 
-                  <!-- Avatar Upload Controls - Modified to remove hover effect -->
+                  <!-- Avatar Upload Controls -->
                   <div class="flex-1">
                     <div v-if="fileError" class="mb-2 p-2 bg-red-500/10 rounded-lg text-red-400 text-xs">
                       {{ fileError }}
                     </div>
 
-                    <input type="file" accept="image/jpeg" @change="handleAvatarChange" class="block w-full text-xs text-gray-400
+                    <input type="file" accept="image/*" @change="handleAvatarChange" class="block w-full text-xs text-gray-400
                              file:mr-3 file:py-1.5 file:px-3 file:rounded-lg
                              file:border-0 file:text-xs file:font-medium
                              file:bg-green-600 file:text-white
                              file:transition-colors" />
                     <p class="mt-1 text-xs text-gray-400">
-                      JPG only, maximum size 2MB
+                      {{ t('editProfile.uploadHint') }}
                     </p>
                   </div>
                 </div>
@@ -303,12 +306,14 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
               <!-- Profile Info and Email -->
               <div class="bg-white/10 rounded-xl p-4 border border-white/10 flex-grow">
-                <h2 class="text-lg font-bold text-white mb-2">Profile Information</h2>
+                <h2 class="text-lg font-bold text-white mb-2">
+                  {{ t('editProfile.profileInformation') }}
+                </h2>
 
                 <div class="space-y-3">
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
-                      <span>Display Name</span>
+                      <span>{{ t('editProfile.displayName') }}</span>
                       <span v-if="showDisplayNameValidation"
                         :class="isDisplayNameValid ? 'text-green-400' : 'text-red-400'" class="text-xs">
                         {{ isDisplayNameValid ? '✓ Valid' : '✗ Min 3 characters' }}
@@ -317,14 +322,15 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <input v-model.trim="displayName" type="text" @blur="markDisplayNameTouched" required
                       class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
                       :class="showDisplayNameValidation ? (isDisplayNameValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'" />
-                    <p class="mt-1 text-xs text-gray-400">This is how your name will appear to other users</p>
+                    <p class="mt-1 text-xs text-gray-400">
+                      {{ t('editProfile.displayNameHint') }}
+                    </p>
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
-                      <span>Email Address</span>
-                      <span v-if="showEmailValidation" :class="isEmailValid ? 'text-green-400' : 'text-red-400'"
-                        class="text-xs">
+                      <span>{{ t('editProfile.emailAddress') }}</span>
+                      <span v-if="showEmailValidation" :class="isEmailValid ? 'text-green-400' : 'text-red-400'" class="text-xs">
                         {{ isEmailValid ? '✓ Valid' : '✗ Invalid email' }}
                       </span>
                     </label>
@@ -338,48 +344,50 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
             <!-- Right column - Password section -->
             <div class="bg-white/10 rounded-xl p-4 border border-white/10 flex flex-col">
-              <h2 class="text-lg font-bold text-white mb-2">Password Settings</h2>
+              <h2 class="text-lg font-bold text-white mb-2">
+                {{ t('editProfile.passwordSettings') }}
+              </h2>
               <p class="text-xs text-gray-400 mb-3">
-                Current password is required. New password is optional - leave blank to keep your current password.
+                {{ t('editProfile.passwordHint') }}
               </p>
 
               <div class="space-y-3 flex-grow">
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
-                    <span>Current Password <span class="text-red-400">*</span></span>
-                    <span v-if="currentPassword" :class="isCurrentPasswordValid ? 'text-green-400' : 'text-red-400'"
-                      class="text-xs">
+                    <span>{{ t('editProfile.currentPassword') }} <span class="text-red-400">*</span></span>
+                    <span v-if="currentPassword" :class="isCurrentPasswordValid ? 'text-green-400' : 'text-red-400'" class="text-xs">
                       {{ isCurrentPasswordValid ? '✓ Valid' : `✗ Min ${passwordMinLength} characters` }}
                     </span>
                   </label>
                   <input v-model="currentPassword" type="password" required
                     class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
                     :class="currentPassword ? (isCurrentPasswordValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'" />
-                  <p class="mt-1 text-xs text-gray-400">Required to verify your identity</p>
+                  <p class="mt-1 text-xs text-gray-400">
+                    {{ t('editProfile.currentPasswordHint') }}
+                  </p>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
-                    <span>New Password <span class="text-gray-400">(optional)</span></span>
-                    <span :class="newPassword ? (isNewPasswordValid ? 'text-green-400' : 'text-red-400') : ''"
-                      class="text-xs">
-                      {{ newPassword ? (isNewPasswordValid ? '✓ Valid' : `✗ Min ${passwordMinLength} characters`) : ''
-                      }}
+                    <span>
+                      {{ t('editProfile.newPassword') }}
+                      <span class="text-gray-400">({{ t('editProfile.optional') }})</span>
+                    </span>
+                    <span :class="newPassword ? (isNewPasswordValid ? 'text-green-400' : 'text-red-400') : ''" class="text-xs">
+                      {{ newPassword ? (isNewPasswordValid ? '✓ Valid' : `✗ Min ${passwordMinLength} characters`) : '' }}
                     </span>
                   </label>
                   <input v-model="newPassword" type="password"
                     class="w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:border-green-500 text-sm"
                     :class="newPassword ? (isNewPasswordValid ? 'border-green-500' : 'border-red-500') : 'border-white/10'"
-                    placeholder="Leave blank to keep current password" />
+                    :placeholder="t('editProfile.newPasswordPlaceholder')" />
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1 flex justify-between">
-                    <span>Confirm New Password</span>
-                    <span v-if="newPassword"
-                      :class="confirmPassword ? (doPasswordsMatch ? 'text-green-400' : 'text-red-400') : ''"
-                      class="text-xs">
-                      {{ confirmPassword ? (doPasswordsMatch ? '✓ Passwords match' : '✗ Passwords don\'t match') : '' }}
+                    <span>{{ t('editProfile.confirmNewPassword') }}</span>
+                    <span v-if="newPassword" :class="confirmPassword ? (doPasswordsMatch ? 'text-green-400' : 'text-red-400') : ''" class="text-xs">
+                      {{ confirmPassword ? (doPasswordsMatch ? '✓ Passwords match' : t('editProfile.passwordMismatch')) : '' }}
                     </span>
                   </label>
                   <input v-model="confirmPassword" type="password" :disabled="!newPassword" :required="!!newPassword"
@@ -396,13 +404,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
               <div class="flex justify-end gap-3 pt-3 mt-auto">
                 <button type="button" @click="router.push('/profile')"
                   class="px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
-                  Cancel
+                  {{ t('editProfile.cancel') }}
                 </button>
                 <button type="button" @click="handleSubmit" :disabled="!formValid || loading"
                   class="px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center min-w-[100px] text-sm"
                   :class="formValid ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-600 opacity-50 cursor-not-allowed'">
                   <LoadingSpinner v-if="loading" class="w-4 h-4" />
-                  <span v-else>Save Changes</span>
+                  <span v-else>{{ t('editProfile.saveChanges') }}</span>
                 </button>
               </div>
             </div>
@@ -414,32 +422,28 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
     <!-- Image Cropper Modal -->
     <div v-if="showCropper" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div class="bg-white/5 rounded-xl p-6 border border-white/10 max-w-xl w-full backdrop-blur-xl">
-        <h3 class="text-xl font-bold text-white mb-4">Crop Profile Picture</h3>
-
+        <h3 class="text-xl font-bold text-white mb-4">{{ t('editProfile.cropProfilePicture') }}</h3>
         <div class="bg-black/30 rounded-xl p-4 mb-4">
           <div class="h-72">
-            <Cropper ref="cropperRef" :src="imageUrl" :stencil-props="{
-              aspectRatio: 1
-            }" class="cropper" />
+            <Cropper ref="cropperRef" :src="imageUrl" :stencil-props="{ aspectRatio: 1 }" class="cropper" />
           </div>
         </div>
-
         <div class="flex justify-end gap-3">
           <button @click="cancelCrop"
             class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-            Cancel
+            {{ t('editProfile.cancel') }}
           </button>
           <button @click="handleCrop"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-            Apply & Continue
+            {{ t('editProfile.applyAndContinue') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Confirm Avatar Update Dialog -->
-    <ConfirmDialog :show="showAvatarConfirm" title="Update Profile Picture"
-      message="Are you sure you want to update your profile picture?" confirm-text="Update"
+    <ConfirmDialog :show="showAvatarConfirm" title="{{ t('editProfile.updateProfilePicture') }}"
+      message="{{ t('editProfile.updateProfilePictureConfirmation') }}" confirm-text="{{ t('editProfile.update') }}"
       :confirm-button-class="'bg-green-600 hover:bg-green-700'" type="update" @confirm="confirmAvatarUpdate"
       @cancel="showAvatarConfirm = false" />
   </div>

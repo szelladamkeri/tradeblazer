@@ -64,7 +64,7 @@ const fetchUsers = async () => {
     }
 
     const allUsers = await response.json()
-    users.value = allUsers.slice(0, 10) // Limit to 10 users
+    users.value = allUsers//.slice(0, 10) // Limit to 10 users
 
     // Check avatars for all users
     for (const user of users.value) {
@@ -821,13 +821,13 @@ tbody tr:hover {
 
 /* Table styles */
 .overflow-x-auto {
-  scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-width: none;
 }
 
 .overflow-x-auto::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  display: block;
+  height: 8px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-track {
@@ -836,7 +836,7 @@ tbody tr:hover {
 
 .overflow-x-auto::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 /* Update empty state and error state backgrounds to match */
@@ -862,10 +862,6 @@ tr {
   display: none;
 }
 
-.overflow-x-auto {
-  scrollbar-width: none;
-}
-
 /* Override any conflicting height styles */
 .page-main {
   height: auto !important;
@@ -887,14 +883,6 @@ tr {
   min-height: 100vh !important;
   height: auto !important;
   overflow-x: hidden !important;
-}
-
-/* Remove min-height from container */
-[ref="tableContainer"] {
-  height: auto !important;
-  min-height: 200px !important;
-  overflow: auto !important;
-  flex: 1 !important;
 }
 
 /* Override PageMain height */
