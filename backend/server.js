@@ -7,7 +7,9 @@ const path = require('path')
 // Add dotenv at the top of the file
 require('dotenv').config()
 const priceAlertService = require('./services/priceAlertService');
+const priceUpdateService = require('./services/priceUpdateService'); // Import the new service
 const { transporter, mailGenerator } = require('./config/email')
+const assetsRouter = require('./routes/assets'); // Import the assets router
 
 // Initialize Express application
 const app = express()
@@ -154,421 +156,48 @@ pool.getConnection(function (err, connection) {
   }
 })
 
-// Routes configuration
-app.use('/api', require('./routes')(pool, asyncHandler))
+// --- Routes Configuration --- 
+
+// Mount the assets router BEFORE specific asset-related routes
+// This ensures routes like /prices and /trending defined in assets.js are registered
+app.use('/api/assets', assetsRouter(pool, asyncHandler));
+
+// Other specific routes (ensure no overlap with assetsRouter paths)
+app.use('/api', require('./routes')(pool, asyncHandler)) // General routes like /diagnostics/database
 app.use('/api/portfolio', require('./routes/portfolio')(pool, asyncHandler))
-
-// Auth routes
 app.use('/api/auth', require('./routes/auth')(pool, asyncHandler));
-
-// Verification routes
 app.use('/api/verification', require('./routes/verification')(pool, asyncHandler));
+app.use('/api/transactions', require('./routes/transactions')(pool, asyncHandler));
+app.use('/api/admin', require('./routes/admin')(pool, asyncHandler)); // Assuming admin routes exist
+app.use('/api/user', require('./routes/user')(pool, asyncHandler)); // Assuming user routes exist
+app.use('/api/orders', require('./routes/orders')(pool, asyncHandler)); // Assuming order routes exist
 
-// Transaction routes
-app.use('/api/transactions', require('./routes/transactions')(pool, asyncHandler)); // Pass pool and asyncHandler
+// --- Remove potentially duplicate or conflicting route definitions below --- 
 
-// Add an endpoint to resend verification email
-app.post('/api/verification/resend', asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  
-  if (!email) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
-  
-  // Get user details
-  pool.query(
-    'SELECT id, name, email, verification_status FROM users WHERE email = ?',
-    [email],
-    async (err, results) => {
-      if (err) {
-        console.error('Resend verification error:', err);
-        return res.status(500).json({ message: 'Database error' });
-      }
-      
-      if (!results || results.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      
-      const user = results[0];
-      
-      if (user.verification_status === 'verified') {
-        return res.status(400).json({ message: 'Account is already verified' });
-      }
-      
-      // Create new verification token
-      const verificationService = require('./services/verificationService');
-      const { token, expiry } = verificationService.createVerificationToken();
-      
-      // Update token in database
-      pool.query(
-        'UPDATE users SET verification_token = ?, token_expiry = ? WHERE id = ?',
-        [token, expiry, user.id],
-        async (updateErr) => {
-          if (updateErr) {
-            console.error('Token update error:', updateErr);
-            return res.status(500).json({ message: 'Failed to generate verification token' });
-          }
-          
-          try {
-            // Send verification email
-            await verificationService.sendVerificationEmail(user, token);
-            res.json({ message: 'Verification email sent successfully' });
-          } catch (emailErr) {
-            console.error('Verification email error:', emailErr);
-            res.status(500).json({ message: 'Failed to send verification email' });
-          }
-        }
-      );
-    }
-  );
-}));
+// // Add an endpoint to resend verification email (Should be in verification.js)
+// app.post('/api/verification/resend', ...);
 
-// Asset Search API Endpoint
-app.get('/api/assets/search', (req, res) => {
-  const searchQuery = req.query.q?.toString().toLowerCase()
-  
-  console.log('Search request received:', { searchQuery })
-  
-  if (!searchQuery) {
-    console.log('No search query provided, returning empty results')
-    return res.json([])
-  }
+// // Asset Search API Endpoint (Should be in assets.js)
+// app.get('/api/assets/search', ...);
 
-  const query = `
-    SELECT id, name, symbol, type, price
-    FROM assets
-    WHERE LOWER(name) LIKE ? OR LOWER(symbol) LIKE ?
-    LIMIT 10
-  `
-  
-  console.log('Executing search query:', query.replace(/\s+/g, ' ').trim())
-  
-  pool.query(query, [`%${searchQuery}%`, `%${searchQuery}%`], (err, results) => {
-    if (err) {
-      console.error('Search database error:', err)
-      return res.status(500).json({ 
-        message: 'Database error', 
-        error: err.message 
-      })
-    }
-    
-    console.log(`Search found ${results.length} results`)
-    res.json(results)
-  })
-})
+// // Single Asset API Endpoint (Should be in assets.js)
+// app.get('/api/assets/:id', ...);
 
-/**
- * Single Asset API Endpoint
- * Fetches details of a specific asset by ID
- */
-app.get('/api/assets/:id', asyncHandler(async (req, res) => {
-  const assetId = parseInt(req.params.id)
-  
-  if (isNaN(assetId)) {
-    return res.status(400).json({ message: 'Invalid asset ID' })
-  }
+// // Watchlist Endpoints (Should ideally be in a separate watchlist.js or user.js)
+// app.get('/api/users/:userId/watchlist', ...);
+// app.post('/api/watchlist/:assetId', ...);
+// app.delete('/api/watchlist/:id', ...);
+// app.get('/api/users/:userId/watchlist/check/:assetId', ...);
+// app.post('/api/watchlist/:id/alert', ...);
 
-  const query = `
-    SELECT a.*, 
-           COALESCE(
-             (SELECT (a.price - t.price) / t.price * 100
-              FROM trades t 
-              WHERE t.asset_id = a.id 
-              ORDER BY t.created_at DESC 
-              LIMIT 1
-             ), 
-             0
-           ) as change_24h
-    FROM assets a
-    WHERE a.id = ?
-  `
-  
-  pool.query(query, [assetId], (err, results) => {
-    if (err) {
-      console.error('Asset fetch error:', err)
-      return res.status(500).json({ message: 'Database error' })
-    }
-    
-    if (!results || results.length === 0) {
-      return res.status(404).json({ message: 'Asset not found' })
-    }
+// // Price History API Endpoint (Should be in assets.js or a dedicated price.js)
+// app.get('/api/prices/:symbol', ...);
 
-    res.json(results[0])
-  })
-}))
+// // Database Reconnection Endpoint (Keep or move to a general route file)
+// app.post('/api/reconnect', ...);
 
-/**
- * Diagnostic endpoint to check database connection
- */
-app.get('/api/diagnostics/database', (req, res) => {
-  if (!pool) {
-    return res.status(500).json({ 
-      status: 'error',
-      message: 'Database pool is not initialized'
-    })
-  }
-  
-  // Test query to verify database connection
-  pool.query('SELECT 1 AS test', (err, results) => {
-    if (err) {
-      return res.status(500).json({
-        status: 'error',
-        message: 'Database connection failed',
-        error: err.message
-      })
-    }
-    
-    res.json({
-      status: 'success',
-      message: 'Database connection successful',
-      result: results
-    })
-  })
-})
-
-/**
- * Watchlist Endpoints
- */
-app.get('/api/users/:userId/watchlist', asyncHandler(async (req, res) => {
-  const userId = parseInt(req.params.userId)
-
-  const query = `
-    SELECT w.id as watchlistId, a.*, w.created_at as added_at
-    FROM watchlist w
-    JOIN assets a ON w.asset_id = a.id
-    WHERE w.user_id = ?
-    ORDER BY w.created_at DESC
-  `
-
-  pool.query(query, [userId], (err, results) => {
-    if (err) {
-      console.error('Watchlist fetch error:', err)
-      return res.status(500).json({ message: 'Database error' })
-    }
-    res.json(results)
-  })
-}))
-
-app.post('/api/watchlist/:assetId', asyncHandler(async (req, res) => {
-  const { userId } = req.body
-  const assetId = parseInt(req.params.assetId)
-  
-  // Better validation
-  if (!userId) {
-    return res.status(400).json({ 
-      error: 'Missing user ID', 
-      message: 'User ID is required in the request body' 
-    })
-  }
-  
-  if (isNaN(assetId) || assetId <= 0) {
-    return res.status(400).json({ 
-      error: 'Invalid asset ID', 
-      message: 'Asset ID must be a positive number' 
-    })
-  }
-
-  console.log(`Adding asset ${assetId} to watchlist for user ${userId}`)
-  
-  const query = 'INSERT INTO watchlist (user_id, asset_id) VALUES (?, ?)'
-
-  pool.query(query, [userId, assetId], (err, result) => {
-    if (err) {
-      console.error('Watchlist add detailed error:', err)
-      
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(409).json({ 
-          error: 'Duplicate entry', 
-          message: 'Asset already in watchlist' 
-        })
-      }
-      
-      if (err.code === 'ER_NO_REFERENCED_ROW' || err.code === 'ER_NO_REFERENCED_ROW_2') {
-        return res.status(400).json({ 
-          error: 'Foreign key constraint failed', 
-          message: 'Invalid user ID or asset ID' 
-        })
-      }
-      
-      return res.status(500).json({ 
-        error: 'Database error', 
-        message: `Failed to add to watchlist: ${err.message}` 
-      })
-    }
-    
-    res.status(201).json({ id: result.insertId })
-  })
-}))
-
-app.delete('/api/watchlist/:id', asyncHandler(async (req, res) => {
-  const watchlistId = parseInt(req.params.id)
-
-  pool.query('DELETE FROM watchlist WHERE id = ?', [watchlistId], (err, result) => {
-    if (err) {
-      console.error('Watchlist remove error:', err)
-      return res.status(500).json({ message: 'Database error' })
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Watchlist item not found' })
-    }
-    res.status(204).send()
-  })
-}))
-
-/**
- * Check if Asset is in Watchlist Endpoint
- * Checks if a specific asset is in a user's watchlist
- */
-app.get('/api/users/:userId/watchlist/check/:assetId', asyncHandler(async (req, res) => {
-  const userId = parseInt(req.params.userId)
-  const assetId = parseInt(req.params.assetId)
-  
-  if (isNaN(userId) || isNaN(assetId)) {
-    return res.status(400).json({ 
-      error: 'Invalid parameters', 
-      message: 'User ID and Asset ID must be numeric values' 
-    })
-  }
-
-  const query = `
-    SELECT * FROM watchlist 
-    WHERE user_id = ? AND asset_id = ?
-    LIMIT 1
-  `
-
-  pool.query(query, [userId, assetId], (err, results) => {
-    if (err) {
-      console.error('Watchlist check error:', err)
-      return res.status(500).json({ message: 'Database error' })
-    }
-    
-    // Return whether the asset is in the watchlist and the watchlist item id if it exists
-    res.json({
-      isInWatchlist: results.length > 0,
-      watchlistId: results.length > 0 ? results[0].id : null
-    })
-  })
-}))
-
-// Rate limiting setup
-const rateLimit = {
-  windowMs: 60 * 1000, // 1 minute
-  count: 0,
-  lastReset: Date.now(),
-  maxRequests: 5 // Alpha Vantage free tier limit
-}
-
-// Cache setup
-const priceCache = new Map()
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
-
-/**
- * Price History API Endpoint
- * Proxies requests to Alpha Vantage with caching and rate limiting
- */
-app.get('/api/prices/:symbol', asyncHandler(async (req, res) => {
-  const { symbol } = req.params
-  const { interval = '5min', type = 'stock' } = req.query
-  
-  // Check cache first
-  const cacheKey = `${symbol}-${interval}`
-  const cached = priceCache.get(cacheKey)
-  if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
-    return res.json(cached.data)
-  }
-
-  // Rate limiting check
-  if (Date.now() - rateLimit.lastReset > rateLimit.windowMs) {
-    rateLimit.count = 0
-    rateLimit.lastReset = Date.now()
-  }
-
-  if (rateLimit.count >= rateLimit.maxRequests) {
-    return res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'Please try again in a minute'
-    })
-  }
-
-  try {
-    const functionName = type === 'forex' ? 'FX_INTRADAY' 
-                      : type === 'crypto' ? 'CRYPTO_INTRADAY'
-                      : 'TIME_SERIES_INTRADAY'
-
-    const url = `https://www.alphavantage.co/query?function=${functionName}&symbol=${symbol}&interval=${interval}&apikey=${alphaKey}`
-    
-    const response = await fetch(url)
-    if (!response.ok) throw new Error('Alpha Vantage API error')
-    
-    const data = await response.json()
-    
-    if (data['Error Message']) {
-      throw new Error(data['Error Message'])
-    }
-
-    // Cache the successful response
-    priceCache.set(cacheKey, {
-      data,
-      timestamp: Date.now()
-    })
-    
-    rateLimit.count++
-    res.json(data)
-
-  } catch (err) {
-    console.error('Price history error:', err)
-    res.status(500).json({
-      error: 'Failed to fetch price data',
-      message: err.message
-    })
-  }
-}))
-
-/**
- * Database Reconnection Endpoint
- * Allows the frontend to trigger a reconnection attempt
- */
-app.post('/api/reconnect', async (req, res) => {
-  try {
-    await testConnection()
-    res.json({ success: true, message: 'Database connection restored' })
-  } catch (error) {
-    res.status(503).json({
-      error: 'Database connection error',
-      message: error.message
-    })
-  }
-})
-
-// Add debug email endpoint
-app.post('/api/debug/email', asyncHandler(async (req, res) => {
-  try {
-    // Get recipient from request body or use default
-    const recipient = req.body.recipient //|| process.env.EMAIL_USER;
-    
-    const mailOptions = {
-      from: process.env.EMAIL_FROM,
-      to: recipient,
-      subject: `${process.env.EMAIL_SUBJECT_PREFIX} Debug Test`,
-      html: mailGenerator.generate({
-        body: {
-          name: 'Developer',
-          intro: 'This is a debug test email from TradeBlazer.',
-          outro: `Sent at: ${new Date().toLocaleString()}`
-        }
-      })
-    }
-
-    await transporter.sendMail(mailOptions)
-    res.json({ message: `Debug email sent successfully to ${recipient}` })
-  } catch (error) {
-    console.error('Email error:', error)
-    res.status(500).json({
-      error: 'Email service error',
-      message: error.message
-    })
-  }
-}))
+// // Add debug email endpoint (Keep or move to a general/debug route file)
+// app.post('/api/debug/email', ...);
 
 /**
  * Global Error Handling Middleware
@@ -599,113 +228,35 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 // Start the server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Backend server is running on http://localhost:${port}`)
 })
 
-// Start price alert service
+// Start background services
 priceAlertService.start();
+priceUpdateService.startPeriodicFetching(); // Start fetching prices
 
-// Add price alert to watchlist item
-app.post('/api/watchlist/:id/alert', asyncHandler(async (req, res) => {
-  const watchlistId = parseInt(req.params.id)
-  const { alertPrice, alertType } = req.body
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server and background services');
+  priceAlertService.stop();
+  priceUpdateService.stopPeriodicFetching(); // Stop fetching on shutdown
+  server.close(() => {
+    console.log('HTTP server closed');
+    // Close database connection if necessary
+    // db.end(); 
+    process.exit(0);
+  });
+});
 
-  console.log('Setting alert:', { watchlistId, alertPrice, alertType })
-
-  if (!watchlistId || !alertPrice || !alertType) {
-    return res.status(400).json({
-      error: 'Missing parameters',
-      message: 'Watchlist ID, alert price and alert type are required'
-    })
-  }
-
-  try {
-    // First check if watchlist item exists
-    const watchlistItem = await new Promise((resolve, reject) => {
-      pool.query('SELECT * FROM watchlist WHERE id = ?', [watchlistId], (err, results) => {
-        if (err) reject(err)
-        else resolve(results)
-      })
-    })
-
-    if (!watchlistItem || watchlistItem.length === 0) {
-      console.error('Watchlist item not found:', watchlistId)
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Watchlist item not found'
-      })
-    }
-
-    // Get current asset price
-    const assetPrice = await new Promise((resolve, reject) => {
-      pool.query(
-        'SELECT a.price FROM watchlist w JOIN assets a ON w.asset_id = a.id WHERE w.id = ?',
-        [watchlistId],
-        (err, results) => {
-          if (err) reject(err)
-          else resolve(results)
-        }
-      )
-    })
-
-    if (!assetPrice || assetPrice.length === 0) {
-      console.error('Asset not found for watchlist:', watchlistId)
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Asset not found'
-      })
-    }
-
-    const currentPrice = assetPrice[0].price
-
-    // Validate price is not too high
-    if (alertPrice > currentPrice * 10) {
-      console.warn('Alert price too high:', { alertPrice, currentPrice })
-      return res.status(400).json({
-        error: 'Invalid price',
-        message: 'Alert price cannot be more than 1000% of current price'
-      })
-    }
-
-    // Update the alert
-    const updateResult = await new Promise((resolve, reject) => {
-      pool.query(
-        'UPDATE watchlist SET alert_price = ?, alert_type = ?, alert_triggered = 0 WHERE id = ?',
-        [alertPrice, alertType, watchlistId],
-        (err, results) => {
-          if (err) reject(err)
-          else resolve(results)
-        }
-      )
-    })
-
-    console.log('Update result:', updateResult)
-
-    if (updateResult.affectedRows === 0) {
-      throw new Error('No rows updated')
-    }
-    
-    res.status(200).json({ 
-      message: 'Alert set successfully',
-      details: {
-        watchlistId,
-        alertPrice,
-        alertType,
-        currentPrice
-      }
-    })
-  } catch (err) {
-    console.error('Error setting price alert:', {
-      error: err.message,
-      code: err.code,
-      sqlState: err.sqlState,
-      stack: err.stack
-    })
-    res.status(500).json({
-      error: 'Database error',
-      message: 'Failed to set price alert',
-      details: err.message
-    })
-  }
-}))
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: closing HTTP server and background services');
+  priceAlertService.stop();
+  priceUpdateService.stopPeriodicFetching(); // Stop fetching on shutdown
+  server.close(() => {
+    console.log('HTTP server closed');
+    // Close database connection if necessary
+    // db.end();
+    process.exit(0);
+  });
+});

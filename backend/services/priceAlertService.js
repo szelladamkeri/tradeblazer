@@ -4,10 +4,28 @@ const { transporter, mailGenerator } = require('../config/email');
 class PriceAlertService {
   constructor() {
     this.checkInterval = 5 * 60 * 1000; // Check every 5 minutes
+    this.intervalId = null; // Add property to store interval ID
   }
 
   async start() {
-    setInterval(() => this.checkAlerts(), this.checkInterval);
+    if (this.intervalId) {
+      console.log('Price alert service already running.');
+      return;
+    }
+    console.log('Starting price alert service...');
+    // Store the interval ID
+    this.intervalId = setInterval(() => this.checkAlerts(), this.checkInterval);
+    // Optional: Run check immediately on start
+    // this.checkAlerts(); 
+  }
+
+  // Add stop method
+  stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      console.log('Stopped price alert service.');
+    }
   }
 
   async checkAlerts() {
@@ -21,16 +39,23 @@ class PriceAlertService {
     `;
 
     try {
-      const [alerts] = await pool.promise().query(query);
-      
-      for (const alert of alerts) {
-        if (this.shouldTriggerAlert(alert)) {
-          await this.sendAlertEmail(alert);
-          await this.markAlertTriggered(alert.id);
+      // Use callback style if pool doesn't support .promise()
+      pool.query(query, async (err, alerts) => {
+        if (err) {
+          console.error('Price alert check query error:', err);
+          return;
         }
-      }
+        
+        for (const alert of alerts) {
+          if (this.shouldTriggerAlert(alert)) {
+            await this.sendAlertEmail(alert);
+            await this.markAlertTriggered(alert.id);
+          }
+        }
+      });
     } catch (err) {
-      console.error('Price alert check error:', err);
+      // This catch might not be necessary if using callbacks fully
+      console.error('Price alert check error (outer):', err);
     }
   }
 
@@ -85,9 +110,15 @@ class PriceAlertService {
   }
 
   async markAlertTriggered(alertId) {
-    await pool.query(
+    // Use callback style for consistency
+    pool.query(
       'UPDATE watchlist SET alert_triggered = 1 WHERE id = ?',
-      [alertId]
+      [alertId],
+      (err, result) => {
+        if (err) {
+          console.error(`Error marking alert ${alertId} as triggered:`, err);
+        }
+      }
     );
   }
 }

@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const priceUpdateService = require('../services/priceUpdateService'); // Import the service
 
 /**
  * Assets routes module
@@ -62,43 +63,31 @@ module.exports = (pool, asyncHandler) => {
    * Returns a list of assets with recent trading activity
    */
   router.get('/trending', asyncHandler(async (req, res) => {
+    const limit = parseInt(req.query.limit) || 5; // Default to top 5
+    const days = parseInt(req.query.days) || 7; // Default to last 7 days
+
     const query = `
-      SELECT 
-        a.*,
-        COALESCE(
-          (a.price - LAG(a.price) OVER (PARTITION BY a.id ORDER BY t.created_at)) / 
-          LAG(a.price) OVER (PARTITION BY a.id ORDER BY t.created_at) * 100,
-          0
-        ) as change_24h
-      FROM assets a
-      LEFT JOIN trades t ON a.id = t.asset_id 
-      WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-      GROUP BY a.id
-      ORDER BY RAND()
-      LIMIT 3
-    `
-    
-    pool.query(query, function (err, result) {
-      if (err) {
-        console.error('Database query error:', err)
-        return res.status(500).json({
-          error: 'Database query error',
-          message: err.message,
-        })
-      }
+        SELECT
+            a.symbol,
+            a.name,
+            a.type,
+            COUNT(t.id) AS trade_count
+        FROM trades t
+        JOIN assets a ON t.asset_id = a.id
+        WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+        GROUP BY a.id, a.symbol, a.name, a.type
+        ORDER BY trade_count DESC
+        LIMIT ?;
+    `;
 
-      // If no results, return sample data
-      if (!result || result.length === 0) {
-        return res.json([
-          { id: 1, symbol: 'BTC/USD', name: 'Bitcoin', price: 43123.45, change_24h: 2.45, type: 'crypto' },
-          { id: 2, symbol: 'ETH/USD', name: 'Ethereum', price: 2234.56, change_24h: -1.23, type: 'crypto' },
-          { id: 3, symbol: 'AAPL', name: 'Apple Inc.', price: 187.45, change_24h: 0.89, type: 'stock' }
-        ])
-      }
-
-      res.json(result)
-    })
-  }))
+    pool.query(query, [days, limit], (err, results) => {
+        if (err) {
+            console.error("Error fetching trending assets:", err);
+            return res.status(500).json({ message: "Error fetching trending assets", error: err.message });
+        }
+        res.json(results);
+    });
+  }));
   
   /**
    * Temporary email verification redirect handler
@@ -159,6 +148,19 @@ module.exports = (pool, asyncHandler) => {
       })
     })
   }))
+
+  // New endpoint to get latest cached prices
+  router.get('/prices', asyncHandler(async (req, res) => {
+    // Optional: Allow requesting specific symbols via query param ?symbols=AAPL,MSFT
+    const symbolsQuery = req.query.symbols;
+    let symbols = [];
+    if (symbolsQuery && typeof symbolsQuery === 'string') {
+      symbols = symbolsQuery.split(',').map(s => s.trim()).filter(s => s);
+    }
+
+    const prices = priceUpdateService.getLatestPrices(symbols);
+    res.json(prices);
+  }));
 
   return router
 }

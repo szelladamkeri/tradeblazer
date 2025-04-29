@@ -2,6 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { usePriceStore } from '@/stores/priceStore' // Import the price store
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -25,6 +26,7 @@ interface Asset {
 
 const router = useRouter()
 const userStore = useUserStore()
+const priceStore = usePriceStore() // Initialize the price store
 
 // Initialize reactive refs
 const assets = ref<Asset[]>([])
@@ -95,8 +97,11 @@ async function fetchAssets() {
   }
 }
 
-// Add missing formatting functions
-const formatPrice = (price: number): string => {
+// Update formatPrice to handle potential null/undefined gracefully
+const formatPrice = (price: number | null | undefined): string => {
+  if (price === null || price === undefined) {
+    return 'N/A'; // Or loading indicator, or '-'
+  }
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -120,6 +125,11 @@ const formatMarketCap = (marketCap: number | undefined): string => {
   if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`
   return formatPrice(marketCap)
 }
+
+// Add a computed property to get the latest price for an asset
+const getLatestPrice = (asset: Asset): number | null => {
+  return priceStore.prices[asset.symbol] ?? asset.price ?? null;
+};
 
 // Add asset type icons mapping
 const typeIcons = {
@@ -325,7 +335,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                             </div>
                           </div>
                         </td>
-                        <td class="py-4 px-4 text-right font-medium text-white">{{ formatPrice(asset.price) }}</td>
+                        <!-- Use getLatestPrice helper -->
+                        <td class="py-4 px-4 text-right font-medium text-white">{{ formatPrice(getLatestPrice(asset)) }}</td>
                         <td class="py-4 px-4 text-right">
                           <span :class="getChangeClass(asset.change_24h)" class="flex items-center justify-end gap-1">
                             <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
