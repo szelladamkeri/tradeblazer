@@ -735,5 +735,65 @@
       "amountPositive": "Az összegnek pozitívnak kell lennie.",
       "methodRequired": "A fizetési mód kiválasztása kötelező."
     }
+  },
+  "home": {
+    "hero": {
+      "title": "Urald a Piacokat",
+      "subtitle": "Csatlakozz több ezer kereskedőhöz a legátfogóbb kereskedési platformon beépített oktatással és elemzési eszközökkel",
+      "startTrading": "Kezdj Kereskedni",
+      "login": "Bejelentkezés"
+    },
+    "features": {
+      "title": "Teljes Körű Kereskedési Megoldás",
+      "learningPlatform": {
+        "title": "Oktatási Platform",
+        "description": "Sajátítsd el a kereskedést strukturált kurzusainkkal, az alapoktól a haladó stratégiákig"
+      },
+      "security": {
+        "title": "Vállalati Biztonság",
+        "description": "Katonai szintű titkosítással és valós idejű csalásfelderítő rendszerekkel védve"
+      },
+      "analysis": {
+        "title": "Élő Elemzés",
+        "description": "Valós idejű piaci adatok és fejlett technikai elemzési eszközök"
+      },
+      "multiAsset": {
+        "title": "Multi-Asset Kereskedés",
+        "description": "Kereskedj részvényekkel, kriptovalutákkal és devizákkal egyetlen egységes platformon"
+      }
+    },
+    "stats": {
+      "instruments": "Kereskedési eszköz",
+      "activeTraders": "Aktív kereskedő ma",
+      "volume": "24 órás forgalom"
+    },
+    "whyUs": {
+      "title": "Miért Minket Választanak a Kereskedők",
+      "execution": {
+        "title": "Megbízás Végrehajtás",
+        "description": "Megbízások végrehajtása 50ms alatt"
+      },
+      "support": {
+        "title": "Szakértői Támogatás",
+        "description": "Professzionális támogató csapat mindig elérhető"
+      },
+      "commission": {
+        "title": "Jutalék Díjak",
+        "description": "Kereskedj nulla jutalékkal"
+      }
+    },
+    "education": {
+      "title": "Tanulj Kereskedés Közben",
+      "description": "Férj hozzá átfogó oktatási platformunkhoz interaktív kurzusokkal, élő workshopokkal és valós piaci szimulációkkal. Tökéletes kezdőknek és haladóknak egyaránt",
+      "explore": "Fedezd Fel az Oktatási Platformot",
+      "preview": "Platform Előnézet"
+    },
+    "joinNow": {
+      "title": "Kezdd El Kereskedői Utad Ma",
+      "subtitle": "Csatlakozz több ezer kereskedőhöz, akik már a TradeBlazer-t választották preferált kereskedési platformjukként",
+      "createAccount": "Ingyenes Fiók Létrehozása",
+      "or": "vagy",
+      "explore": "Fedezd Fel a Platformot"
+    }
   }
 }

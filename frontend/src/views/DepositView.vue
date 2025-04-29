@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import PageMain from '@/components/PageMain.vue';
+import PageHeader from '@/components/PageHeader.vue';
 
 const handleHeaderMouseMove = (event: MouseEvent) => {
   const header = event.currentTarget as HTMLElement;
