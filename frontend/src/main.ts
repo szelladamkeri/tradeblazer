@@ -77,7 +77,10 @@ import {
   faArrowRight,
   faBell,
   faMoneyBillTransfer,
+  faBuildingColumns,
+  faCreditCard
 } from '@fortawesome/free-solid-svg-icons'
+import { faPaypal, faBitcoin } from '@fortawesome/free-brands-svg-icons'; // Removed faSkrill/faMoneyCheckDollar
 
 /* Add icons to the library */
 library.add(
@@ -146,6 +149,10 @@ library.add(
   faArrowRight,
   faBell,
   faMoneyBillTransfer,
+  faBuildingColumns,
+  faCreditCard,
+  faPaypal,
+  faBitcoin // Keep Bitcoin in case needed later
 )
 
 const app = createApp(App)

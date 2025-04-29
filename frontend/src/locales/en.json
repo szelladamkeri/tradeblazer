@@ -681,80 +681,21 @@
   },
   "deposit": {
     "title": "Deposit Funds",
-    "amountLabel": "Amount",
-    "amountPlaceholder": "Enter amount",
-    "methodLabel": "Payment Method",
+    "amount": "Amount",
+    "enterAmount": "Enter amount (min $1.00)",
+    "minAmountError": "Minimum deposit amount is $1.00",
+    "paymentMethod": "Payment Method",
+    "selectMethodError": "Please select a payment method",
     "creditCard": "Credit Card",
-    "paypal": "PayPal",
     "bankTransfer": "Bank Transfer",
-    "submitButton": "Deposit",
-    "successMessage": "Deposit successful! Your balance has been updated.",
-    "errorMessage": "Deposit failed. Please try again.",
-    "loadingMessage": "Processing deposit...",
-    "validation": {
-      "amountRequired": "Amount is required.",
-      "amountPositive": "Amount must be positive.",
-      "methodRequired": "Payment method is required."
-    }
-  },
-  "home": {
-    "hero": {
-      "title": "Master the Markets",
-      "subtitle": "Join thousands of traders on the most comprehensive trading platform with built-in education and analysis tools",
-      "startTrading": "Start Trading",
-      "login": "Login"
-    },
-    "features": {
-      "title": "Your Complete Trading Solution",
-      "learningPlatform": {
-        "title": "Learning Platform",
-        "description": "Master trading with our structured courses, from basics to advanced strategies"
-      },
-      "security": {
-        "title": "Enterprise Security",
-        "description": "Protected by military-grade encryption and real-time fraud detection systems"
-      },
-      "analysis": {
-        "title": "Live Analysis",
-        "description": "Access real-time market data and advanced technical analysis tools"
-      },
-      "multiAsset": {
-        "title": "Multi-Asset Trading",
-        "description": "Trade stocks, crypto, and forex from a single unified platform"
-      }
-    },
-    "stats": {
-      "instruments": "Trading instruments",
-      "activeTraders": "Active traders today",
-      "volume": "24h trading volume"
-    },
-    "whyUs": {
-      "title": "Why Traders Choose Us",
-      "execution": {
-        "title": "Order Execution",
-        "description": "Orders executed in under 50ms"
-      },
-      "support": {
-        "title": "Expert Support",
-        "description": "Professional support team always available"
-      },
-      "commission": {
-        "title": "Commission Fees",
-        "description": "Trade with zero commission charges"
-      }
-    },
-    "education": {
-      "title": "Learn as You Trade",
-      "description": "Access our comprehensive learning platform with interactive courses, live workshops, and real-world trading simulations. Perfect for both beginners and advanced traders",
-      "explore": "Explore Learning Platform",
-      "preview": "Platform Preview"
-    },
-    "joinNow": {
-      "title": "Start Your Trading Journey Today",
-      "subtitle": "Join thousands of traders who have already chosen TradeBlazer as their preferred trading platform",
-      "createAccount": "Create Free Account",
-      "or": "or",
-      "explore": "Explore Platform"
-    }
+    "paypal": "PayPal",
+    "summary": "Summary",
+    "depositAmount": "Deposit Amount",
+    "feeInfo": "Fees may apply depending on the method.",
+    "confirmDeposit": "Confirm Deposit",
+    "processing": "Processing...",
+    "successMessage": "Successfully deposited ${amount}.",
+    "error": "Deposit failed. Please try again.",
+    "crypto": "Cryptocurrency"
   }
 }
