@@ -127,6 +127,17 @@
                       class="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-white" />
                   </div>
                 </div>
+
+                <div v-if="alertError" 
+                     class="mt-2 p-2 bg-red-500/20 text-red-400 rounded-lg text-center">
+                  {{ alertError }}
+                </div>
+
+                <div v-if="alertSuccess" 
+                     class="mt-2 p-2 bg-green-500/20 text-green-400 rounded-lg text-center">
+                  Price alert set successfully!
+                </div>
+
                 <button @click="handleSetAlert"
                   class="w-full py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors">
                   Set Alert
@@ -210,10 +221,12 @@ const orderError = ref<string | null>(null)
 const isInWatchlist = ref(false)
 const watchlistLoading = ref(false)
 
-// Add price alert state 
+// Add price alert state
 const showAlertForm = ref(false)
 const alertPrice = ref(0)
-const alertType = ref('above') // 'above' or 'below'
+const alertType = ref('above')
+const alertSuccess = ref(false)
+const alertError = ref<string | null>(null) // Add this
 
 // Add quick trade presets
 const tradePresets = [
@@ -448,7 +461,10 @@ const toggleWatchlist = async () => {
         headers: {
           'Authorization': `Bearer ${userStore.token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          userId: userStore.user!.id
+        })
       })
 
       if (!addResponse.ok) {
@@ -496,6 +512,20 @@ const handleMouseMove = (event: MouseEvent) => {
 
 const handleSetAlert = async () => {
   if (!isLoggedIn.value || !asset.value) return
+  alertSuccess.value = false
+  alertError.value = null // Reset error state
+
+  // Validate price is set
+  if (!alertPrice.value || alertPrice.value <= 0) {
+    alertError.value = 'Please enter a valid price'
+    return
+  }
+
+  // Validate price is reasonable compared to current price
+  if (alertPrice.value > asset.value.price * 10) {
+    alertError.value = 'Alert price cannot be more than 1000% of current price'
+    return
+  }
 
   try {
     if (!asset.value.watchlistId) {
@@ -504,7 +534,7 @@ const handleSetAlert = async () => {
     }
 
     const response = await fetch(`http://localhost:3000/api/watchlist/${asset.value.watchlistId}/alert`, {
-      method: 'PATCH',
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${userStore.token}`,
         'Content-Type': 'application/json'
@@ -515,12 +545,19 @@ const handleSetAlert = async () => {
       })
     })
 
-    if (!response.ok) throw new Error('Failed to set alert')
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to set alert')
+    }
 
-    showAlertForm.value = false
-    // Optional: Show success notification
+    alertSuccess.value = true
+    setTimeout(() => {
+      showAlertForm.value = false
+      alertSuccess.value = false
+    }, 2000)
   } catch (err) {
     console.error('Alert setting error:', err)
+    alertError.value = err instanceof Error ? err.message : 'Failed to set alert'
   }
 }
 

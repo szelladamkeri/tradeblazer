@@ -21,7 +21,7 @@ class PriceAlertService {
     `;
 
     try {
-      const [alerts] = await pool.query(query);
+      const [alerts] = await pool.promise().query(query);
       
       for (const alert of alerts) {
         if (this.shouldTriggerAlert(alert)) {

@@ -605,3 +605,107 @@ app.listen(port, () => {
 
 // Start price alert service
 priceAlertService.start();
+
+// Add price alert to watchlist item
+app.post('/api/watchlist/:id/alert', asyncHandler(async (req, res) => {
+  const watchlistId = parseInt(req.params.id)
+  const { alertPrice, alertType } = req.body
+
+  console.log('Setting alert:', { watchlistId, alertPrice, alertType })
+
+  if (!watchlistId || !alertPrice || !alertType) {
+    return res.status(400).json({
+      error: 'Missing parameters',
+      message: 'Watchlist ID, alert price and alert type are required'
+    })
+  }
+
+  try {
+    // First check if watchlist item exists
+    const watchlistItem = await new Promise((resolve, reject) => {
+      pool.query('SELECT * FROM watchlist WHERE id = ?', [watchlistId], (err, results) => {
+        if (err) reject(err)
+        else resolve(results)
+      })
+    })
+
+    if (!watchlistItem || watchlistItem.length === 0) {
+      console.error('Watchlist item not found:', watchlistId)
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Watchlist item not found'
+      })
+    }
+
+    // Get current asset price
+    const assetPrice = await new Promise((resolve, reject) => {
+      pool.query(
+        'SELECT a.price FROM watchlist w JOIN assets a ON w.asset_id = a.id WHERE w.id = ?',
+        [watchlistId],
+        (err, results) => {
+          if (err) reject(err)
+          else resolve(results)
+        }
+      )
+    })
+
+    if (!assetPrice || assetPrice.length === 0) {
+      console.error('Asset not found for watchlist:', watchlistId)
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Asset not found'
+      })
+    }
+
+    const currentPrice = assetPrice[0].price
+
+    // Validate price is not too high
+    if (alertPrice > currentPrice * 10) {
+      console.warn('Alert price too high:', { alertPrice, currentPrice })
+      return res.status(400).json({
+        error: 'Invalid price',
+        message: 'Alert price cannot be more than 1000% of current price'
+      })
+    }
+
+    // Update the alert
+    const updateResult = await new Promise((resolve, reject) => {
+      pool.query(
+        'UPDATE watchlist SET alert_price = ?, alert_type = ?, alert_triggered = 0 WHERE id = ?',
+        [alertPrice, alertType, watchlistId],
+        (err, results) => {
+          if (err) reject(err)
+          else resolve(results)
+        }
+      )
+    })
+
+    console.log('Update result:', updateResult)
+
+    if (updateResult.affectedRows === 0) {
+      throw new Error('No rows updated')
+    }
+    
+    res.status(200).json({ 
+      message: 'Alert set successfully',
+      details: {
+        watchlistId,
+        alertPrice,
+        alertType,
+        currentPrice
+      }
+    })
+  } catch (err) {
+    console.error('Error setting price alert:', {
+      error: err.message,
+      code: err.code,
+      sqlState: err.sqlState,
+      stack: err.stack
+    })
+    res.status(500).json({
+      error: 'Database error',
+      message: 'Failed to set price alert',
+      details: err.message
+    })
+  }
+}))
