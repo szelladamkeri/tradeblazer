@@ -454,14 +454,20 @@ const handleMouseMove = (event: MouseEvent) => {
 
               <!-- User Profile Section -->
               <div v-if="userStore.isAuthenticated" class="relative flex items-center" ref="dropdownRef">
-                <!-- Replace displayName with username -->
+                <!-- Replace displayName with username and add balance -->
                 <div class="hidden sm:block">
-                  <span :class="[
-                    'mr-3 transition-colors',
-                    $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
-                  ]">
-                    {{ userStore.user?.username }}
-                  </span>
+                  <div class="flex items-center gap-4">
+                    <span :class="[
+                      'transition-colors',
+                      $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
+                    ]">
+                      {{ userStore.user?.username }}
+                    </span>
+                    <div class="px-3 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
+                      <font-awesome-icon icon="wallet" class="text-green-400" />
+                      <span class="text-green-400">${{ (userStore.user?.balance || 0).toFixed(2) }}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Avatar button and dropdown container -->
@@ -489,16 +495,22 @@ const handleMouseMove = (event: MouseEvent) => {
                     </div>
 
                     <router-link to="/profile"
-                      class="block px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-green-400 transition-all duration-200"
-                      @click="showProfileDropdown = false" active-class="text-green-400 bg-white/5">
+                      class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200"
+                      @click="showProfileDropdown = false" active-class="text-green-400 bg-green-500/10">
                       <font-awesome-icon icon="user-circle" class="mr-2" />
-                      Profile
+                      {{ t('navigation.profile') }}
+                    </router-link>
+                    <router-link to="/deposit" <!-- Add Deposit Link -->
+                      class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200"
+                      @click="showProfileDropdown = false" active-class="text-green-400 bg-green-500/10">
+                      <font-awesome-icon icon="money-bill-transfer" class="mr-2" />
+                      {{ t('navigation.deposit') }}
                     </router-link>
                     <div class="w-full h-px bg-white/10 my-1"></div>
                     <button @click="handleSignOut"
-                      class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 hover:text-red-300 transition-all duration-200">
+                      class="w-full text-left px-4 py-2 text-red-400 hover:bg-white/5 hover:text-red-300 transition-all duration-200">
                       <font-awesome-icon icon="right-from-bracket" class="mr-2" />
-                      Sign out
+                      {{ t('navigation.signOut') }}
                     </button>
                   </div>
                 </div>

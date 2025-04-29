@@ -2,13 +2,14 @@
   "navigation": {
     "dashboard": "Irányítópult",
     "markets": "Piacok",
+    "tutorial": "Oktatóanyag",
     "portfolio": "Portfólió",
-    "admin": "Admin",
-    "tutorial": "Útmutató",
     "login": "Bejelentkezés",
     "register": "Regisztráció",
     "profile": "Profil",
-    "signout": "Kijelentkezés"
+    "deposit": "Befizetés",
+    "signOut": "Kijelentkezés",
+    "admin": "Admin"
   },
   "language": {
     "english": "Angol",
@@ -23,7 +24,8 @@
     "resultsCount": "{count} találat",
     "assetTypestock": "Részvény",
     "assetTypecrypto": "Kriptovaluta",
-    "assetTypeforex": "Forex"
+    "assetTypeforex": "Forex",
+    "assetTypecommodity": "Árucikk"
   },
   "dashboard": {
     "title": "Irányítópult",
@@ -715,5 +717,23 @@
     "updateProfilePicture": "Profilkép Frissítése",
     "updateProfilePictureConfirmation": "Biztosan frissíti a profilképét?",
     "update": "Frissítés"
+  },
+  "deposit": {
+    "title": "Egyenleg Feltöltése",
+    "amountLabel": "Összeg",
+    "amountPlaceholder": "Adja meg az összeget",
+    "methodLabel": "Fizetési Mód",
+    "creditCard": "Bankkártya",
+    "paypal": "PayPal",
+    "bankTransfer": "Banki Átutalás",
+    "submitButton": "Befizetés",
+    "successMessage": "Sikeres befizetés! Az egyenlege frissítve lett.",
+    "errorMessage": "Sikertelen befizetés. Kérjük, próbálja újra.",
+    "loadingMessage": "Befizetés feldolgozása...",
+    "validation": {
+      "amountRequired": "Az összeg megadása kötelező.",
+      "amountPositive": "Az összegnek pozitívnak kell lennie.",
+      "methodRequired": "A fizetési mód kiválasztása kötelező."
+    }
   }
 }

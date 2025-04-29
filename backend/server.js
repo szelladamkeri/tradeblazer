@@ -164,6 +164,9 @@ app.use('/api/auth', require('./routes/auth')(pool, asyncHandler));
 // Verification routes
 app.use('/api/verification', require('./routes/verification')(pool, asyncHandler));
 
+// Transaction routes
+app.use('/api/transactions', require('./routes/transactions')(pool, asyncHandler)); // Pass pool and asyncHandler
+
 // Add an endpoint to resend verification email
 app.post('/api/verification/resend', asyncHandler(async (req, res) => {
   const { email } = req.body;

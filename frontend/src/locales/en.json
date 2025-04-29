@@ -2,13 +2,14 @@
   "navigation": {
     "dashboard": "Dashboard",
     "markets": "Markets",
-    "portfolio": "Portfolio",
-    "admin": "Admin",
     "tutorial": "Tutorial",
+    "portfolio": "Portfolio",
     "login": "Login",
     "register": "Register",
     "profile": "Profile",
-    "signout": "Sign out"
+    "deposit": "Deposit",
+    "signOut": "Sign out",
+    "admin": "Admin"
   },
   "language": {
     "english": "English",
@@ -677,5 +678,23 @@
     "updateProfilePicture": "Update Profile Picture",
     "updateProfilePictureConfirmation": "Are you sure you want to update your profile picture?",
     "update": "Update"
+  },
+  "deposit": {
+    "title": "Deposit Funds",
+    "amountLabel": "Amount",
+    "amountPlaceholder": "Enter amount",
+    "methodLabel": "Payment Method",
+    "creditCard": "Credit Card",
+    "paypal": "PayPal",
+    "bankTransfer": "Bank Transfer",
+    "submitButton": "Deposit",
+    "successMessage": "Deposit successful! Your balance has been updated.",
+    "errorMessage": "Deposit failed. Please try again.",
+    "loadingMessage": "Processing deposit...",
+    "validation": {
+      "amountRequired": "Amount is required.",
+      "amountPositive": "Amount must be positive.",
+      "methodRequired": "Payment method is required."
+    }
   }
 }
