@@ -76,6 +76,7 @@ import {
   faSpinner,
   faArrowRight,
   faBell,
+  faMoneyBillTransfer,
 } from '@fortawesome/free-solid-svg-icons'
 
 /* Add icons to the library */
@@ -144,6 +145,7 @@ library.add(
   faSpinner,
   faArrowRight,
   faBell,
+  faMoneyBillTransfer,
 )
 
 const app = createApp(App)

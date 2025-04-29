@@ -500,7 +500,8 @@ const handleMouseMove = (event: MouseEvent) => {
                       <font-awesome-icon icon="user-circle" class="mr-2" />
                       {{ t('navigation.profile') }}
                     </router-link>
-                    <router-link to="/deposit" <!-- Add Deposit Link -->
+                    <!-- Add Deposit Link -->
+                    <router-link to="/deposit"
                       class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200"
                       @click="showProfileDropdown = false" active-class="text-green-400 bg-green-500/10">
                       <font-awesome-icon icon="money-bill-transfer" class="mr-2" />
