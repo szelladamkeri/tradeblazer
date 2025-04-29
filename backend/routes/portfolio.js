@@ -119,11 +119,19 @@ module.exports = (pool, asyncHandler) => {
         [amount, userId], 
         (err, result) => {
           if (err) {
-            console.error('Deposit error:', err)
+            console.error('Deposit DB Update error:', err)
             return res.status(500).json({ 
               message: 'Error processing deposit', 
               error: err.message 
             })
+          }
+
+          // Add logging to check the result of the UPDATE query
+          console.log(`Deposit DB Update Result for userId ${userId}:`, result);
+          if (result.affectedRows === 0) {
+            console.warn(`Deposit Warning: User balance was not updated for userId ${userId}. User might not exist or ID is incorrect.`);
+            // Decide if this should be an error - potentially the user ID was wrong
+            // return res.status(404).json({ message: 'User not found for deposit update' });
           }
         
           // Record the transaction

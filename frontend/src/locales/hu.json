@@ -716,7 +716,8 @@
     "applyAndContinue": "Alkalmaz és Folytat",
     "updateProfilePicture": "Profilkép Frissítése",
     "updateProfilePictureConfirmation": "Biztosan frissíti a profilképét?",
-    "update": "Frissítés"
+    "update": "Frissítés",
+    "uploadHint": "Max 2MB. JPG, PNG, GIF engedélyezett."
   },
   "deposit": {
     "title": "Egyenleg Feltöltése",

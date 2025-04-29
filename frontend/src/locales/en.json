@@ -677,7 +677,8 @@
     "applyAndContinue": "Apply & Continue",
     "updateProfilePicture": "Update Profile Picture",
     "updateProfilePictureConfirmation": "Are you sure you want to update your profile picture?",
-    "update": "Update"
+    "update": "Update",
+    "uploadHint": "Max 2MB. JPG, PNG, GIF allowed."
   },
   "deposit": {
     "title": "Deposit Funds",

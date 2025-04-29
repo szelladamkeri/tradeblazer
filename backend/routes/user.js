@@ -98,20 +98,23 @@ module.exports = (pool, asyncHandler) => {
   router.get('/:id', asyncHandler(async (req, res) => {
     const userId = req.params.id
     
-    // Select only necessary fields for security
+    // Select only necessary fields for security, using 'type' instead of 'role'
     const query = `
-      SELECT id, username, display_name, email, role, created_at, balance 
+      SELECT id, username, display_name, email, type, created_at, balance 
       FROM users 
       WHERE id = ?
     `
     
     pool.query(query, [userId], (err, result) => {
       if (err) {
-        console.error('Error fetching user:', err)
+        // Log the specific database error
+        console.error(`Error fetching user data for ID ${userId}:`, err);
         return res.status(500).json({
           error: 'Database error',
           message: 'Could not retrieve user information',
-        })
+          // Optionally include more error details in development
+          // details: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
       }
       
       if (!result || result.length === 0) {
