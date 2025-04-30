@@ -321,7 +321,7 @@ const checkWatchlistStatus = async (assetId) => {
   try {
     console.log('Checking watchlist status for asset:', assetId)
     const response = await fetch(
-      `http://localhost:3000/api/users/${userStore.user.id}/watchlist/check/${assetId}`,
+      `http://localhost:3000/api/watchlist/check/${userStore.user.id}/${assetId}`,
       {
         headers: {
           'Authorization': `Bearer ${userStore.token}`

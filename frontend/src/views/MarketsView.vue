@@ -148,11 +148,87 @@ const goToTrade = (assetId: number) => {
   router.push(`/trade/${assetId}`)
 }
 
-// Add watchlist functionality
-const addToWatchlist = async (assetId: number) => {
-  // Implementation to be added later
-  console.log('Adding to watchlist:', assetId)
+// Add watchlist state
+const watchlistLoadingStates = ref<{ [key: number]: boolean }>({})
+const watchlistStatuses = ref<{ [key: number]: boolean }>({})
+
+// Add watchlist check function
+const checkWatchlistStatus = async (assetId: number) => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/watchlist/check/${userStore.user.id}/${assetId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      }
+    )
+
+    if (!response.ok) {
+      console.warn('Failed to check watchlist status')
+      watchlistStatuses.value[assetId] = false
+      return
+    }
+
+    const data = await response.json()
+    watchlistStatuses.value[assetId] = data.isInWatchlist
+  } catch (err) {
+    console.error('Error checking watchlist status:', err)
+    watchlistStatuses.value[assetId] = false
+  }
 }
+
+// Replace existing addToWatchlist with toggleWatchlist
+const toggleWatchlist = async (assetId: number) => {
+  if (!isLoggedIn.value) {
+    router.push('/login')
+    return
+  }
+
+  watchlistLoadingStates.value[assetId] = true
+  
+  try {
+    const isInWatchlist = watchlistStatuses.value[assetId]
+
+    if (isInWatchlist) {
+      const response = await fetch(`http://localhost:3000/api/watchlist/${assetId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`,
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to remove from watchlist')
+    } else {
+      const response = await fetch(`http://localhost:3000/api/watchlist/${assetId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: userStore.user!.id
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to add to watchlist')
+    }
+
+    watchlistStatuses.value[assetId] = !isInWatchlist
+  } catch (err) {
+    console.error('Watchlist toggle error:', err)
+  } finally {
+    watchlistLoadingStates.value[assetId] = false
+  }
+}
+
+// Update onMounted to check watchlist status
+onMounted(async () => {
+  await fetchAssets()
+  if (isLoggedIn.value && assets.value) {
+    assets.value.forEach(asset => checkWatchlistStatus(asset.id))
+  }
+})
 
 // Remove the existing pagination refs and computation
 // Remove tableContainer, rowHeight, headerHeight, tableHeaderHeight, visibleItems, currentPage
@@ -351,10 +427,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                               <font-awesome-icon icon="exchange-alt" />
                               {{ t('markets.trade') }}
                             </button>
-                            <button v-if="isLoggedIn" @click="addToWatchlist(asset.id)"
-                              class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
-                              :title="'Add ' + asset.symbol + ' to watchlist'">
-                              <font-awesome-icon icon="star" />
+                            <button v-if="isLoggedIn" 
+                                    @click="toggleWatchlist(asset.id)"
+                                    class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                                    :class="{ 'text-green-400': watchlistStatuses[asset.id] }"
+                                    :title="(watchlistStatuses[asset.id] ? 'Remove from' : 'Add to') + ' watchlist'">
+                              <font-awesome-icon icon="star" 
+                                                :class="{ 'animate-pulse': watchlistLoadingStates[asset.id] }" />
                             </button>
                           </div>
                         </td>

@@ -21,13 +21,139 @@ const handleMouseMove = (event: MouseEvent) => {
   <div class="about-view view-container">
     <PageHeader @mousemove="handleMouseMove" class="custom-header" />
     <PageMain @mousemove="handleMouseMove">
-      <div class="w-full max-w-7xl mx-auto p-8 md:p-12 lg:p-16 xl:p-16">
-        <div class="space-y-8">
-          <h1 class="text-3xl font-bold text-white">{{ t('about.title') }}</h1>
-          <div class="prose prose-invert">
-            <p>
-              {{ t('about.description') }}
+      <div class="w-full max-w-7xl mx-auto p-8">
+        <!-- Main About Content -->
+        <div class="mb-16">
+          <!-- Hero Section -->
+          <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-4">About TradeBlazer</h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+              Your trusted partner in the world of trading, providing cutting-edge tools and education since 2023.
             </p>
+          </div>
+
+          <!-- Mission & Vision -->
+          <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-green-500/30 transition-all">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                  <font-awesome-icon icon="bullseye" class="text-2xl text-green-400" />
+                </div>
+                <h2 class="text-2xl font-bold text-white">Our Mission</h2>
+              </div>
+              <p class="text-gray-300">To democratize trading by providing accessible, educational, and powerful tools that help individuals achieve their financial goals.</p>
+            </div>
+            <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-green-500/30 transition-all">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                  <font-awesome-icon icon="eye" class="text-2xl text-green-400" />
+                </div>
+                <h2 class="text-2xl font-bold text-white">Our Vision</h2>
+              </div>
+              <p class="text-gray-300">To become the world's most trusted and innovative trading platform, where every trader can thrive regardless of their experience level.</p>
+            </div>
+          </div>
+
+          <!-- Key Features -->
+          <div class="mb-12">
+            <h2 class="text-3xl font-bold text-white mb-8 text-center">Why Choose TradeBlazer</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+              <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-green-500/30 transition-all">
+                <font-awesome-icon icon="shield-halved" class="text-3xl text-green-400 mb-4" />
+                <h3 class="text-xl font-semibold text-white mb-2">Security First</h3>
+                <p class="text-gray-300">Your security and privacy are our top priorities. We employ state-of-the-art protection measures.</p>
+              </div>
+              <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-green-500/30 transition-all">
+                <font-awesome-icon icon="graduation-cap" class="text-3xl text-green-400 mb-4" />
+                <h3 class="text-xl font-semibold text-white mb-2">Education</h3>
+                <p class="text-gray-300">We believe in empowering traders through comprehensive educational resources and tools.</p>
+              </div>
+              <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-green-500/30 transition-all">
+                <font-awesome-icon icon="handshake" class="text-3xl text-green-400 mb-4" />
+                <h3 class="text-xl font-semibold text-white mb-2">Transparency</h3>
+                <p class="text-gray-300">We maintain complete transparency in our operations and fee structure.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Section -->
+          <div>
+            <h2 class="text-3xl font-bold text-white mb-8 text-center">Our Team</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+              <div class="text-center">
+                <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4"></div>
+                <h3 class="text-lg font-semibold text-white">John Doe</h3>
+                <p class="text-gray-400">CEO & Founder</p>
+              </div>
+              <div class="text-center">
+                <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4"></div>
+                <h3 class="text-lg font-semibold text-white">Jane Smith</h3>
+                <p class="text-gray-400">CEO & Founder</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Content (Existing) -->
+        <div class="border-t border-white/10 pt-8">
+          <!-- Company & Links Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <!-- Company Info -->
+            <div class="md:col-span-2 space-y-4">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                  <font-awesome-icon icon="chart-line" class="text-2xl text-green-400" />
+                </div>
+                <h1 class="text-2xl font-bold text-white">TradeBlazer</h1>
+              </div>
+              <p class="text-gray-300">Empowering traders with cutting-edge tools and education since 2023.</p>
+              <div class="flex items-center gap-2 text-gray-400">
+                <font-awesome-icon icon="location-dot" />
+                <span>Budapest, Hungary</span>
+              </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="space-y-4">
+              <h2 class="text-lg font-bold text-white">Quick Links</h2>
+              <ul class="space-y-2">
+                <li><router-link to="/markets" class="text-gray-400 hover:text-green-400">Markets</router-link></li>
+                <li><router-link to="/tutorial" class="text-gray-400 hover:text-green-400">Tutorial</router-link></li>
+                <li><a href="#" class="text-gray-400 hover:text-green-400">Terms of Service</a></li>
+                <li><a href="#" class="text-gray-400 hover:text-green-400">Privacy Policy</a></li>
+              </ul>
+            </div>
+
+            <!-- Contact -->
+            <div class="space-y-4">
+              <h2 class="text-lg font-bold text-white">Contact</h2>
+              <div class="space-y-2">
+                <a href="mailto:support@tradeblazer.com" class="flex items-center gap-2 text-gray-400 hover:text-green-400">
+                  <font-awesome-icon icon="envelope" />
+                  <span>support@tradeblazer.com</span>
+                </a>
+                <div class="flex items-center gap-2 text-gray-400">
+                  <font-awesome-icon icon="phone" />
+                  <span>+36 1 234 5678</span>
+                </div>
+                <div class="flex gap-4 mt-4">
+                  <a href="#" class="text-gray-400 hover:text-green-400">
+                    <font-awesome-icon icon="facebook" size="lg" />
+                  </a>
+                  <a href="#" class="text-gray-400 hover:text-green-400">
+                    <font-awesome-icon icon="twitter" size="lg" />
+                  </a>
+                  <a href="#" class="text-gray-400 hover:text-green-400">
+                    <font-awesome-icon icon="linkedin" size="lg" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Copyright -->
+          <div class="border-t border-white/10 pt-8 text-center">
+            <p class="text-gray-400">&copy; 2023 TradeBlazer. All rights reserved.</p>
           </div>
         </div>
       </div>

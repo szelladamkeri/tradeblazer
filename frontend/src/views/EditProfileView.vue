@@ -160,7 +160,7 @@ const confirmAvatarUpdate = async () => {
     loading.value = true
     error.value = null
 
-    const response = await fetch(`http://localhost:3000/api/user/avatar`, {
+    const response = await fetch(`http://localhost:3000/api/admin/users/${userStore.user.id}/avatar`, {
       method: 'PUT',
       body: formData
     })
@@ -169,7 +169,7 @@ const confirmAvatarUpdate = async () => {
 
     // Update user store and force avatar refresh
     await userStore.checkAvatar()
-    showAvatarConfirm.value = false
+    showAvatarConfirm.value = false 
     avatarFile.value = null
   } catch (err) {
     console.error('Avatar update error:', err)

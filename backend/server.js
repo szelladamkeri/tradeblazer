@@ -168,9 +168,10 @@ app.use('/api/portfolio', require('./routes/portfolio')(pool, asyncHandler))
 app.use('/api/auth', require('./routes/auth')(pool, asyncHandler));
 app.use('/api/verification', require('./routes/verification')(pool, asyncHandler));
 app.use('/api/transactions', require('./routes/transactions')(pool, asyncHandler));
-app.use('/api/admin', require('./routes/admin')(pool, asyncHandler)); // Assuming admin routes exist
-app.use('/api/user', require('./routes/user')(pool, asyncHandler)); // Assuming user routes exist
-app.use('/api/orders', require('./routes/orders')(pool, asyncHandler)); // Assuming order routes exist
+app.use('/api/admin', require('./routes/admin')(pool, asyncHandler));
+app.use('/api/user', require('./routes/user')(pool, asyncHandler));
+app.use('/api/orders', require('./routes/orders')(pool, asyncHandler));
+app.use('/api/watchlist', require('./routes/watchlist')(pool, asyncHandler)); // Add this line
 
 // --- Remove potentially duplicate or conflicting route definitions below --- 
 

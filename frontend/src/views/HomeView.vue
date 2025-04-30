@@ -12,7 +12,8 @@ import {
   faChartPie, faBolt, faListCheck, faChartLine,
   faClockRotateLeft, faEye, faGaugeHigh, faShieldHalved,
   faCartShopping, faChartColumn, faSync, faSearch, faWallet,
-  faBitcoinSign, faDollarSign, faFire, faCaretUp, faCaretDown
+  faBitcoinSign, faDollarSign, faFire, faCaretUp, faCaretDown,
+  faCircleInfo
 } from '@fortawesome/free-solid-svg-icons'
 
 import { useUserStore } from '@/stores/userStore'
@@ -47,7 +48,8 @@ library.add(
   faChartPie, faBolt, faListCheck, faChartLine,
   faClockRotateLeft, faEye, faGaugeHigh, faShieldHalved,
   faCartShopping, faChartColumn, faSync, faSearch, faWallet,
-  faBitcoinSign, faDollarSign, faFire, faCaretUp, faCaretDown
+  faBitcoinSign, faDollarSign, faFire, faCaretUp, faCaretDown,
+  faCircleInfo
 )
 
 const marketStats = ref({
@@ -287,6 +289,15 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <font-awesome-icon icon="wallet" class="text-3xl text-green-400 mb-4 filter drop-shadow-glow" />
                     <h3 class="text-xl font-semibold text-white mb-2">{{ t('home.features.multiAsset.title') }}</h3>
                     <p class="text-gray-400">{{ t('home.features.multiAsset.description') }}</p>
+                  </div>
+                  <!-- Add this in the features grid section when user is not authenticated -->
+                  <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/30 transition-all">
+                    <font-awesome-icon icon="circle-info" class="text-3xl text-green-400 mb-4" />
+                    <h3 class="text-xl font-semibold text-white mb-2">{{ t('home.features.about.title') }}</h3>
+                    <p class="text-gray-400">{{ t('home.features.about.description') }}</p>
+                    <router-link to="/about" class="mt-4 inline-block text-green-400 hover:text-green-300">
+                      Learn More <font-awesome-icon icon="arrow-right" class="ml-1" />
+                    </router-link>
                   </div>
                 </div>
               </div>

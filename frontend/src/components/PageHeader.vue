@@ -269,8 +269,8 @@ const handleMouseMove = (event: MouseEvent) => {
                 <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
               </div>
 
-              <!-- Search Bar - Centered and optimized -->
-              <div ref="searchContainerRef" class="relative flex-1 mx-3 md:mx-8 max-w-md hidden lg:block">
+              <!-- Desktop Search Container -->
+              <div ref="searchContainerRef" class="relative w-[300px] mx-3 md:mx-8 hidden lg:block">
                 <div class="relative group">
                   <input v-model="searchQuery" type="text" :placeholder="t('markets.searchAssets')"
                     class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200 group-hover:bg-white/15" />
@@ -378,6 +378,18 @@ const handleMouseMove = (event: MouseEvent) => {
                     <router-link to="/tutorial" class="text-gray-300 hover:text-green-400 flex items-center">
                       <font-awesome-icon icon="graduation-cap" class="mr-2" />
                       <span>{{ t('navigation.tutorial') }}</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
+                <!-- Add About Link -->
+                <HeaderLink>
+                  <template #icon>
+                    <router-link to="/about"
+                      class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                      :class="$route.path === '/about' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                      <font-awesome-icon icon="circle-info" class="text-lg mr-3" />
+                      <span class="font-medium">About</span>
                     </router-link>
                   </template>
                 </HeaderLink>
@@ -535,7 +547,7 @@ const handleMouseMove = (event: MouseEvent) => {
               <div class="mb-4">
                 <div class="relative">
                   <input v-model="searchQuery" type="text" placeholder="Search assets..."
-                    class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all duration-200" />
+                    class="w-[300px] px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all duration-200" />
                   <div class="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center">
                     <font-awesome-icon v-if="searchLoading" icon="spinner" class="text-gray-400 animate-spin" />
                     <font-awesome-icon v-else-if="searchQuery" @click="searchQuery = ''" icon="times-circle"
@@ -641,6 +653,18 @@ const handleMouseMove = (event: MouseEvent) => {
                   </template>
                 </HeaderLink>
 
+                <!-- Add About Link to mobile menu -->
+                <HeaderLink @click="closeMenu">
+                  <template #icon>
+                    <router-link to="/about"
+                      class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
+                      :class="$route.path === '/about' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
+                      <font-awesome-icon icon="circle-info" class="text-lg mr-3" />
+                      <span class="font-medium">About</span>
+                    </router-link>
+                  </template>
+                </HeaderLink>
+
                 <template v-if="userStore.isAuthenticated">
                   <HeaderLink @click="closeMenu">
                     <template #icon>
@@ -683,7 +707,7 @@ const handleMouseMove = (event: MouseEvent) => {
                         class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200 text-red-400 text-left">
                         <font-awesome-icon icon="right-from-bracket" class="text-lg mr-3" />
                         <span class="font-medium">Sign out</span>
-                      </button>
+                      </router-link>
                     </template>
                   </HeaderLink>
                 </template>
