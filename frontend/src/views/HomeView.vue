@@ -183,10 +183,137 @@ const fetchTrendingAssets = async () => {
   }
 }
 
-// Update onMounted to include fetchTrendingAssets
+// Add new refs for panel data
+const watchlist = ref({
+  data: [] as any[],
+  loading: true,
+  error: null as string | null
+})
+
+const positions = ref({
+  data: [] as any[],
+  loading: true,
+  error: null as string | null
+})
+
+const activities = ref({
+  data: [] as any[],
+  loading: true,
+  error: null as string | null
+})
+
+// Updated fetch functions
+const fetchWatchlist = async () => {
+  try {
+    watchlist.value.loading = true
+    const response = await fetch(
+      `http://localhost:3000/api/watchlist/user/${userStore.user?.id}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      }
+    )
+    if (!response.ok) throw new Error('Failed to fetch watchlist')
+    watchlist.value.data = await response.json()
+  } catch (err) {
+    console.error('Error fetching watchlist:', err)
+    watchlist.value.error = 'Failed to load watchlist'
+  } finally {
+    watchlist.value.loading = false
+  }
+}
+
+// Modified to use transactions instead
+const fetchPositions = async () => {
+  try {
+    positions.value.loading = true
+    const response = await fetch(`http://localhost:3000/api/transactions/${userStore.user?.id}/recent`, {
+      headers: {
+        'Authorization': `Bearer ${userStore.token}`
+      }
+    })
+    if (!response.ok) throw new Error('Failed to fetch positions')
+    const transactions = await response.json()
+    // Filter to show only open positions
+    positions.value.data = transactions
+      .filter((t: any) => t.type === 'buy')
+      .map((t: any) => ({
+        id: t.id,
+        symbol: t.asset_symbol,
+        type: t.asset_type,
+        entry_price: t.price,
+        quantity: t.quantity,
+        unrealized_pnl: 0 // We don't have real-time PnL calculation yet
+      }))
+  } catch (err) {
+    console.error('Error fetching positions:', err)
+    positions.value.data = [] // Empty array instead of error
+  } finally {
+    positions.value.loading = false
+  }
+}
+
+// Modified to combine watchlist and transaction activity
+const fetchActivities = async () => {
+  try {
+    activities.value.loading = true
+    
+    // Get recent watchlist additions
+    const watchlistItems = watchlist.value.data
+      .slice(0, 5)
+      .map(item => ({
+        id: `w_${item.watchlistId}`,
+        title: 'Added to Watchlist',
+        description: `${item.symbol} added to watchlist`,
+        timestamp: item.created_at || new Date().toISOString()
+      }))
+
+    // Use existing positions data for transaction activity
+    const transactionItems = positions.value.data
+      .slice(0, 5)
+      .map(pos => ({
+        id: `t_${pos.id}`,
+        title: 'Opened Position',
+        description: `Bought ${pos.quantity} ${pos.symbol}`,
+        timestamp: new Date().toISOString() // We don't have real timestamp
+      }))
+
+    // Combine and sort by timestamp
+    activities.value.data = [...watchlistItems, ...transactionItems]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 5)
+
+    if (activities.value.data.length === 0) {
+      activities.value.data = [{
+        id: 'empty',
+        title: 'No Recent Activity',
+        description: 'Your activity will appear here',
+        timestamp: new Date().toISOString()
+      }]
+    }
+  } catch (err) {
+    console.error('Error preparing activities:', err)
+    activities.value.data = [{
+      id: 'empty',
+      title: 'No Recent Activity',
+      description: 'Your activity will appear here',
+      timestamp: new Date().toISOString()
+    }]
+  } finally {
+    activities.value.loading = false
+  }
+}
+
+// Update onMounted to include new fetches for authenticated users
 onMounted(() => {
   fetchMarketStats()
   fetchTrendingAssets()
+  if (userStore.isAuthenticated) {
+    fetchWatchlist()
+    fetchPositions()
+    fetchActivities()
+  }
 })
 
 // Add formatPrice function if not already present
@@ -502,6 +629,88 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                                 </div>
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Watchlist Panel -->
+                  <div v-if="panel.id === 'watchlist'" class="flex-1">
+                    <div v-if="watchlist.loading" class="flex-1 flex items-center justify-center">
+                      <LoadingSpinner class="w-6 h-6" />
+                    </div>
+                    <div v-else-if="watchlist.error" class="flex-1 flex items-center justify-center text-red-400">
+                      {{ watchlist.error }}
+                    </div>
+                    <div v-else class="h-full overflow-y-auto scrollbar-thin">
+                      <div v-for="item in watchlist.data" :key="item.watchlistId" 
+                           class="p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition-colors cursor-pointer"
+                           @click="router.push(`/trade/${item.id}`)">
+                        <div class="flex justify-between items-center">
+                          <div class="flex items-center gap-2">
+                            <font-awesome-icon :icon="getAssetTypeIcon(item.type)" class="text-green-400" />
+                            <div>
+                              <div class="font-medium text-white">{{ item.symbol }}</div>
+                              <div class="text-sm text-gray-400">{{ item.name }}</div>
+                            </div>
+                          </div>
+                          <div class="text-right">
+                            <div class="text-white">${{ formatPrice(item.price) }}</div>
+                            <div v-if="item.alert_price" class="text-xs text-green-400">
+                              Alert: {{ item.alert_type === 'above' ? '>' : '<' }} ${{ formatPrice(item.alert_price) }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Active Positions Panel -->
+                  <div v-else-if="panel.id === 'active-positions'" class="flex-1">
+                    <div v-if="positions.loading" class="flex-1 flex items-center justify-center">
+                      <LoadingSpinner class="w-6 h-6" />
+                    </div>
+                    <div v-else-if="positions.error" class="flex-1 flex items-center justify-center text-red-400">
+                      {{ positions.error }}
+                    </div>
+                    <div v-else class="h-full overflow-y-auto scrollbar-thin">
+                      <div v-for="position in positions.data" :key="position.id" 
+                           class="p-3 bg-white/5 rounded-lg mb-2">
+                        <div class="flex justify-between items-center">
+                          <div>
+                            <div class="font-medium text-white">{{ position.symbol }}</div>
+                            <div class="text-sm text-gray-400">{{ position.type }} @ {{ formatPrice(position.entry_price) }}</div>
+                          </div>
+                          <div class="text-right">
+                            <div :class="['font-medium', position.unrealized_pnl >= 0 ? 'text-green-400' : 'text-red-400']">
+                              {{ formatPrice(position.unrealized_pnl) }}
+                            </div>
+                            <div class="text-sm text-gray-400">{{ position.quantity }} units</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Recent Activity Panel -->
+                  <div v-else-if="panel.id === 'recent-activity'" class="flex-1">
+                    <div v-if="activities.loading" class="flex-1 flex items-center justify-center">
+                      <LoadingSpinner class="w-6 h-6" />
+                    </div>
+                    <div v-else-if="activities.error" class="flex-1 flex items-center justify-center text-red-400">
+                      {{ activities.error }}
+                    </div>
+                    <div v-else class="h-full overflow-y-auto scrollbar-thin">
+                      <div v-for="activity in activities.data" :key="activity.id" 
+                           class="p-3 bg-white/5 rounded-lg mb-2">
+                        <div class="flex justify-between items-center">
+                          <div>
+                            <div class="font-medium text-white">{{ activity.title }}</div>
+                            <div class="text-sm text-gray-400">{{ new Date(activity.timestamp).toLocaleString() }}</div>
+                          </div>
+                          <div class="text-sm text-gray-400">
+                            {{ activity.description }}
                           </div>
                         </div>
                       </div>
