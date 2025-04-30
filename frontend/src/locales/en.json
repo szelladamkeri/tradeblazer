@@ -148,6 +148,8 @@
     "accountStatus": "Account Status",
     "statusActive": "Active",
     "memberSince": "Member Since",
+    "dateNotAvailable": "Date not available",
+    "dateInvalid": "Invalid Date",
     "editProfile": "Edit Profile",
     "deleteAccount": "Delete Account",
     "confirmDeleteTitle": "Delete Account",
