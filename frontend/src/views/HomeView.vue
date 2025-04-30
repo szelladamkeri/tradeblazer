@@ -217,7 +217,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
-
 </script>
 
 <template>
@@ -229,8 +228,10 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
           <div class="landing-page">
             <!-- Hero Section -->
             <section class="hero-section relative overflow-hidden py-20">
-              <div class="absolute inset-0 bg-gradient animate-gradient"></div>
-              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <!-- Change the overlay div to be pointer-events-none -->
+              <div class="absolute inset-0 bg-gradient animate-gradient pointer-events-none"></div>
+              <!-- Add relative and z-10 to content container to ensure it's clickable -->
+              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="text-center">
                   <h1 class="text-5xl md:text-6xl font-bold text-white mb-6 glow-text">
                     {{ t('home.hero.title') }}
@@ -239,12 +240,16 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     {{ t('home.hero.subtitle') }}
                   </p>
                   <div class="flex gap-4 justify-center">
-                    <button @click="router.push('/register')"
-                      class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all">
+                    <button 
+                      class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all"
+                      @click="() => router.push('/register')"
+                    >
                       {{ t('home.hero.startTrading') }}
                     </button>
-                    <button @click="router.push('/login')"
-                      class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-all">
+                    <button 
+                      class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-all"
+                      @click="() => router.push('/login')"
+                    >
                       {{ t('home.hero.login') }}
                     </button>
                   </div>
@@ -513,6 +518,73 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 </template>
 
 <style scoped>
+/* Add these new scrollbar styles at the beginning of your style block */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Add smooth scrolling */
+.overflow-y-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Update the trending container styles */
+.trending-container {
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.trending-items-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 4px; /* Add slight padding to prevent scrollbar overlap */
+}
+
+.trending-item {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.trending-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.trending-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Dashboard panel styles */
 .dashboard-panel {
   @apply relative overflow-hidden;
   height: 290px;
@@ -725,6 +797,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   padding-bottom: 4px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .trending-items-wrapper {
@@ -732,6 +805,8 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   flex-direction: column;
   gap: 8px;
   height: 100%;
+  overflow-y: auto;
+  padding-right: 4px; /* Add slight padding to prevent scrollbar overlap */
 }
 
 .trending-item {
@@ -751,32 +826,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 .trending-item:last-child {
   margin-bottom: 0;
-}
-
-/* Remove the existing scrollbar styles that might be causing issues */
-.scrollbar-thin {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  display: none;
-}
-
-/* Add centering styles */
-.max-w-7xl {
-  max-width: 1280px;
-}
-
-/* Make the home view take the full browser height */
-.home-view {
-  min-height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding-top: 0 !important;
-  height: auto !important;
-  /* Remove fixed height */
 }
 
 /* Match header container width to card container width */
@@ -840,5 +889,25 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   @apply border-green-500/20;
   transform: translateY(-1px);
   transition: all 0.3s ease;
+}
+
+/* Fix potential overlay issues */
+.hero-section {
+  isolation: isolate;
+}
+
+.hero-section > * {
+  position: relative;
+}
+
+/* Ensure gradients don't block interactions */
+.animate-gradient {
+  pointer-events: none;
+}
+
+/* Ensure content is above gradients */
+.hero-section .max-w-7xl {
+  position: relative;
+  z-index: 2;
 }
 </style>

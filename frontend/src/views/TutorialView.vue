@@ -28,7 +28,7 @@ const setActiveSection = (section: string) => {
 <template>
   <div class="tutorial-view view-container">
     <PageHeader @mousemove="handleMouseMove" class="custom-header" />
-    <PageMain @mousemove="handleMouseMove">
+    <PageMain @mousemove="handleMouseMove" class="pb-4">
       <div class="w-full h-full overflow-auto px-2 sm:px-4 py-4">
         <div class="max-w-7xl mx-auto">
           <!-- Main Content Grid -->

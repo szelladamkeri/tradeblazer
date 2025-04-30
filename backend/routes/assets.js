@@ -162,5 +162,74 @@ module.exports = (pool, asyncHandler) => {
     res.json(prices);
   }));
 
+  /**
+   * Search Assets
+   * Returns assets matching the search query
+   */
+  router.get('/search', asyncHandler(async (req, res) => {
+    const { q } = req.query;
+    
+    if (!q || q.length < 2) {
+      return res.status(400).json({
+        error: 'Invalid search',
+        message: 'Search query must be at least 2 characters long'
+      });
+    }
+
+    const query = `
+      SELECT * FROM assets 
+      WHERE LOWER(name) LIKE LOWER(?) 
+      OR LOWER(symbol) LIKE LOWER(?)
+      LIMIT 10
+    `;
+
+    const searchPattern = `%${q}%`;
+    
+    pool.query(query, [searchPattern, searchPattern], (err, results) => {
+      if (err) {
+        console.error('Search query error:', err);
+        return res.status(500).json({
+          error: 'Database error',
+          message: err.message
+        });
+      }
+      res.json(results);
+    });
+  }));
+
+/**
+   * Get Single Asset
+   * Returns details for a specific asset by ID
+   */
+  router.get('/:id', asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || isNaN(id)) {
+      return res.status(400).json({
+        error: 'Invalid ID',
+        message: 'Asset ID must be a number'
+      });
+    }
+
+    pool.query('SELECT * FROM assets WHERE id = ?', [id], (err, results) => {
+      if (err) {
+        console.error('Asset fetch error:', err);
+        return res.status(500).json({
+          error: 'Database error',
+          message: err.message
+        });
+      }
+
+      if (!results || results.length === 0) {
+        return res.status(404).json({
+          error: 'Not found',
+          message: 'Asset not found'
+        });
+      }
+
+      res.json(results[0]);
+    });
+  }));
+
   return router
 }
