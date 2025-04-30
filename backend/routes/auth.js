@@ -117,7 +117,7 @@ module.exports = (pool, asyncHandler) => {
     }
     
     const query = `
-      SELECT id, username as name, email, password, verification_status, type
+      SELECT id, username as name, email, password, verification_status, type, balance, created_at /* Add created_at here */
       FROM users
       WHERE email = ? OR username = ?
     `;

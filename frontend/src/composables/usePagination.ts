@@ -13,9 +13,14 @@ export function usePagination(items: any, options = {
     return options.maxItems || 5 // Always return 5 or maxItems if specified
   })
 
-  const totalPages = computed(() => 
-    Math.ceil(items.value.length / visibleItems.value)
-  )
+  const totalPages = computed(() => {
+    const total = items.value.length;
+    // Ensure totalPages is at least 1, even if there are no items
+    if (total === 0) {
+      return 1;
+    }
+    return Math.ceil(total / visibleItems.value);
+  })
 
   const paginatedItems = computed(() => {
     const startIndex = (currentPage.value - 1) * visibleItems.value

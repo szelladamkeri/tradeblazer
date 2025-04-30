@@ -102,14 +102,23 @@ const handleDeleteConfirm = async () => {
 
 const { t, locale } = useI18n() // Destructure locale as well
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | null | undefined) => {
+  // Check if dateString is valid before formatting
+  if (!dateString) {
+    return t('profile.dateNotAvailable'); // Or return '' or some placeholder
+  }
+  const date = new Date(dateString);
+  // Check if the created Date object is valid
+  if (isNaN(date.getTime())) {
+    return t('profile.dateInvalid'); // Or return '' or some placeholder
+  }
   // Use the current locale for date formatting
-  return new Date(dateString).toLocaleDateString(locale.value, {
+  return date.toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
-}
+  });
+};
 
 // Get first letter function
 const firstLetter = computed(() => {
@@ -221,7 +230,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
             </div>
             <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
               <h3 class="text-white text-lg font-semibold mb-2">{{ t('profile.memberSince') }}</h3>
-              <p class="text-gray-300">{{ formatDate(userStore.user?.created_at || '') }}</p>
+              <p class="text-gray-300">{{ formatDate(userStore.user?.created_at) }}</p>
             </div>
           </div>
 
