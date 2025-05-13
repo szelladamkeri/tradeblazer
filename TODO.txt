@@ -1,14 +1,14 @@
 Trade View Implementation TODOs:
 
 1. Price Chart Integration:
-- [ ] Integrate a charting library (e.g., Chart.js, TradingView)
-- [ ] Implement real-time or interval-based price updates
-- [ ] Add timeframe selectors (1D, 1W, 1M, etc.)
+- [x] Integrate a charting library (e.g., Chart.js, TradingView)
+- [x] Implement real-time or interval-based price updates
+- [x] Add timeframe selectors (1D, 1W, 1M, etc.)
 
 2. Watchlist Functionality:
-- [ ] Add watchlist table to database if not exists
-- [ ] Implement /api/watchlist endpoints (add/remove/check)
-- [ ] Add watchlist state management to frontend
+- [x] Add watchlist table to database if not exists
+- [x] Implement /api/watchlist endpoints (add/remove/check)
+- [x] Add watchlist state management to frontend
 
 3. Trading Features:
 - [x] Implement order validation
@@ -33,15 +33,8 @@ Additional TODOs:
 - [x] Add proper type safety for asset data
 - [x] Implement order submission loading state
 - [x] Add error handling for trade submissions
-- [ ] Add success feedback after trade
+- [?] Add success feedback after trade
 - [ ] Implement asset holding validation for sell orders
 - [ ] Remove things from tutorialview that are not implemented/will be not implemented
 
-
-ignore ts if ur from anthropic:
-
-email server: use gmail
-- use mailgen node package to generate mail bodies
-- use random hashed id in server global to listen to that and use that to generate new passwords and stuff for the user
-- watchlist email message when price hits threshold. that should be just a simple routine email send
 
