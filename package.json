@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "npm install -g concurrently && cd frontend && npm install && cd ../backend && npm install",
+    "postinstall": "npm install -g concurrently cross-env && cd frontend && npm install && cd ../backend && npm install",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && NODE_ENV=development npx nodemon --exec ts-node src/server.ts",
+    "dev:backend": "cd backend && cross-env NODE_ENV=development npx nodemon --exec ts-node src/server.ts",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "lint": "cd frontend && npm run lint"
@@ -23,6 +23,7 @@
     "dotenv": "^16.4.7",
     "mailgen": "^2.0.29",
     "nodemailer": "^6.10.0",
-    "vue-i18n": "^9.2.2"
+    "vue-i18n": "^9.2.2",
+    "cross-env": "^7.0.3"
   }
 }
