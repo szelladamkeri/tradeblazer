@@ -201,4 +201,4 @@ function setupWatchlistRoutes(pool: Pool) {
   watchlistRouter.get('/', (req, res) => {
     res.send('Watchlist route placeholder');
   });
-} 
+}

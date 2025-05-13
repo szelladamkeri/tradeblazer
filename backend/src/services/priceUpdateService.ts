@@ -134,15 +134,15 @@ async function fetchQuote(symbol: string, type: string): Promise<number | null> 
                 }
             } else {
                 // Finnhub response handling
-                if (data && typeof data.c === 'number' && data.c !== 0) { // Check if price is not 0
-                    fetchedPrice = data.c;
-                } else {
-                    // Don't log warning if price is 0, as Finnhub might return 0 for various reasons (market closed, no data)
-                    // Only log if data structure is unexpected
-                    if (!(data && typeof data.c === 'number')) {
-                        console.warn(`No valid current price ('c') found for symbol: ${symbol} (Finnhub: ${finnhubSymbol})`, data);
-                    }
-                    fetchedPrice = null; // Set to null if price is 0 or invalid
+            if (data && typeof data.c === 'number' && data.c !== 0) { // Check if price is not 0
+                fetchedPrice = data.c;
+            } else {
+                // Don't log warning if price is 0, as Finnhub might return 0 for various reasons (market closed, no data)
+                // Only log if data structure is unexpected
+                if (!(data && typeof data.c === 'number')) {
+                    console.warn(`No valid current price ('c') found for symbol: ${symbol} (Finnhub: ${finnhubSymbol})`, data);
+                }
+                fetchedPrice = null; // Set to null if price is 0 or invalid
                 }
             }
         }

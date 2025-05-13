@@ -41,10 +41,10 @@ function setupTransactionsRoutes(pool: Pool) {
     }
   }));
 
-  // Placeholder for transactions routes
-  transactionsRouter.get('/', (req, res) => {
+// Placeholder for transactions routes
+transactionsRouter.get('/', (req, res) => {
     res.send('Transactions route placeholder');
-  });
-  
-  return transactionsRouter;
+});
+
+    return transactionsRouter;
 } 
