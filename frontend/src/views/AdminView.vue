@@ -107,13 +107,13 @@ const confirmDelete = async () => {
     showDeleteConfirm.value = false
     userToDelete.value = null
   } catch (err) {
-    error.value = 'Failed to delete user'
+    error.value = { message: 'Failed to delete user', type: 'error' }
   }
 }
 
 const handleEditUser = async (user: User) => {
   if (user.id === userStore.user?.id) {
-    error.value = "You can't change your own role from here"
+    error.value = { message: "You can't change your own role from here", type: 'error' }
     return
   }
 }
@@ -141,7 +141,10 @@ const handleSaveUser = async (updatedUser: User) => {
     )
     showEditModal.value = false
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to update user'
+    error.value = { 
+      message: err instanceof Error ? err.message : 'Failed to update user',
+      type: 'error'
+    }
   }
 }
 
@@ -291,7 +294,7 @@ const confirmAvatarUpdate = async () => {
     showAvatarConfirm.value = false
     avatarFile.value = null
   } catch (err) {
-    error.value = 'Failed to update avatar'
+    error.value = { message: 'Failed to update avatar', type: 'error' }
   }
 }
 
@@ -333,7 +336,7 @@ const confirmDeleteAvatar = async () => {
     showDeleteAvatarConfirm.value = false
     userToDeleteAvatar.value = null
   } catch (err) {
-    error.value = 'Failed to delete avatar'
+    error.value = { message: 'Failed to delete avatar', type: 'error' }
   }
 }
 
@@ -613,18 +616,38 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
     </PageMain>
 
     <!-- Confirm Delete Dialog -->
-    <ConfirmDialog v-if="showDeleteConfirm" :title="t('admin.confirmDialog.deleteUser')"
-      :confirmButtonText="t('admin.confirmDialog.confirm')" :cancelButtonText="t('admin.confirmDialog.cancel')"
-      @confirm="confirmDelete" @cancel="showDeleteConfirm = false" />
+    <ConfirmDialog 
+      :show="showDeleteConfirm"
+      :title="t('admin.confirmDialog.deleteUser')"
+      :message="t('admin.confirmDialog.deleteUserMessage')"
+      :confirmText="t('admin.confirmDialog.confirm')"
+      type="delete"
+      @confirm="confirmDelete" 
+      @cancel="showDeleteConfirm = false" 
+    />
 
     <!-- Confirm Delete Avatar Dialog -->
-    <ConfirmDialog v-if="showDeleteAvatarConfirm" :title="t('admin.confirmDialog.deleteAvatar')"
-      :confirmButtonText="t('admin.confirmDialog.confirm')" :cancelButtonText="t('admin.confirmDialog.cancel')"
-      @confirm="confirmDeleteAvatar" @cancel="showDeleteAvatarConfirm = false" />
+    <ConfirmDialog 
+      :show="showDeleteAvatarConfirm"
+      :title="t('admin.confirmDialog.deleteAvatar')"
+      :message="t('admin.confirmDialog.deleteAvatarMessage')"
+      :confirmText="t('admin.confirmDialog.confirm')"
+      type="delete"
+      @confirm="confirmDeleteAvatar" 
+      @cancel="showDeleteAvatarConfirm = false" 
+    />
 
     <!-- Edit User Modal -->
-    <EditUserModal v-if="showEditModal && selectedUser" :user="selectedUser" @close="showEditModal = false"
-      @save="handleSaveUser" />
+    <EditUserModal 
+      :isOpen="showEditModal"
+      v-if="showEditModal && selectedUser" 
+      :user="{
+        name: selectedUser.username,
+        email: selectedUser.email
+      }"
+      @close="showEditModal = false"
+      @save="handleSaveUser" 
+    />
 
     <!-- Avatar Upload Modal -->
     <div v-if="showAvatarModal"
@@ -708,175 +731,20 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
     </div>
 
     <!-- Confirm Avatar Dialog -->
-    <ConfirmDialog v-if="showAvatarConfirm" :title="t('admin.avatarModal.title')"
-      :confirmButtonText="t('admin.confirmDialog.confirm')" :cancelButtonText="t('admin.confirmDialog.cancel')"
-      @confirm="confirmAvatarUpdate" @cancel="showAvatarConfirm = false" />
+    <ConfirmDialog 
+      :show="showAvatarConfirm"
+      :title="t('admin.avatarModal.title')"
+      :message="t('admin.avatarModal.confirmMessage')"
+      :confirmText="t('admin.confirmDialog.confirm')"
+      type="update"
+      @confirm="confirmAvatarUpdate" 
+      @cancel="showAvatarConfirm = false" 
+    />
   </div>
 </template>
 
 <style scoped>
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.blur-sm {
-  filter: blur(4px);
-  transition: filter 0.15s ease-out;
-}
-
-/* Remove conflicting z-index utilities */
-.isolate {
-  isolation: none;
-}
-
-/* Update z-index hierarchy */
-.z-base {
-  z-index: 1;
-}
-
-.z-content {
-  z-index: 10;
-}
-
-.z-modal {
-  z-index: 30;
-}
-
-.z-dialog {
-  z-index: 40;
-}
-
-/* Remove any conflicting z-index styles */
-.z-\[60\],
-.z-\[70\],
-.z-\[150\],
-.z-\[200\] {
-  z-index: unset;
-}
-
-/* Ensure backdrop blur works */
-.backdrop-blur-sm {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Update blur transition */
-.transition-\[filter\] {
-  transition: filter 0.2s ease-out;
-}
-
-/* Add consistent z-index layering */
-.z-base {
-  z-index: 0;
-}
-
-.z-blur {
-  z-index: 100;
-}
-
-.z-modal {
-  z-index: 150;
-}
-
-.z-dialog {
-  z-index: 200;
-}
-
-/* Remove any conflicting z-index styles */
-.z-\[60\],
-.z-\[70\],
-.z-\[100\],
-.z-\[150\] {
-  /* These will be overridden by our new z-index system */
-}
-
-/* Add proper backdrop styles */
-.backdrop-blur-xl {
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-}
-
-/* Ensure proper stacking */
-.relative {
-  isolation: isolate;
-}
-
-/* Update background opacity to match MarketsView */
-.bg-white\/5 {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Ensure consistent hover states */
-tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Table styles */
-.overflow-x-auto {
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-  scrollbar-width: none;
-}
-
-.overflow-x-auto::-webkit-scrollbar {
-  display: block;
-  height: 8px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-/* Update empty state and error state backgrounds to match */
-.bg-black\/40 {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Ensure proper stacking */
-.relative {
-  isolation: isolate;
-}
-
-/* Add the same pagination styles as other views */
-tr {
-  height: 72px;
-}
-
-.overflow-y-auto {
-  overflow: hidden !important;
-}
-
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Override any conflicting height styles */
-.page-main {
-  height: auto !important;
-  min-height: 42rem !important;
-}
-
-/* Ensure proper content height */
-[ref="tableContainer"] {
-  height: auto !important;
-  min-height: 200px !important;
-  overflow: auto !important;
-  flex: 1 !important;
-}
-
-/* Fix the height to match other views */
+/* Common layout styles */
 .admin-view {
   display: flex !important;
   flex-direction: column !important;
@@ -885,7 +753,7 @@ tr {
   overflow-x: hidden !important;
 }
 
-/* Override PageMain height */
+/* PageMain overrides */
 :deep(.page-main) {
   min-height: 0 !important;
   height: auto !important;
@@ -893,5 +761,54 @@ tr {
   flex-direction: column !important;
   flex: 1 !important;
   overflow: hidden !important;
+}
+
+/* Table container */
+[ref="tableContainer"] {
+  height: auto !important;
+  min-height: 200px !important;
+  overflow: auto !important;
+  flex: 1 !important;
+}
+
+/* Z-index system */
+.z-base { z-index: var(--z-base); }
+.z-content { z-index: var(--z-content); }
+.z-modal { z-index: var(--z-modal); }
+.z-dialog { z-index: var(--z-dialog); }
+
+/* Backdrop styling */
+.backdrop-blur-xl {
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+}
+
+/* Table styles */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  button,
+  input,
+  select {
+    min-height: 44px;
+  }
 }
 </style>
