@@ -63,8 +63,23 @@ watch(
 // Add dropdown state
 const showDropdown = ref(false)
 const dropdownRef = ref<HTMLDivElement | null>(null)
+const showMoreDropdown = ref(false)
+const moreDropdownRef = ref<HTMLDivElement | null>(null)
 
-// Close dropdown when clicking outside
+const toggleMoreDropdown = () => {
+  showMoreDropdown.value = !showMoreDropdown.value
+}
+
+const closeMoreDropdown = () => {
+  showMoreDropdown.value = false
+}
+
+const closeMoreDropdownOnClickOutside = (event: MouseEvent) => {
+  if (moreDropdownRef.value && !moreDropdownRef.value.contains(event.target as Node)) {
+    showMoreDropdown.value = false
+  }
+}
+
 const closeDropdownOnClickOutside = (event: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     showProfileDropdown.value = false
@@ -222,6 +237,7 @@ onMounted(async () => {
   document.addEventListener('click', closeDropdownOnClickOutside)
   document.addEventListener('click', closeSearchResultsOnClickOutside)
   document.addEventListener('click', closeLanguageDropdownOnClickOutside)
+  document.addEventListener('click', closeMoreDropdownOnClickOutside)
 
   // Set initial language from store
   locale.value = languageStore.currentLanguage
@@ -232,6 +248,7 @@ onUnmounted(() => {
   document.removeEventListener('click', closeDropdownOnClickOutside)
   document.removeEventListener('click', closeSearchResultsOnClickOutside)
   document.removeEventListener('click', closeLanguageDropdownOnClickOutside)
+  document.removeEventListener('click', closeMoreDropdownOnClickOutside)
 })
 
 // Add a debug computed property to help troubleshoot
@@ -274,7 +291,7 @@ const handleMouseMove = (event: MouseEvent) => {
         <div class="content-container">
           <div class="px-2 sm:px-4 py-3">
             <!-- Adjusted padding -->
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center justify-between gap-0">
               <!-- Added gap -->
               <!-- Logo - made more compact on mobile -->
               <div class="flex items-center shrink-0 logo-container">
@@ -366,7 +383,6 @@ const handleMouseMove = (event: MouseEvent) => {
 
               <!-- Desktop Navigation -->
               <nav class="hidden lg:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto">
-                <!-- Changed space-x-4 to space-x-2 for tighter spacing -->
                 <HeaderLink>
                   <template #icon>
                     <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
@@ -376,7 +392,8 @@ const handleMouseMove = (event: MouseEvent) => {
                   </template>
                 </HeaderLink>
 
-                <HeaderLink>
+                <!-- Markets link - hidden below 1101px -->
+                <HeaderLink class="hidden xl:block">
                   <template #icon>
                     <router-link to="/markets" class="text-gray-300 hover:text-green-400 flex items-center">
                       <font-awesome-icon icon="chart-pie" class="mr-2" />
@@ -385,50 +402,77 @@ const handleMouseMove = (event: MouseEvent) => {
                   </template>
                 </HeaderLink>
 
-                <!-- Add Tutorial Link -->
-                <HeaderLink>
-                  <template #icon>
-                    <router-link to="/tutorial" class="text-gray-300 hover:text-green-400 flex items-center">
-                      <font-awesome-icon icon="graduation-cap" class="mr-2" />
-                      <span>{{ t('navigation.tutorial') }}</span>
-                    </router-link>
-                  </template>
-                </HeaderLink>
+                <!-- More Dropdown -->
+                <div class="relative" ref="moreDropdownRef">
+                  <button @click="toggleMoreDropdown" type="button" :class="[
+                    'flex items-center px-3 py-2 rounded-lg transition-all duration-200',
+                    showMoreDropdown ? 'bg-green-500/20 text-green-400' : 'text-gray-300 hover:bg-white/10 hover:text-green-400'
+                  ]">
+                    <font-awesome-icon icon="ellipsis-h" class="mr-2" />
+                    <span>More</span>
+                  </button>
 
-                <!-- Add About Link -->
-                <HeaderLink>
-                  <template #icon>
-                    <router-link to="/about"
-                      class="flex items-center p-3 w-full rounded-lg hover:bg-white/10 transition-all duration-200"
-                      :class="$route.path === '/about' ? 'bg-green-500/20 text-green-400' : 'text-gray-300'">
-                      <font-awesome-icon icon="circle-info" class="text-lg mr-3" />
-                      <span class="font-medium">About</span>
-                    </router-link>
-                  </template>
-                </HeaderLink>
+                  <!-- More Menu Dropdown -->
+                  <transition name="scale">
+                    <div v-show="showMoreDropdown"
+                      class="absolute left-0 top-full mt-2 w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
+                      <!-- Connecting triangle -->
+                      <div
+                        class="absolute -top-2 left-4 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
+                      </div>
+
+                      <!-- Balance display - shown below 1101px -->
+                      <div v-if="userStore.isAuthenticated" class="px-4 py-2 xl:hidden">
+                        <div class="flex items-center justify-between gap-2 text-gray-300">
+                          <span class="text-sm">Balance:</span>
+                          <div class="px-2 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
+                            <font-awesome-icon icon="wallet" class="text-green-400" />
+                            <span class="text-green-400">{{ formatBalance(userBalance) }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Divider after balance - shown below 1101px -->
+                      <div v-if="userStore.isAuthenticated" class="w-full h-px bg-white/10 my-1 xl:hidden"></div>
+
+                      <!-- Markets link in dropdown - shown below 1101px -->
+                      <router-link to="/markets" @click="closeMoreDropdown"
+                        class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200 xl:hidden">
+                        <font-awesome-icon icon="chart-pie" class="mr-2" />
+                        <span>{{ t('navigation.markets') }}</span>
+                      </router-link>
+
+                      <template v-if="userStore.isAuthenticated">
+                        <router-link to="/portfolio" @click="closeMoreDropdown"
+                          class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200">
+                          <font-awesome-icon icon="wallet" class="mr-2" />
+                          <span>{{ t('navigation.portfolio') }}</span>
+                        </router-link>
+
+                        <router-link v-if="userStore.isAdmin" to="/admin" @click="closeMoreDropdown"
+                          class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200">
+                          <font-awesome-icon icon="shield" class="mr-2" />
+                          <span>Admin</span>
+                        </router-link>
+                      </template>
+
+                      <router-link to="/tutorial" @click="closeMoreDropdown"
+                        class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200">
+                        <font-awesome-icon icon="graduation-cap" class="mr-2" />
+                        <span>{{ t('navigation.tutorial') }}</span>
+                      </router-link>
+
+                      <router-link to="/about" @click="closeMoreDropdown"
+                        class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200">
+                        <font-awesome-icon icon="circle-info" class="mr-2" />
+                        <span>About</span>
+                      </router-link>
+                    </div>
+                  </transition>
+                </div>
 
                 <template v-if="userStore.isAuthenticated">
-                  <HeaderLink>
-                    <template #icon>
-                      <router-link to="/portfolio" class="text-gray-300 hover:text-green-400 flex items-center">
-                        <font-awesome-icon icon="wallet" class="mr-2" />
-                        <span>{{ t('navigation.portfolio') }}</span>
-                      </router-link>
-                    </template>
-                  </HeaderLink>
-
-                  <!-- Add admin link with proper condition -->
-                  <HeaderLink v-if="userStore.isAdmin">
-                    <template #icon>
-                      <router-link to="/admin" :class="[
-                        'text-gray-300 hover:text-green-400 flex items-center',
-                        $route.path === '/admin' ? 'text-green-400' : ''
-                      ]">
-                        <font-awesome-icon icon="shield" class="mr-2" />
-                        <span>Admin</span>
-                      </router-link>
-                    </template>
-                  </HeaderLink>
+                  <!-- Login section moved to More dropdown -->
                 </template>
 
                 <template v-else>
@@ -888,6 +932,18 @@ header::after {
   .component-global-wrapper {
     padding-top: 0.5rem !important;
     margin-bottom: 0.5rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    min-height: 4rem;
+    height: auto;
+  }
+
+  .px-2.sm\:px-4.py-3 {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
   }
 }
 
@@ -1733,13 +1789,6 @@ a:hover {
   .mobile-menu {
     /* Fix for iOS Safari 100vh issue */
     height: -webkit-fill-available;
-  }
-}
-
-/* Improved mobile breakpoint handling */
-@media (min-width: 640px) {
-  .mobile-menu {
-    display: none;
   }
 }
 
