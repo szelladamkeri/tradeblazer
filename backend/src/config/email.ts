@@ -6,13 +6,13 @@ dotenv.config();
 
 // Configure email transporter using nodemailer
 export const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT || '587'),
-  secure: process.env.EMAIL_SECURE === 'true',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // use SSL
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    pass: process.env.EMAIL_APP_PASSWORD
+  }
 });
 
 // Configure mailgen for email template generation
@@ -20,6 +20,6 @@ export const mailGenerator = new Mailgen({
   theme: 'default',
   product: {
     name: 'TradeBlazer',
-    link: process.env.FRONTEND_URL || 'http://localhost:5173',
-  },
-}); 
+    link: process.env.FRONTEND_URL || 'http://localhost:5173'
+  }
+});

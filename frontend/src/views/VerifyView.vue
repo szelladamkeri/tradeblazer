@@ -24,13 +24,12 @@ const handleMouseMove = (event: MouseEvent) => {
 const verifyAccount = async (token: string) => {
     try {
         const response = await fetch(`http://localhost:3000/api/verification/verify/${token}`);
+        const data = await response.json();
 
         if (!response.ok) {
-            const data = await response.json();
             throw new Error(data.message || 'Verification failed');
         }
 
-        const data = await response.json();
         verified.value = true;
     } catch (err) {
         console.error('Verification error:', err);
