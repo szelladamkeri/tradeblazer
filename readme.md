@@ -1,5 +1,8 @@
 # TradeBlazer
 
+## Csapattagok:
+- Aranyosi Dániel (projektvezető)
+- Széll Ádám
 
 # Trello: 
     https://trello.com/b/bkfZlQZS/tradeblazer-projekt
