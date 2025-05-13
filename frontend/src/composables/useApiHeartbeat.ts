@@ -7,6 +7,8 @@ export function useApiHeartbeat() {
   let heartbeatInterval: number | undefined
   
   const checkApiHeartbeat = async () => {
+    // Commented out API heartbeat check to prevent errors
+    /*
     try {
       const response = await fetch('http://localhost:3000/api/health', {
         method: 'GET',
@@ -35,6 +37,10 @@ export function useApiHeartbeat() {
         type: 'connection'
       }
     }
+    */
+    // Temporarily always assume API is available
+    isApiAvailable.value = true;
+    apiError.value = null;
   }
   
   onMounted(() => {

@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Chart from 'chart.js/auto'
 import 'chartjs-adapter-date-fns'
 

@@ -38,11 +38,23 @@ const updateMenuOnResize = () => {
 const avatarAvailable = computed(() => userStore.avatar.available)
 const avatarTimestamp = computed(() => userStore.avatarTimestamp)
 
+// Add computed property for user balance to ensure reactivity
+const userBalance = computed(() => userStore.user?.balance || '0.00')
+
+// Add formatBalance function for proper number formatting
+const formatBalance = (balance: number | string): string => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(Number(balance))
+}
+
 // Add watch for user store changes
 watch(
   () => userStore.user,
   async () => {
     if (userStore.isAuthenticated) {
+      // Re-enable checkAvatar now that the backend endpoint is implemented
       await userStore.checkAvatar()
     }
   },
@@ -203,6 +215,7 @@ const closeLanguageDropdownOnClickOutside = (event: MouseEvent) => {
 
 onMounted(async () => {
   if (userStore.isAuthenticated) {
+    // Re-enable checkAvatar now that the backend endpoint is implemented
     await userStore.checkAvatar()
   }
   window.addEventListener('resize', updateMenuOnResize)
@@ -477,7 +490,7 @@ const handleMouseMove = (event: MouseEvent) => {
                     </span>
                     <div class="px-3 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
                       <font-awesome-icon icon="wallet" class="text-green-400" />
-                      <span class="text-green-400">${{ (userStore.user?.balance || 0).toFixed(2) }}</span>
+                      <span class="text-green-400">{{ formatBalance(userBalance) }}</span>
                     </div>
                   </div>
                 </div>
@@ -518,6 +531,13 @@ const handleMouseMove = (event: MouseEvent) => {
                       @click="showProfileDropdown = false" active-class="text-green-400 bg-green-500/10">
                       <font-awesome-icon icon="money-bill-transfer" class="mr-2" />
                       {{ t('navigation.deposit') }}
+                    </router-link>
+                    <!-- Add Withdraw Link -->
+                    <router-link to="/withdraw"
+                      class="block px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-green-400 transition-all duration-200"
+                      @click="showProfileDropdown = false" active-class="text-green-400 bg-green-500/10">
+                      <font-awesome-icon icon="money-bill-wave" class="mr-2" />
+                      {{ t('navigation.withdraw') }}
                     </router-link>
                     <div class="w-full h-px bg-white/10 my-1"></div>
                     <button @click="handleSignOut"
@@ -1001,10 +1021,6 @@ nav {
 }
 
 /* Update z-index classes */
-.z-\[50\] {
-  z-index: 50;
-}
-
 .z-\[51\] {
   z-index: 51;
 }

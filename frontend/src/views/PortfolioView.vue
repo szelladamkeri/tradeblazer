@@ -26,6 +26,11 @@ interface PortfolioData {
   }>
   balance: number
   totalValue: number
+  _debug?: {
+    backendReportedTotal: number
+    calculatedAssetsValue: number
+    calculatedBalance: number
+  }
 }
 
 const router = useRouter()
@@ -47,14 +52,17 @@ const calculateReturn = (current: number, avg: number) => {
 }
 
 // Update the percentage calculation function to handle division by zero
-function calculateReturnPercentage(initialValue, currentValue) {
-  // Check if initial value is zero or extremely small
-  if (!initialValue || initialValue < 0.0001) {
-    return 'N/A'; // Return "N/A" instead of infinity
+function calculateReturnPercentage(initialValue: number, currentValue: number): string {
+  // Check if initial value is zero or extremely small or if values aren't valid numbers
+  if (!initialValue || initialValue < 0.0001 || isNaN(initialValue) || isNaN(currentValue)) {
+    return 'N/A';
   }
 
+  // Calculate percentage change
   const percentage = ((currentValue - initialValue) / initialValue) * 100;
-  return `${percentage.toFixed(2)}%`;
+  
+  // Format to 2 decimal places and add % sign
+  return (percentage >= 0 ? '+' : '') + percentage.toFixed(2) + '%';
 }
 
 const totalPositions = computed(() => portfolioData.value.assets.length)
@@ -103,8 +111,87 @@ const fetchPortfolioData = async () => {
     }
 
     const data = await response.json()
-    console.log('Portfolio data received:', data)
-    portfolioData.value = data
+    console.log('Portfolio data received (raw):', JSON.stringify(data));
+    
+    // Additional debugging for asset structure
+    if (data.assets) {
+      console.log('Assets array type:', Object.prototype.toString.call(data.assets));
+      console.log('Assets length:', data.assets.length);
+      
+      // Check first asset in detail
+      if (data.assets.length > 0) {
+        const firstAsset = data.assets[0];
+        console.log('First asset detailed:', {
+          assetId: firstAsset.assetId,
+          name: firstAsset.name,
+          symbol: firstAsset.symbol,
+          quantity: firstAsset.quantity,
+          quantityType: typeof firstAsset.quantity,
+          currentPrice: firstAsset.currentPrice,
+          priceType: typeof firstAsset.currentPrice,
+          calculatedValue: Number(firstAsset.quantity) * Number(firstAsset.currentPrice)
+        });
+      }
+    }
+    
+    // Filter out assets with 0 quantity
+    if (data.assets && Array.isArray(data.assets)) {
+      data.assets = data.assets.filter(asset => Number(asset.quantity) > 0);
+      console.log('Assets after filtering zero quantities:', data.assets.length);
+    }
+    
+    // Calculate total value manually to ensure correctness
+    let manualTotalValue = Number(data.balance) || 0;
+    console.log('Starting with balance:', manualTotalValue, '(type:', typeof data.balance, ')');
+    
+    // Add up all asset values
+    if (data.assets && Array.isArray(data.assets)) {
+      console.log('Asset count:', data.assets.length);
+      data.assets.forEach((asset, index) => {
+        // Explicitly convert to numbers to avoid string concatenation
+        const quantity = Number(asset.quantity || 0);
+        const price = Number(asset.currentPrice || 0);
+        const assetValue = quantity * price;
+        
+        console.log(`Asset ${index+1} (${asset.symbol}):`, 
+          `Quantity: ${quantity} (${typeof asset.quantity})`, 
+          `Price: ${price} (${typeof asset.currentPrice})`, 
+          `Value: ${assetValue}`);
+        
+        manualTotalValue += assetValue;
+        console.log(`Running total after asset ${index+1}: ${manualTotalValue}`);
+      });
+    }
+    
+    console.log('Backend reported total value:', data.totalValue, '(type:', typeof data.totalValue, ')');
+    console.log('Manually calculated total value:', manualTotalValue);
+    
+    // Force the value to be set
+    console.log('EXPLICITLY SETTING TOTAL VALUE TO:', manualTotalValue);
+    data.totalValue = manualTotalValue;
+    
+    // Force Vue reactivity by creating a new object
+    portfolioData.value = { 
+      assets: [...data.assets], 
+      balance: Number(data.balance) || 0,
+      totalValue: manualTotalValue,
+      // Add diagnostic info
+      _debug: {
+        backendReportedTotal: data.totalValue,
+        calculatedAssetsValue: manualTotalValue - Number(data.balance || 0),
+        calculatedBalance: Number(data.balance || 0)
+      }
+    };
+    console.log('Final portfolioData.value:', portfolioData.value);
+    
+    // Update userStore balance to ensure consistency across components
+    if (userStore.user) {
+      userStore.user.balance = data.balance
+      localStorage.setItem('user', JSON.stringify({ 
+        user: userStore.user,
+        token: userStore.token 
+      }));
+    }
   } catch (err) {
     console.error('Portfolio error:', err)
     const processedError = handleApiError(err)
@@ -126,11 +213,16 @@ onMounted(async () => {
 })
 
 // Price formatting to match HomeView
-const formatPrice = (price: number): string => {
+const formatPrice = (price: number | string): string => {
+  // Ensure price is a valid number before formatting
+  if (price === null || price === undefined || isNaN(Number(price))) {
+    return '0.00';
+  }
+  
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }).format(price)
+  }).format(Number(price));
 }
 
 const {
@@ -158,6 +250,30 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 };
 
 const { t } = useI18n()
+
+// Add helper to calculate total assets value only
+const calculateAssetsValue = () => {
+  let total = 0;
+  if (portfolioData.value?.assets && Array.isArray(portfolioData.value.assets)) {
+    portfolioData.value.assets.forEach(asset => {
+      total += Number(asset.quantity || 0) * Number(asset.currentPrice || 0);
+    });
+  }
+  return total;
+};
+
+// Add an alert to explain the discrepancy
+const showTotalExplanation = ref(false);
+
+// Add a button to toggle the explanation
+const toggleExplanation = () => {
+  showTotalExplanation.value = !showTotalExplanation.value;
+};
+
+// Add a function to navigate to asset detail page
+const goToAssetDetail = (assetId: number) => {
+  router.push(`/asset/${assetId}`);
+};
 
 </script>
 
@@ -191,26 +307,98 @@ const { t } = useI18n()
                 <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
                   <font-awesome-icon icon="wallet" class="text-green-400 mr-2" />
                   {{ t('portfolio.summary') }}
+                  <button @click="fetchPortfolioData" class="ml-2 text-sm text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                    <font-awesome-icon icon="sync" :class="{ 'animate-spin': loading }" />
+                  </button>
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div
                     class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                    <p class="text-sm text-gray-400">{{ t('portfolio.totalValue') }}</p>
-                    <p class="text-green-400 text-2xl font-bold">
-                      ${{ formatPrice(portfolioData.totalValue) }}
+                    <p class="text-sm text-gray-400">{{ t('portfolio.totalValue') }}
+                      <button @click="toggleExplanation" class="ml-1 text-xs text-white/50 hover:text-white">
+                        <font-awesome-icon icon="circle-question" />
+                      </button>
                     </p>
+                    <p class="text-green-400 text-2xl font-bold">
+                      ${{ formatPrice(portfolioData.totalValue || 0) }}
+                    </p>
+                    
+                    <!-- Explanation alert -->
+                    <div v-if="showTotalExplanation" class="mt-2 p-2 bg-green-900/30 rounded text-xs text-green-300 border border-green-800">
+                      Your total value includes your account balance (${{ formatPrice(portfolioData.balance) }}) plus your asset value (${{ formatPrice(calculateAssetsValue()) }}).
+                    </div>
                   </div>
                   <div
                     class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
                     <p class="text-sm text-gray-400">{{ t('portfolio.availableBalance') }}</p>
                     <p class="text-green-400 text-2xl font-bold">
-                      ${{ formatPrice(portfolioData.balance) }}
+                      ${{ formatPrice(portfolioData.balance || 0) }}
                     </p>
                   </div>
                   <div
                     class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
-                    <p class="text-sm text-gray-400">{{ t('portfolio.totalPositions') }}</p>
-                    <p class="text-green-400 text-2xl font-bold">{{ totalPositions }}</p>
+                    <p class="text-sm text-gray-400">Total Asset Value</p>
+                    <p class="text-green-400 text-2xl font-bold">
+                      ${{ formatPrice(calculateAssetsValue()) }}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">{{ totalPositions }} position{{ totalPositions !== 1 ? 's' : '' }}</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+            
+            <!-- Quick Actions -->
+            <FadeIn>
+              <div class="w-full">
+                <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
+                  <font-awesome-icon icon="bolt" class="text-yellow-400 mr-2" />
+                  Quick Actions
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <router-link to="/markets" 
+                    class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mr-3">
+                      <font-awesome-icon icon="search-dollar" class="text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 class="font-bold text-white">Discover Assets</h3>
+                      <p class="text-sm text-gray-400">Find new investment opportunities</p>
+                    </div>
+                  </router-link>
+                  
+                  <router-link to="/watchlist" 
+                    class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center mr-3">
+                      <font-awesome-icon icon="star" class="text-green-400" />
+                    </div>
+                    <div>
+                      <h3 class="font-bold text-white">Watchlist</h3>
+                      <p class="text-sm text-gray-400">Track your favorite assets</p>
+                    </div>
+                  </router-link>
+                  
+                  <div class="grid grid-cols-2 gap-2">
+                    <router-link to="/deposit" 
+                      class="bg-white/10 p-3 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl flex items-center">
+                      <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center mr-2">
+                        <font-awesome-icon icon="money-bill-wave" class="text-purple-400" />
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-white text-sm">Deposit</h3>
+                        <p class="text-xs text-gray-400">Add funds</p>
+                      </div>
+                    </router-link>
+                    
+                    <router-link to="/withdraw" 
+                      class="bg-white/10 p-3 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl flex items-center">
+                      <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center mr-2">
+                        <font-awesome-icon icon="money-bill-transfer" class="text-red-400" />
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-white text-sm">Withdraw</h3>
+                        <p class="text-xs text-gray-400">Cash out</p>
+                      </div>
+                    </router-link>
                   </div>
                 </div>
               </div>
@@ -239,6 +427,8 @@ const { t } = useI18n()
                           {{ t('portfolio.table.value') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
                           {{ t('portfolio.table.return') }}</th>
+                        <th class="text-center py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
+                          Actions</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-white/10">
@@ -261,22 +451,35 @@ const { t } = useI18n()
                           {{ asset.quantity }}
                         </td>
                         <td class="py-4 px-4 text-right font-medium text-white">
-                          ${{ formatPrice(asset.averagePrice) }}
+                          ${{ formatPrice(asset.averagePrice || 0) }}
                         </td>
                         <td class="py-4 px-4 text-right font-medium text-white">
-                          ${{ formatPrice(asset.currentPrice) }}
+                          ${{ formatPrice(asset.currentPrice || 0) }}
                         </td>
                         <td class="py-4 px-4 text-right font-medium text-white">
-                          ${{ formatPrice(asset.quantity * asset.currentPrice) }}
+                          ${{ formatPrice((asset.quantity || 0) * (asset.currentPrice || 0)) }}
                         </td>
                         <td class="py-4 px-4 text-right">
                           <span :class="[
                             calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'text-gray-400' :
-                              parseFloat(calculateReturnPercentage(asset.averagePrice, asset.currentPrice)) >= 0 ? 'text-green-400' : 'text-red-400'
+                              calculateReturnPercentage(asset.averagePrice, asset.currentPrice).startsWith('+') ? 'text-green-400' : 'text-red-400'
                           ]">
-                            {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'N/A' :
-                              calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
+                            {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
                           </span>
+                        </td>
+                        <td class="py-4 px-4 text-center">
+                          <div class="flex justify-center gap-2">
+                            <router-link :to="`/trade/${asset.assetId}`" 
+                              class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors text-sm flex items-center">
+                              <font-awesome-icon icon="exchange-alt" class="mr-1" />
+                              Trade
+                            </router-link>
+                            <button @click="goToAssetDetail(asset.assetId)"
+                              class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors text-sm flex items-center">
+                              <font-awesome-icon icon="chart-line" class="mr-1" />
+                              Details
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     </tbody>

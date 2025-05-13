@@ -9,8 +9,9 @@ import PortfolioView from '../views/PortfolioView.vue'
 import TradeView from '../views/TradeView.vue'
 import AdminView from '../views/AdminView.vue'
 import TutorialView from '../views/TutorialView.vue'
-import DepositView from '../views/DepositView.vue' // Import DepositView
+import DepositView from '@/views/DepositView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import WithdrawView from '@/views/WithdrawView.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
@@ -104,9 +105,15 @@ const router = createRouter({
       component: () => import('../views/VerifyView.vue'),
     },
     {
-      path: '/deposit', // Add deposit route
+      path: '/deposit',
       name: 'deposit',
       component: DepositView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/withdraw',
+      name: 'withdraw',
+      component: WithdrawView,
       meta: { requiresAuth: true }
     },
   ]

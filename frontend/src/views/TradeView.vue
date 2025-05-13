@@ -87,6 +87,9 @@
                 <label class="block text-gray-200 text-sm font-medium mb-2">Quantity</label>
                 <input type="number" v-model="quantity" min="0.00000001" step="0.00000001"
                   class="w-full p-3 rounded-lg bg-white/10 border border-white/10 text-white">
+                <div v-if="tradeType === 'sell'" class="text-xs text-gray-400 mt-1">
+                  You own: {{ ownedQuantity }} {{ asset.symbol }}
+                </div>
               </div>
 
               <div class="p-4 bg-black/30 rounded-lg mt-6">
@@ -96,6 +99,16 @@
                     ${{ formatPrice(quantity * asset.price) }}
                   </span>
                 </div>
+              </div>
+
+              <!-- Display order error message -->
+              <div v-if="orderError" class="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+                <div class="text-red-400 text-sm">{{ orderError }}</div>
+              </div>
+
+              <!-- Display order success message -->
+              <div v-if="orderSuccess" class="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                <div class="text-green-400 text-sm">Trade executed successfully!</div>
               </div>
 
               <div class="pt-4 border-t border-white/10">
@@ -221,6 +234,9 @@ const orderError = ref<string | null>(null)
 const isInWatchlist = ref(false)
 const watchlistLoading = ref(false)
 
+// Add user's owned quantity of this asset
+const ownedQuantity = ref(0)
+
 // Add price alert state
 const showAlertForm = ref(false)
 const alertPrice = ref(0)
@@ -250,7 +266,8 @@ const canTrade = computed(() => {
   const userBalance = userStore.user?.balance || 0
 
   if (tradeType.value === 'sell') {
-    return true // TODO: Implement holding check
+    // Check if the user has enough of the asset to sell
+    return quantity.value <= ownedQuantity.value
   }
 
   return userBalance >= totalCost
@@ -293,8 +310,12 @@ const fetchAssetDetails = async () => {
     // Check if the user is logged in, then check if asset is in watchlist
     if (isLoggedIn.value && userStore.user) {
       await checkWatchlistStatus(data.id)
+      
+      // Fetch user's owned quantity of this asset
+      await fetchOwnedQuantity(data.id)
     } else {
       isInWatchlist.value = false
+      ownedQuantity.value = 0
     }
   } catch (err) {
     console.error('Error fetching asset details:', err)
@@ -313,6 +334,39 @@ const fetchAssetDetails = async () => {
     }
   } finally {
     loading.value = false
+  }
+}
+
+// Add function to fetch user's owned quantity of this asset
+const fetchOwnedQuantity = async (assetId: number) => {
+  if (!isLoggedIn.value || !userStore.user) {
+    ownedQuantity.value = 0
+    return
+  }
+  
+  try {
+    // Fetch the user's portfolio
+    const response = await fetch(`http://localhost:3000/api/portfolio/${userStore.user.id}`, {
+      headers: {
+        'Authorization': `Bearer ${userStore.token}`
+      }
+    })
+    
+    if (!response.ok) {
+      console.error('Error fetching portfolio data')
+      return
+    }
+    
+    const portfolioData = await response.json()
+    
+    // Find this asset in the portfolio
+    const assetInfo = portfolioData.assets.find((a: any) => a.assetId === assetId)
+    ownedQuantity.value = assetInfo ? assetInfo.quantity : 0
+    
+    console.log(`User owns ${ownedQuantity.value} of asset ${assetId}`)
+  } catch (err) {
+    console.error('Error fetching user asset quantity:', err)
+    ownedQuantity.value = 0
   }
 }
 
@@ -360,6 +414,12 @@ const checkWatchlistStatus = async (assetId) => {
 const handleTrade = async () => {
   if (!isLoggedIn.value || !asset.value) return
 
+  // Validation before API call
+  if (tradeType.value === 'sell' && quantity.value > ownedQuantity.value) {
+    orderError.value = `You only own ${ownedQuantity.value} units of this asset. You cannot sell more than you own.`
+    return
+  }
+
   orderSubmitting.value = true
   orderError.value = null
 
@@ -367,7 +427,9 @@ const handleTrade = async () => {
     console.log('Submitting trade:', {
       assetId: asset.value.id,
       quantity: quantity.value,
-      tradeType: tradeType.value
+      tradeType: tradeType.value,
+      userId: userStore.user!.id,
+      orderType: 'market'
     })
 
     const response = await fetch('http://localhost:3000/api/orders', {
@@ -377,9 +439,11 @@ const handleTrade = async () => {
         'Authorization': `Bearer ${userStore.token}`
       },
       body: JSON.stringify({
+        userId: userStore.user!.id,
         assetId: asset.value.id,
         quantity: quantity.value,
-        tradeType: tradeType.value
+        tradeType: tradeType.value,
+        orderType: 'market' // Default to market order
       })
     })
 
@@ -390,13 +454,40 @@ const handleTrade = async () => {
         statusText: response.statusText,
         body: errorText
       })
-      throw new Error('Failed to place order')
+      
+      // Try to parse the error response for more details
+      try {
+        const errorData = JSON.parse(errorText)
+        console.error('Parsed error details:', errorData)
+        throw new Error(errorData.details || errorData.message || 'Failed to place order')
+      } catch (parseError) {
+        console.error('Could not parse error response:', parseError)
+        throw new Error(`Failed to place order: ${errorText}`)
+      }
     }
 
     const data = await response.json()
     console.log('Trade success:', data)
     orderSuccess.value = true
-    await userStore.refreshBalance() // Refresh user's balance
+    
+    // Refresh user data
+    try {
+      await userStore.refreshUser()
+    } catch (refreshError) {
+      console.error('Failed to refresh user data:', refreshError)
+      // Don't cancel the order success message, just show a warning
+    }
+    
+    // Wait briefly to ensure the refreshUser() call completes
+    setTimeout(() => {
+      // Refresh asset details to show updated price/market data
+      fetchAssetDetails()
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        orderSuccess.value = false
+      }, 3000)
+    }, 500)
   } catch (err) {
     console.error('Trade error details:', err)
     orderError.value = err instanceof Error ? err.message : 'Failed to place order'

@@ -66,7 +66,7 @@ const needsScrolling = computed(() => {
 
 const isLoggedIn = computed(() => userStore.isAuthenticated)
 
-async function fetchAssets() {
+const fetchAssets = async () => {
   loading.value = true
   error.value = null
 
@@ -85,6 +85,12 @@ async function fetchAssets() {
 
     const data = await response.json()
     assets.value = data
+    
+    // If the user is logged in, check watchlist status for all assets
+    if (userStore.isAuthenticated && assets.value) {
+      // Use Promise.all to run multiple checks in parallel
+      await Promise.all(assets.value.map(asset => checkWatchlistStatus(asset.id)))
+    }
   } catch (err) {
     console.error('Error fetching assets:', err)
     const processedError = handleApiError(err)
@@ -152,11 +158,14 @@ const goToTrade = (assetId: number) => {
 const watchlistLoadingStates = ref<{ [key: number]: boolean }>({})
 const watchlistStatuses = ref<{ [key: number]: boolean }>({})
 
+// Keep track of watchlist IDs for deletion
+const watchlistIds = ref<Record<number, number>>({})
+
 // Add watchlist check function
 const checkWatchlistStatus = async (assetId: number) => {
   try {
     const response = await fetch(
-      `http://localhost:3000/api/watchlist/check/${userStore.user.id}/${assetId}`,
+      `http://localhost:3000/api/watchlist/check/${userStore.user?.id}/${assetId}`,
       {
         headers: {
           'Authorization': `Bearer ${userStore.token}`
@@ -172,13 +181,16 @@ const checkWatchlistStatus = async (assetId: number) => {
 
     const data = await response.json()
     watchlistStatuses.value[assetId] = data.isInWatchlist
+    if (data.watchlistId) {
+      watchlistIds.value[assetId] = data.watchlistId
+    }
   } catch (err) {
     console.error('Error checking watchlist status:', err)
     watchlistStatuses.value[assetId] = false
   }
 }
 
-// Replace existing addToWatchlist with toggleWatchlist
+// Replace existing toggleWatchlist with updated version
 const toggleWatchlist = async (assetId: number) => {
   if (!isLoggedIn.value) {
     router.push('/login')
@@ -191,7 +203,13 @@ const toggleWatchlist = async (assetId: number) => {
     const isInWatchlist = watchlistStatuses.value[assetId]
 
     if (isInWatchlist) {
-      const response = await fetch(`http://localhost:3000/api/watchlist/${assetId}`, {
+      // Use the stored watchlist ID for deletion
+      const watchlistId = watchlistIds.value[assetId]
+      if (!watchlistId) {
+        throw new Error('Watchlist ID not found')
+      }
+      
+      const response = await fetch(`http://localhost:3000/api/watchlist/${watchlistId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${userStore.token}`,
@@ -199,6 +217,8 @@ const toggleWatchlist = async (assetId: number) => {
       })
 
       if (!response.ok) throw new Error('Failed to remove from watchlist')
+      // Clean up stored watchlist ID after successful deletion
+      delete watchlistIds.value[assetId]
     } else {
       const response = await fetch(`http://localhost:3000/api/watchlist/${assetId}`, {
         method: 'POST',
@@ -212,6 +232,12 @@ const toggleWatchlist = async (assetId: number) => {
       })
 
       if (!response.ok) throw new Error('Failed to add to watchlist')
+      
+      // Store the new watchlist ID
+      const data = await response.json()
+      if (data.id) {
+        watchlistIds.value[assetId] = data.id
+      }
     }
 
     watchlistStatuses.value[assetId] = !isInWatchlist
@@ -273,6 +299,18 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
+
+// Update onMounted to ensure assets reload when the user logs in
+watch(() => userStore.isAuthenticated, (newValue) => {
+  if (newValue) {
+    // User just logged in, refresh assets and watchlist status
+    fetchAssets()
+  } else {
+    // User logged out, clear watchlist status
+    watchlistStatuses.value = {}
+    watchlistIds.value = {}
+  }
+})
 
 </script>
 

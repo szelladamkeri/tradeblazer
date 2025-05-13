@@ -30,9 +30,9 @@ export const useUserStore = defineStore('user', () => {
       user.value = {
         ...userData,
         // Ensure username is available - the backend might provide it as 'name' 
-        username: userData.username || userData.name,
+        username: userData.username || (userData as any).name,
         // Ensure displayName is available
-        displayName: userData.displayName || userData.username || userData.name,
+        displayName: userData.displayName || userData.username || (userData as any).name,
         type: userData.type || 'U',
         role: userData.type || 'U' // Keep role for backward compatibility
       }
@@ -58,17 +58,17 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('user')
   }
 
-  function getAuthHeader() {
-    return token.value ? { Authorization: `Bearer ${token.value}` } : {}
+  function getAuthHeader(): HeadersInit {
+    return token.value ? { Authorization: `Bearer ${token.value}` } : {};
   }
 
   function initializeFromStorage() {
     const stored = localStorage.getItem('user')
-    console.log('Initializing from storage:', stored)
+    console.log('Initializing from storage:', stored ? stored.substring(0, 100) + (stored.length > 100 ? '...' : '') : 'null')
     if (stored) {
       try {
         const data = JSON.parse(stored)
-        console.log('Parsed storage data:', data)
+        console.log('Parsed storage data:', JSON.stringify(data, null, 2).substring(0, 200) + (JSON.stringify(data).length > 200 ? '...' : ''))
         setUser(data.user, data.token)
       } catch (e) {
         console.error('Storage parse error:', e)
@@ -83,7 +83,7 @@ export const useUserStore = defineStore('user', () => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:3000/api/user/' + user.value.id, {
+      const response = await fetch(`http://localhost:3000/api/user/${user.value.id}`, {
         headers: getAuthHeader() // Ensure auth header is sent
       });
       if (!response.ok) {
@@ -106,6 +106,7 @@ export const useUserStore = defineStore('user', () => {
         console.log('[userStore] Updated user.value in store:', JSON.parse(JSON.stringify(user.value))); // Log updated store state
 
         avatarTimestamp.value = Date.now();
+        // Re-enable checkAvatar now that the backend endpoint is implemented
         await checkAvatar();
 
         localStorage.setItem('user', JSON.stringify({ 
@@ -135,9 +136,16 @@ export const useUserStore = defineStore('user', () => {
         }),
       });
 
-      const data = await response.json();
-      avatar.value.available = data.hasAvatar;
-      avatarTimestamp.value = Date.now(); // Force refresh
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        avatar.value.available = data.hasAvatar;
+        avatarTimestamp.value = Date.now(); // Force refresh
+      } else {
+        console.error('Non-JSON response received:', await response.text());
+        avatar.value.available = false;
+      }
     } catch (error) {
       console.error('Error checking avatar:', error);
       avatar.value.available = false;

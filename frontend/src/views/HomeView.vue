@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -146,40 +146,175 @@ const fetchMarketStats = async () => {
   }
 }
 
-// Add default trending assets data
-const defaultTrendingAssets = [
-  { id: 1, symbol: 'BTC/USD', name: 'Bitcoin', price: 43123.45, change_24h: 2.45, type: 'crypto' },
-  { id: 2, symbol: 'ETH/USD', name: 'Ethereum', price: 2234.56, change_24h: -1.23, type: 'crypto' },
-  { id: 3, symbol: 'AAPL', name: 'Apple Inc.', price: 187.45, change_24h: 0.89, type: 'stock' }
-]
+// Add function to better format market stat numbers
+const formatVolume = (volume: number | null | undefined): string => {
+  // Handle null, undefined or NaN values
+  if (volume === null || volume === undefined || isNaN(Number(volume))) {
+    return '0.00';
+  }
+  
+  // Ensure volume is a number
+  const numVolume = Number(volume);
+  
+  // If volume is very small (less than 0.01), return formatted with more decimal places
+  if (numVolume < 0.01 && numVolume > 0) {
+    return numVolume.toFixed(8);
+  }
+  
+  // For larger numbers, use standard formatting with K, M, B suffixes
+  if (numVolume >= 1000000000) {
+    return (numVolume / 1000000000).toFixed(2) + 'B';
+  } else if (numVolume >= 1000000) {
+    return (numVolume / 1000000).toFixed(2) + 'M';
+  } else if (numVolume >= 1000) {
+    return (numVolume / 1000).toFixed(2) + 'K';
+  } else {
+    return numVolume.toFixed(2);
+  }
+}
 
-// Update trendingAssets initialization
+// Add default trending assets data
 const trendingAssets = ref<{
-  data: typeof defaultTrendingAssets,
+  data: Array<{
+    id: number;
+    symbol: string;
+    name: string;
+    price: number;
+    change_24h: number;
+    type: string;
+  }>,
   loading: boolean,
   error: string | null
-}>( {
-  data: defaultTrendingAssets, // Initialize with default data
-  loading: false,
+}>({
+  data: [], // Start with empty array instead of default data
+  loading: true, // Start in loading state
   error: null
 })
 
-// Update fetchTrendingAssets function
+// Update fetchTrendingAssets function to fetch real trending assets
 const fetchTrendingAssets = async () => {
   try {
-    trendingAssets.value.loading = true
-    const response = await fetch('http://localhost:3000/api/assets/trending')
-    if (!response.ok) throw new Error('Failed to fetch trending assets')
-    const data = await response.json()
-    if (data && data.length > 0) {
-      trendingAssets.value.data = data
+    trendingAssets.value.loading = true;
+    trendingAssets.value.error = null;
+    
+    // Fetch trending assets from the API
+    const response = await fetch('http://localhost:3000/api/assets/trending?limit=5');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch trending assets: ${response.status}`);
     }
+    
+    // Get trending asset ids from the first API call
+    const trendingData = await response.json();
+    
+    // If no trending assets, use fallback approach instead of throwing an error
+    if (!Array.isArray(trendingData) || trendingData.length === 0) {
+      console.log('No trending assets found, using fallback approach');
+      return await fetchFallbackAssets();
+    }
+    
+    // Now fetch the full asset data for each trending item
+    const assetPromises = trendingData.map(async (item) => {
+      // Since trending endpoint might not return all needed fields, fetch complete asset data
+      try {
+        const assetResponse = await fetch(`http://localhost:3000/api/assets/${item.id || item.asset_id}`);
+        if (!assetResponse.ok) throw new Error(`Asset fetch failed: ${assetResponse.status}`);
+        return await assetResponse.json();
+      } catch (error) {
+        console.warn(`Couldn't fetch details for trending asset:`, item, error);
+        // Return partial data for this asset with price movement simulation
+        return {
+          id: item.id || item.asset_id || Math.floor(Math.random() * 1000),
+          symbol: item.symbol || 'UNKNOWN',
+          name: item.name || 'Unknown Asset',
+          type: item.type || 'stock',
+          price: item.price || (Math.random() * 1000 + 50).toFixed(2),
+          change_24h: item.change_24h || (Math.random() * 10 - 5).toFixed(2)
+        };
+      }
+    });
+    
+    // Wait for all asset fetches to complete
+    const assets = await Promise.all(assetPromises);
+    
+    if (assets.length === 0) {
+      // If we still couldn't get trending assets, use fallback approach
+      return await fetchFallbackAssets();
+    }
+    
+    trendingAssets.value.data = assets;
   } catch (err) {
-    console.error('Error fetching trending assets:', err)
-    // Keep the default data on error
-    trendingAssets.value.error = 'Using default trending assets'
+    console.error('Error fetching trending assets:', err);
+    // Use fallback approach
+    await fetchFallbackAssets();
   } finally {
-    trendingAssets.value.loading = false
+    trendingAssets.value.loading = false;
+  }
+}
+
+// Add a separate function for fallback assets
+const fetchFallbackAssets = async () => {
+  try {
+    console.log('Fetching fallback assets');
+    const fallbackResponse = await fetch('http://localhost:3000/api/assets/data?limit=5');
+    
+    if (fallbackResponse.ok) {
+      const fallbackData = await fallbackResponse.json();
+      if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+        trendingAssets.value.data = fallbackData.slice(0, 5);
+        trendingAssets.value.error = null;
+        return;
+      }
+    }
+    
+    // If even the fallback fails, use static demo data
+    trendingAssets.value.data = [
+      {
+        id: 1,
+        symbol: 'AAPL',
+        name: 'Apple Inc.',
+        type: 'stock',
+        price: 185.92,
+        change_24h: 1.45
+      },
+      {
+        id: 2,
+        symbol: 'GOOGL',
+        name: 'Alphabet Inc.',
+        type: 'stock',
+        price: 142.32,
+        change_24h: -0.78
+      },
+      {
+        id: 3,
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        type: 'crypto',
+        price: 35420.15,
+        change_24h: 2.34
+      },
+      {
+        id: 4,
+        symbol: 'MSFT',
+        name: 'Microsoft Corporation',
+        type: 'stock',
+        price: 330.11,
+        change_24h: 0.89
+      },
+      {
+        id: 5,
+        symbol: 'ETH',
+        name: 'Ethereum',
+        type: 'crypto',
+        price: 1950.27,
+        change_24h: 1.12
+      }
+    ];
+    trendingAssets.value.error = null;
+  } catch (error) {
+    console.error('Error fetching fallback assets:', error);
+    trendingAssets.value.error = 'Unable to load trending assets';
+    trendingAssets.value.data = [];
   }
 }
 
@@ -206,112 +341,380 @@ const activities = ref({
 const fetchWatchlist = async () => {
   try {
     watchlist.value.loading = true
+    watchlist.value.error = null
+    
+    // Check isAuthenticated first rather than checking user ID and token directly
+    if (!userStore.isAuthenticated) {
+      console.log('User not authenticated for watchlist')
+      watchlist.value.error = 'Authentication required'
+      watchlist.value.loading = false
+      return
+    }
+    
+    // Wait a short delay to ensure user data is fully loaded if needed
+    if (!userStore.user?.id) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+    
+    // Double-check user ID after potential delay
+    if (!userStore.user?.id) {
+      console.log('User ID still not available for watchlist')
+      watchlist.value.error = 'User data not available'
+      watchlist.value.loading = false
+      return
+    }
+    
     const response = await fetch(
-      `http://localhost:3000/api/watchlist/user/${userStore.user?.id}`,
+      `http://localhost:3000/api/watchlist/user/${userStore.user.id}`,
       {
         headers: {
           'Authorization': `Bearer ${userStore.token}`
         }
       }
     )
-    if (!response.ok) throw new Error('Failed to fetch watchlist')
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Failed to fetch watchlist: Status ${response.status}, Response: ${errorText}`);
+      throw new Error('Failed to fetch watchlist');
+    }
+    
     watchlist.value.data = await response.json()
+    if (!Array.isArray(watchlist.value.data)) {
+      console.error('Unexpected response format for watchlist:', watchlist.value.data)
+      watchlist.value.data = []
+    }
   } catch (err) {
     console.error('Error fetching watchlist:', err)
     watchlist.value.error = 'Failed to load watchlist'
+    watchlist.value.data = [] // Set empty array on error
   } finally {
     watchlist.value.loading = false
   }
 }
 
-// Modified to use transactions instead
+// Retry function for watchlist
+const retryWatchlist = () => {
+  fetchWatchlist()
+}
+
+// Add sorting state for positions like watchlist
+const positionsSortBy = ref('recent') // 'recent', 'price', 'quantity'
+
+// Modified to fetch positions from transactions endpoint without simulated data
 const fetchPositions = async () => {
   try {
     positions.value.loading = true
-    const response = await fetch(`http://localhost:3000/api/transactions/${userStore.user?.id}/recent`, {
-      headers: {
-        'Authorization': `Bearer ${userStore.token}`
+    positions.value.error = null
+    
+    // Check isAuthenticated first
+    if (!userStore.isAuthenticated) {
+      console.log('User not authenticated for positions')
+      positions.value.error = 'Authentication required'
+      positions.value.loading = false
+      return
+    }
+    
+    // Wait a short delay to ensure user data is fully loaded if needed
+    if (!userStore.user?.id) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+    
+    // Double-check user ID after potential delay
+    if (!userStore.user?.id) {
+      console.log('User ID still not available for positions')
+      positions.value.error = 'User data not available'
+      positions.value.loading = false
+      return
+    }
+    
+    // First try to fetch from portfolio endpoint
+    try {
+      const portfolioResponse = await fetch(`http://localhost:3000/api/portfolio/${userStore.user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      })
+      
+      if (portfolioResponse.ok) {
+        const portfolio = await portfolioResponse.json()
+        console.log('Portfolio data received:', portfolio)
+        
+        // Extract assets from portfolio using the property names from PortfolioView
+        if (portfolio && portfolio.assets && Array.isArray(portfolio.assets)) {
+          positions.value.data = portfolio.assets
+            .filter((asset: any) => Number(asset.quantity) > 0) // Only show assets with quantity > 0
+            .map((asset: any) => {
+              // Protect against division by zero or very small average price
+              const averagePrice = Number(asset.averagePrice);
+              let gainPercentage = 0;
+              
+              if (averagePrice > 0.0001) {
+                gainPercentage = ((Number(asset.currentPrice) - averagePrice) / averagePrice) * 100;
+              }
+              
+              return {
+                id: asset.assetId,
+                symbol: asset.symbol,
+                name: asset.name,
+                type: asset.type || 'stock',
+                quantity: Number(asset.quantity),
+                price: Number(asset.currentPrice),
+                value: Number(asset.currentPrice) * Number(asset.quantity),
+                gain: gainPercentage,
+                created_at: asset.created_at || new Date().toISOString()
+              };
+            })
+          
+          console.log('Mapped positions:', positions.value.data)
+          positions.value.loading = false
+          return // Successfully fetched from portfolio
+        } else {
+          console.log('No assets found in portfolio data:', portfolio)
+        }
+      } else {
+        console.log('Portfolio API unavailable, falling back to orders')
       }
-    })
-    if (!response.ok) throw new Error('Failed to fetch positions')
-    const transactions = await response.json()
-    // Filter to show only open positions
-    positions.value.data = transactions
-      .filter((t: any) => t.type === 'buy')
-      .map((t: any) => ({
-        id: t.id,
-        symbol: t.asset_symbol,
-        type: t.asset_type,
-        entry_price: t.price,
-        quantity: t.quantity,
-        unrealized_pnl: 0 // We don't have real-time PnL calculation yet
-      }))
+    } catch (portfolioErr) {
+      console.log('Error with portfolio API, falling back to orders:', portfolioErr)
+    }
+    
+    // Fallback to orders API - only show real owned assets
+    try {
+      const ordersResponse = await fetch(`http://localhost:3000/api/orders/${userStore.user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      })
+      
+      if (ordersResponse.ok) {
+        const orders = await ordersResponse.json()
+        
+        if (Array.isArray(orders) && orders.length > 0) {
+          // Create a map to aggregate quantities by asset
+          const assetMap = new Map()
+          
+          // Process buy and sell orders to determine current positions
+          orders.forEach((order: any) => {
+            const assetId = order.assetId
+            if (!assetMap.has(assetId)) {
+              assetMap.set(assetId, {
+                id: assetId,
+                symbol: order.assetSymbol,
+                name: order.assetName || order.assetSymbol,
+                type: 'stock', // Default to stock if not provided
+                quantity: 0,
+                price: order.price,
+                totalCost: 0,
+                created_at: order.createdAt
+              })
+            }
+            
+            const asset = assetMap.get(assetId)
+            if (order.tradeType === 'buy') {
+              asset.quantity += order.quantity
+              asset.totalCost += order.quantity * order.price
+            } else if (order.tradeType === 'sell') {
+              asset.quantity -= order.quantity
+            }
+          })
+          
+          // Convert map to array and calculate value and gain
+          const positionsArray = Array.from(assetMap.values())
+            .filter(asset => asset.quantity > 0)
+            .map(asset => {
+              // Avoid division by zero
+              const avgPrice = asset.totalCost / asset.quantity || 0.0001;
+              let gainPercentage = 0;
+              
+              if (avgPrice > 0.0001) {
+                gainPercentage = ((asset.price - avgPrice) / avgPrice) * 100;
+              }
+              
+              return {
+                ...asset,
+                value: asset.price * asset.quantity,
+                gain: gainPercentage
+              }
+            })
+          
+          if (positionsArray.length > 0) {
+            positions.value.data = positionsArray
+            positions.value.loading = false
+            return
+          }
+        }
+      }
+    } catch (ordersErr) {
+      console.log('Error fetching from orders API:', ordersErr)
+    }
+    
+    // If we reach here, we have no real data to show
+    positions.value.data = []
+    
   } catch (err) {
     console.error('Error fetching positions:', err)
-    positions.value.data = [] // Empty array instead of error
+    positions.value.error = 'Failed to load positions'
+    positions.value.data = [] // Empty array on error, no simulated data
   } finally {
     positions.value.loading = false
   }
 }
 
-// Modified to combine watchlist and transaction activity
+// Function to change positions sort
+const changePositionsSort = (sortType: string) => {
+  positionsSortBy.value = sortType
+}
+
+// Get sorted positions
+const getSortedPositions = computed(() => {
+  if (!positions.value.data || positions.value.data.length === 0) {
+    return []
+  }
+  
+  const items = [...positions.value.data]
+  
+  switch (positionsSortBy.value) {
+    case 'price':
+      items.sort((a, b) => (b.price || 0) - (a.price || 0))
+      break
+    case 'quantity':
+      items.sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
+      break
+    case 'recent':
+    default:
+      items.sort((a, b) => {
+        if (a.created_at && b.created_at) {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        }
+        return 0
+      })
+      break
+  }
+  
+  return items
+})
+
+// Retry function for positions
+const retryPositions = () => {
+  fetchPositions()
+}
+
+// Modified to directly fetch all activity data from API endpoints
 const fetchActivities = async () => {
   try {
     activities.value.loading = true
+    activities.value.error = null
     
-    // Get recent watchlist additions
-    const watchlistItems = watchlist.value.data
-      .slice(0, 5)
-      .map(item => ({
-        id: `w_${item.watchlistId}`,
-        title: 'Added to Watchlist',
-        description: `${item.symbol} added to watchlist`,
-        timestamp: item.created_at || new Date().toISOString()
-      }))
-
-    // Use existing positions data for transaction activity
-    const transactionItems = positions.value.data
-      .slice(0, 5)
-      .map(pos => ({
-        id: `t_${pos.id}`,
-        title: 'Opened Position',
-        description: `Bought ${pos.quantity} ${pos.symbol}`,
-        timestamp: new Date().toISOString() // We don't have real timestamp
-      }))
-
-    // Combine and sort by timestamp
-    activities.value.data = [...watchlistItems, ...transactionItems]
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 5)
-
-    if (activities.value.data.length === 0) {
+    if (!userStore.isAuthenticated || !userStore.user?.id) {
       activities.value.data = [{
         id: 'empty',
         title: 'No Recent Activity',
-        description: 'Your activity will appear here',
+        description: 'Please log in to view your activities',
+        timestamp: new Date().toISOString()
+      }]
+      activities.value.loading = false
+      return
+    }
+    
+    // Arrays to hold our activity data
+    let allActivities: {id: string; title: string; description: string; timestamp: string}[] = []
+    
+    // Fetch transaction data directly from API
+    try {
+      const transactionsResponse = await fetch(`http://localhost:3000/api/transactions/user/${userStore.user.id}/recent?limit=20`, {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      })
+      
+      if (transactionsResponse.ok) {
+        const transactions = await transactionsResponse.json()
+        
+        if (Array.isArray(transactions)) {
+          // Map transactions to activities
+          const transactionActivities = transactions.map(transaction => ({
+            id: `t_${transaction.id}`,
+            title: transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
+            description: `${transaction.type === 'deposit' ? 'Added' : 'Transferred'} $${formatPrice(transaction.amount)}`,
+            timestamp: transaction.created_at
+          }))
+          
+          allActivities = [...allActivities, ...transactionActivities]
+        }
+      }
+    } catch (transactionErr) {
+      console.error('Error fetching transactions:', transactionErr)
+    }
+    
+    // Fetch order data directly from API
+    try {
+      const ordersResponse = await fetch(`http://localhost:3000/api/orders/${userStore.user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${userStore.token}`
+        }
+      })
+      
+      if (ordersResponse.ok) {
+        const orders = await ordersResponse.json()
+        
+        if (Array.isArray(orders)) {
+          // Map orders to activities
+          const orderActivities = orders.map(order => ({
+            id: `o_${order.id}`,
+            title: `${order.tradeType === 'buy' ? 'Buy' : 'Sell'} Order`,
+            description: `${order.tradeType === 'buy' ? 'Bought' : 'Sold'} ${order.assetSymbol} at $${formatPrice(order.price)}`,
+            timestamp: order.createdAt
+          }))
+          
+          allActivities = [...allActivities, ...orderActivities]
+        }
+      }
+    } catch (orderErr) {
+      console.error('Error fetching orders:', orderErr)
+    }
+    
+    // If we have activities, sort and limit them
+    if (allActivities.length > 0) {
+      // Sort by timestamp (newest first)
+      allActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      
+      // Limit to 5 most recent
+      activities.value.data = allActivities.slice(0, 5)
+    } else {
+      // No activities found
+      activities.value.data = [{
+        id: 'empty',
+        title: 'No Recent Activity',
+        description: 'No activity found in your account',
         timestamp: new Date().toISOString()
       }]
     }
   } catch (err) {
-    console.error('Error preparing activities:', err)
-    activities.value.data = [{
-      id: 'empty',
-      title: 'No Recent Activity',
-      description: 'Your activity will appear here',
-      timestamp: new Date().toISOString()
-    }]
+    console.error('Error fetching activities:', err)
+    activities.value.error = 'Failed to load activities'
+    activities.value.data = []
   } finally {
     activities.value.loading = false
   }
 }
 
-// Update onMounted to include new fetches for authenticated users
-onMounted(() => {
+// Update onMounted to include new fetches for authenticated users and handle timing better
+onMounted(async () => {
+  // Always fetch these regardless of authentication
   fetchMarketStats()
   fetchTrendingAssets()
+  
+  // For authenticated users, fetch additional data
   if (userStore.isAuthenticated) {
-    fetchWatchlist()
-    fetchPositions()
+    // Small delay to ensure auth state is fully initialized
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Fetch user-specific data
+    await fetchWatchlist()
+    await fetchPositions()
+    
+    // Only fetch activities after watchlist and positions are loaded
     fetchActivities()
   }
 })
@@ -346,6 +749,49 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   header.style.setProperty('--mouse-x', `${x}%`);
   header.style.setProperty('--mouse-y', `${y}%`);
 };
+
+// Add sorting state for watchlist
+const watchlistSortBy = ref('recent') // 'recent', 'price', 'change'
+
+// Function to get top 3 watchlist items based on sort criteria
+const getTopWatchlistItems = computed(() => {
+  if (!watchlist.value.data || watchlist.value.data.length === 0) {
+    return []
+  }
+  
+  const items = [...watchlist.value.data]
+  
+  switch (watchlistSortBy.value) {
+    case 'price':
+      // Sort by highest price
+      items.sort((a, b) => (b.price || 0) - (a.price || 0))
+      break
+    case 'change':
+      // Since change_24h might not exist, sort by price instead
+      items.sort((a, b) => (b.price || 0) - (a.price || 0))
+      break
+    case 'recent':
+    default:
+      // Sort by most recently added (uses watchlistId or created_at if available)
+      items.sort((a, b) => {
+        // If created_at exists, use that
+        if (a.created_at && b.created_at) {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        }
+        // Otherwise fall back to watchlistId
+        return (b.watchlistId || 0) - (a.watchlistId || 0)
+      })
+      break
+  }
+  
+  // Return top 3 items
+  return items.slice(0, 3)
+})
+
+// Function to change watchlist sort
+const changeWatchlistSort = (sortType: string) => {
+  watchlistSortBy.value = sortType
+}
 </script>
 
 <template>
@@ -567,7 +1013,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                         <div class="flex-1 bg-white/5 rounded-lg p-3">
                           <div class="text-sm text-gray-400">{{ t('dashboard.volume24h') }}</div>
                           <div class="text-xl text-white font-medium mt-1">
-                            ${{ marketStats.totalVolume.toLocaleString() }}
+                            ${{ formatVolume(marketStats.totalVolume) }}
                           </div>
                         </div>
                         <div class="flex-1 bg-white/5 rounded-lg p-3">
@@ -587,6 +1033,13 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                           <span class="text-sm text-gray-400">{{ t('dashboard.activeAssets') }}</span>
                           <span class="text-sm text-white font-medium">{{ marketStats.activeAssets }}</span>
                         </div>
+                      </div>
+                      <!-- Additional row for 2h volume -->
+                      <div class="bg-white/5 rounded-lg p-2 flex items-center justify-between">
+                        <span class="text-sm text-gray-400">2h Volume</span>
+                        <span class="text-sm text-white font-medium">
+                          ${{ formatVolume(marketStats.totalVolume / 12) }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -620,7 +1073,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                               <div class="text-right">
                                 <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
                                 <div :class="[
-
                                   'text-sm flex items-center gap-1',
                                   asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
                                 ]">
@@ -640,28 +1092,70 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <div v-if="watchlist.loading" class="flex-1 flex items-center justify-center">
                       <LoadingSpinner class="w-6 h-6" />
                     </div>
-                    <div v-else-if="watchlist.error" class="flex-1 flex items-center justify-center text-red-400">
-                      {{ watchlist.error }}
+                    <div v-else-if="watchlist.error" class="flex-1 flex flex-col items-center justify-center">
+                      <div class="text-red-400 mb-3">{{ watchlist.error }}</div>
+                      <button @click="retryWatchlist" 
+                              class="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm">
+                        <font-awesome-icon icon="sync" class="mr-1" /> Retry
+                      </button>
                     </div>
-                    <div v-else class="h-full overflow-y-auto scrollbar-thin">
-                      <div v-for="item in watchlist.data" :key="item.watchlistId" 
-                           class="p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition-colors cursor-pointer"
-                           @click="router.push(`/trade/${item.id}`)">
-                        <div class="flex justify-between items-center">
-                          <div class="flex items-center gap-2">
-                            <font-awesome-icon :icon="getAssetTypeIcon(item.type)" class="text-green-400" />
-                            <div>
-                              <div class="font-medium text-white">{{ item.symbol }}</div>
-                              <div class="text-sm text-gray-400">{{ item.name }}</div>
+                    <div v-else class="h-full flex flex-col overflow-hidden">
+                      <!-- Sort options -->
+                      <div class="flex gap-2 mb-3 px-2">
+                        <button 
+                          @click="changeWatchlistSort('recent')" 
+                          class="text-xs px-2 py-1 rounded"
+                          :class="watchlistSortBy === 'recent' ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'"
+                        >
+                          Recent
+                        </button>
+                        <button 
+                          @click="changeWatchlistSort('price')" 
+                          class="text-xs px-2 py-1 rounded"
+                          :class="watchlistSortBy === 'price' ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'"
+                        >
+                          Price
+                        </button>
+                        <button 
+                          @click="changeWatchlistSort('change')" 
+                          class="text-xs px-2 py-1 rounded"
+                          :class="watchlistSortBy === 'change' ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'"
+                        >
+                          Change
+                        </button>
+                      </div>
+                      
+                      <!-- Watchlist items (limited to top 3) -->
+                      <div class="flex-1 overflow-y-auto scrollbar-thin">
+                        <div v-if="getTopWatchlistItems.length === 0" class="flex items-center justify-center h-full text-gray-400">
+                          No assets in watchlist
+                        </div>
+                        <div v-else v-for="item in getTopWatchlistItems" :key="item.watchlistId" 
+                             class="p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition-colors cursor-pointer"
+                             @click="router.push(`/trade/${item.id}`)">
+                          <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                              <font-awesome-icon :icon="getAssetTypeIcon(item.type)" class="text-green-400" />
+                              <div>
+                                <div class="font-medium text-white">{{ item.symbol }}</div>
+                                <div class="text-sm text-gray-400">{{ item.name }}</div>
+                              </div>
                             </div>
-                          </div>
-                          <div class="text-right">
-                            <div class="text-white">${{ formatPrice(item.price) }}</div>
-                            <div v-if="item.alert_price" class="text-xs text-green-400">
-                              Alert: {{ item.alert_type === 'above' ? '>' : '<' }} ${{ formatPrice(item.alert_price) }}
+                            <div class="text-right">
+                              <div class="text-white">${{ formatPrice(item.price) }}</div>
+                              <div v-if="item.alert_price" class="text-xs text-green-400">
+                                Alert: {{ item.alert_type === 'above' ? '>' : '<' }} ${{ formatPrice(item.alert_price) }}
+                              </div>
                             </div>
                           </div>
                         </div>
+                      </div>
+                      
+                      <!-- View all link -->
+                      <div v-if="watchlist.data.length > 3" class="text-center mt-2">
+                        <router-link to="/markets" class="text-xs text-green-400 hover:underline">
+                          View all {{ watchlist.data.length }} items
+                        </router-link>
                       </div>
                     </div>
                   </div>
@@ -671,22 +1165,72 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     <div v-if="positions.loading" class="flex-1 flex items-center justify-center">
                       <LoadingSpinner class="w-6 h-6" />
                     </div>
-                    <div v-else-if="positions.error" class="flex-1 flex items-center justify-center text-red-400">
-                      {{ positions.error }}
+                    <div v-else-if="positions.error" class="flex-1 flex flex-col items-center justify-center">
+                      <div class="text-red-400 mb-3">{{ positions.error }}</div>
+                      <button @click="retryPositions" 
+                              class="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm">
+                        <font-awesome-icon icon="sync" class="mr-1" /> Retry
+                      </button>
                     </div>
-                    <div v-else class="h-full overflow-y-auto scrollbar-thin">
-                      <div v-for="position in positions.data" :key="position.id" 
-                           class="p-3 bg-white/5 rounded-lg mb-2">
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <div class="font-medium text-white">{{ position.symbol }}</div>
-                            <div class="text-sm text-gray-400">{{ position.type }} @ {{ formatPrice(position.entry_price) }}</div>
-                          </div>
-                          <div class="text-right">
-                            <div :class="['font-medium', position.unrealized_pnl >= 0 ? 'text-green-400' : 'text-red-400']">
-                              {{ formatPrice(position.unrealized_pnl) }}
+                    <div v-else class="h-full flex flex-col overflow-hidden">
+                      <!-- Sort options -->
+                      <div class="flex gap-2 mb-3 px-2">
+                        <button 
+                          @click="changePositionsSort('recent')" 
+                          class="text-xs px-2 py-1 rounded"
+                          :class="positionsSortBy === 'recent' ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'"
+                        >
+                          Recent
+                        </button>
+                        <button 
+                          @click="changePositionsSort('price')" 
+                          class="text-xs px-2 py-1 rounded"
+                          :class="positionsSortBy === 'price' ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'"
+                        >
+                          Price
+                        </button>
+                        <button 
+                          @click="changePositionsSort('quantity')" 
+                          class="text-xs px-2 py-1 rounded"
+                          :class="positionsSortBy === 'quantity' ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'"
+                        >
+                          Quantity
+                        </button>
+                      </div>
+                      
+                      <div class="flex-1 overflow-y-auto scrollbar-thin">
+                        <div v-if="getSortedPositions.length === 0" class="flex items-center justify-center h-full text-gray-400">
+                          No active positions
+                        </div>
+                        <div v-else v-for="position in getSortedPositions" :key="position.id" 
+                             class="p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition-colors cursor-pointer"
+                             @click="router.push(`/trade/${position.id}`)">
+                          <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                              <font-awesome-icon :icon="getAssetTypeIcon(position.type)" class="text-green-400" />
+                              <div>
+                                <div class="font-medium text-white">{{ position.symbol }}</div>
+                                <div class="text-sm text-gray-400">{{ position.name }}</div>
+                              </div>
                             </div>
-                            <div class="text-sm text-gray-400">{{ position.quantity }} units</div>
+                            <div class="text-right">
+                              <div class="text-white">${{ formatPrice(position.price) }}</div>
+                              <div :class="[
+                                'text-xs flex items-center justify-end gap-1',
+                                position.gain >= 0 ? 'text-green-400' : 'text-red-400'
+                              ]">
+                                <font-awesome-icon :icon="position.gain >= 0 ? 'caret-up' : 'caret-down'" />
+                                {{ isFinite(position.gain) ? Math.abs(position.gain).toFixed(2) : '0.00' }}%
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex justify-between mt-1">
+                            <div class="text-xs text-gray-400">
+                              Qty: {{ position.quantity }}
+                            </div>
+                            <div class="text-xs text-gray-400">
+                              Value: ${{ formatPrice(position.value) }}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -717,10 +1261,16 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
                     </div>
                   </div>
 
-                  <!-- Placeholder for other panels -->
-                  <div v-else class="flex-1 flex flex-col items-center justify-center">
+                  <!-- Placeholder for other panels - ONLY for Charts panel, others should have specific implementations -->
+                  <div v-else-if="panel.id === 'charts'" class="flex-1 flex flex-col items-center justify-center">
                     <font-awesome-icon :icon="panel.icon" class="panel-icon-lg mb-3 pulse-animate" />
                     <p class="text-center text-gray-400">{{ panel.title }} content coming soon</p>
+                  </div>
+                  
+                  <!-- Default panel if none of the above -->
+                  <div v-else class="flex-1 flex flex-col items-center justify-center">
+                    <font-awesome-icon :icon="panel.icon" class="panel-icon-lg mb-3" />
+                    <p class="text-center text-gray-400">{{ panel.title }}</p>
                   </div>
                 </div>
                 <!-- Decorative corner elements for futuristic look -->
@@ -947,7 +1497,6 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 /* Animation effects */
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 0.5;

@@ -12,6 +12,7 @@ import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
 import { useI18n } from 'vue-i18n'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
