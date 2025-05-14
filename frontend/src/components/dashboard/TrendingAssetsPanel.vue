@@ -138,32 +138,33 @@ onMounted(() => {
     <font-awesome-icon icon="triangle-exclamation" class="text-xl mr-2" />
     {{ trendingAssets.error }}
   </div>
-  <div v-else class="flex-1 flex flex-col">
-    <div class="flex-1 trending-container">
-      <div class="trending-items-wrapper">
-        <div v-for="asset in trendingAssets.data" :key="asset.id" class="trending-item"
-          @click="router.push(`/trade/${asset.id}`)">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
-              </div>
-              <div>
-                <div class="font-medium text-white group-hover:text-green-400 transition-colors">
-                  {{ asset.symbol }}
-                </div>
-                <div class="text-sm text-gray-400">{{ asset.name }}</div>
-              </div>
+  <div v-else class="flex-1 flex flex-col trending-list">
+    <div v-if="trendingAssets.data.length === 0" class="flex items-center justify-center h-full text-gray-400">
+      No trending assets available
+    </div>
+    <div v-else class="trending-items-container">
+      <div v-for="asset in trendingAssets.data" :key="asset.id" class="trending-item"
+        @click="router.push(`/trade/${asset.id}`)">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400" />
             </div>
-            <div class="text-right">
-              <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
-              <div :class="[
-                'text-sm flex items-center gap-1',
-                asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
-              ]">
-                <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
-                {{ Math.abs(asset.change_24h).toFixed(2) }}%
+            <div>
+              <div class="font-medium text-white group-hover:text-green-400 transition-colors">
+                {{ asset.symbol }}
               </div>
+              <div class="text-sm text-gray-400">{{ asset.name }}</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-white font-medium">${{ formatPrice(asset.price) }}</div>
+            <div :class="[
+              'text-sm flex items-center gap-1',
+              asset.change_24h >= 0 ? 'text-green-400' : 'text-red-400'
+            ]">
+              <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
+              {{ Math.abs(asset.change_24h).toFixed(2) }}%
             </div>
           </div>
         </div>
@@ -173,19 +174,25 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.trending-container {
+.trending-list {
   height: 100%;
+  max-height: 225px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
-.trending-items-wrapper {
+.trending-items-container {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  height: 100%;
+  padding-right: 4px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 100%;
-  overflow-y: auto;
 }
 
 .trending-item {
@@ -199,5 +206,29 @@ onMounted(() => {
 .trending-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
+}
+
+.trending-items-container::-webkit-scrollbar {
+  width: 3px;
+}
+
+.trending-items-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.trending-items-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* Media queries for responsive behavior */
+@media (max-width: 479px) {
+  .trending-list {
+    max-height: 175px;
+  }
+  
+  .trending-item {
+    padding: 8px;
+  }
 }
 </style> 

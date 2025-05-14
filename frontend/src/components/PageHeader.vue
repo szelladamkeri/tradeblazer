@@ -291,16 +291,15 @@ const handleMouseMove = (event: MouseEvent) => {
         <div class="content-container">
           <div class="px-2 sm:px-4 py-3">
             <!-- Adjusted padding -->
-            <div class="flex items-center justify-between gap-0">
-              <!-- Added gap -->
+            <div class="flex items-center justify-between gap-2">
               <!-- Logo - made more compact on mobile -->
-              <div class="flex items-center shrink-0 logo-container">
-                <font-awesome-icon icon="chart-line" class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2" />
-                <span class="text-white font-bold text-lg sm:text-xl">TradeBlazer</span>
+              <div class="flex items-center shrink-0 logo-container my-auto">
+                <font-awesome-icon icon="chart-line" class="text-xl sm:text-2xl text-green-400 mr-1.5 sm:mr-2 my-auto" />
+                <span class="text-white font-bold text-lg sm:text-xl my-auto">TradeBlazer</span>
               </div>
 
               <!-- Search Bar - Centered and optimized -->
-              <div ref="searchContainerRef" class="relative flex-1 mx-3 md:mx-8 max-w-md hidden lg:block">
+              <div ref="searchContainerRef" class="relative flex-1 mx-3 md:mx-8 max-w-md hidden lg:block my-auto">
                 <div class="relative group">
                   <input v-model="searchQuery" type="text" :placeholder="t('markets.searchAssets')"
                     class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 transition-all duration-200 group-hover:bg-white/15" />
@@ -376,64 +375,50 @@ const handleMouseMove = (event: MouseEvent) => {
 
               <!-- Mobile menu button - Enhanced styling -->
               <button @click="toggleMenu"
-                class="lg:hidden p-2 text-gray-300 hover:text-green-400 transition-all duration-200 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                class="lg:hidden p-2 text-gray-300 hover:text-green-400 transition-all duration-200 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-green-500/20 my-auto flex items-center justify-center"
                 aria-label="Toggle menu" :aria-expanded="isMenuOpen">
                 <font-awesome-icon :icon="isMenuOpen ? 'xmark' : 'bars'" class="text-2xl" />
               </button>
 
               <!-- Desktop Navigation -->
-              <nav class="hidden lg:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto">
-                <HeaderLink>
+              <nav class="hidden lg:flex items-center gap-1 flex-nowrap min-w-0 overflow-x-auto my-auto">
+                <HeaderLink class="my-auto">
                   <template #icon>
-                    <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center">
-                      <font-awesome-icon icon="chart-line" class="mr-2" />
-                      <span>{{ t('navigation.dashboard') }}</span>
+                    <router-link to="/" class="text-gray-300 hover:text-green-400 flex items-center h-full">
+                      <font-awesome-icon icon="chart-line" class="mr-2 my-auto" />
+                      <span class="my-auto">{{ t('navigation.dashboard') }}</span>
                     </router-link>
                   </template>
                 </HeaderLink>
 
                 <!-- Markets link - hidden below 1101px -->
-                <HeaderLink class="hidden xl:block">
+                <HeaderLink class="hidden xl:block my-auto">
                   <template #icon>
-                    <router-link to="/markets" class="text-gray-300 hover:text-green-400 flex items-center">
-                      <font-awesome-icon icon="chart-pie" class="mr-2" />
-                      <span>{{ t('navigation.markets') }}</span>
+                    <router-link to="/markets" class="text-gray-300 hover:text-green-400 flex items-center h-full">
+                      <font-awesome-icon icon="chart-pie" class="mr-2 my-auto" />
+                      <span class="my-auto">{{ t('navigation.markets') }}</span>
                     </router-link>
                   </template>
                 </HeaderLink>
 
                 <!-- More Dropdown -->
-                <div class="relative" ref="moreDropdownRef">
+                <div class="relative my-auto" ref="moreDropdownRef">
                   <button @click="toggleMoreDropdown" type="button" :class="[
                     'flex items-center px-3 py-2 rounded-lg transition-all duration-200',
                     showMoreDropdown ? 'bg-green-500/20 text-green-400' : 'text-gray-300 hover:bg-white/10 hover:text-green-400'
                   ]">
-                    <font-awesome-icon icon="ellipsis-h" class="mr-2" />
-                    <span>More</span>
+                    <font-awesome-icon icon="ellipsis-h" class="mr-2 my-auto" />
+                    <span class="my-auto">More</span>
                   </button>
 
                   <!-- More Menu Dropdown -->
                   <transition name="scale">
                     <div v-show="showMoreDropdown"
-                      class="absolute left-0 top-full mt-2 w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
+                      class="absolute left-0 top-full mt-2 w-48 py-2 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
                       <!-- Connecting triangle -->
                       <div
-                        class="absolute -top-2 left-4 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
+                        class="absolute -top-2 left-4 w-3 h-3 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
                       </div>
-
-                      <!-- Balance display - shown below 1101px -->
-                      <div v-if="userStore.isAuthenticated" class="px-4 py-2 xl:hidden">
-                        <div class="flex items-center justify-between gap-2 text-gray-300">
-                          <span class="text-sm">Balance:</span>
-                          <div class="px-2 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
-                            <font-awesome-icon icon="wallet" class="text-green-400" />
-                            <span class="text-green-400">{{ formatBalance(userBalance) }}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Divider after balance - shown below 1101px -->
-                      <div v-if="userStore.isAuthenticated" class="w-full h-px bg-white/10 my-1 xl:hidden"></div>
 
                       <!-- Markets link in dropdown - shown below 1101px -->
                       <router-link to="/markets" @click="closeMoreDropdown"
@@ -487,21 +472,21 @@ const handleMouseMove = (event: MouseEvent) => {
                 </template>
 
                 <!-- Add Language Selector -->
-                <div class="relative ml-1" ref="languageDropdownRef">
+                <div class="relative ml-1 my-auto" ref="languageDropdownRef">
                   <button @click="toggleLanguageDropdown" type="button" :class="[
                     'flex items-center px-3 py-2 rounded-lg transition-all duration-200',
                     showLanguageDropdown ? 'bg-green-500/20 text-green-400' : 'text-gray-300 hover:bg-white/10 hover:text-green-400'
                   ]">
-                    <font-awesome-icon icon="language" class="mr-2" />
-                    <span class="text-sm">{{ languageStore.currentLanguage.toUpperCase() }}</span>
+                    <font-awesome-icon icon="language" class="mr-2 my-auto" />
+                    <span class="text-sm my-auto">{{ languageStore.currentLanguage.toUpperCase() }}</span>
                   </button>
 
                   <!-- Language Dropdown -->
                   <div v-show="showLanguageDropdown"
-                    class="absolute right-0 top-full mt-2 w-40 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
+                    class="absolute right-0 top-full mt-2 w-40 py-2 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-[60]">
                     <!-- Connecting triangle -->
                     <div
-                      class="absolute -top-2 right-4 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
+                      class="absolute -top-2 right-4 w-3 h-3 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
                     </div>
 
                     <button @click="changeLanguage('en')" type="button"
@@ -522,20 +507,12 @@ const handleMouseMove = (event: MouseEvent) => {
               </nav>
 
               <!-- User Profile Section -->
-              <div v-if="userStore.isAuthenticated" class="relative flex items-center" ref="dropdownRef">
-                <!-- Replace displayName with username and add balance -->
-                <div class="hidden sm:block">
-                  <div class="flex items-center gap-4">
-                    <span :class="[
-                      'transition-colors',
-                      $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
-                    ]">
-                      {{ userStore.user?.username }}
-                    </span>
-                    <div class="px-3 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
-                      <font-awesome-icon icon="wallet" class="text-green-400" />
-                      <span class="text-green-400">{{ formatBalance(userBalance) }}</span>
-                    </div>
+              <div v-if="userStore.isAuthenticated" class="relative flex items-center gap-4 my-auto" ref="dropdownRef">
+                <!-- Balance only visible on large screens -->
+                <div class="hidden lg:flex items-center mr-3 my-auto">
+                  <div class="px-3 py-1 rounded-lg bg-green-500/10 flex items-center gap-2">
+                    <font-awesome-icon icon="wallet" class="text-green-400 my-auto" />
+                    <span class="text-green-400 my-auto">{{ formatBalance(userBalance) }}</span>
                   </div>
                 </div>
 
@@ -557,10 +534,10 @@ const handleMouseMove = (event: MouseEvent) => {
 
                   <!-- Profile Dropdown -->
                   <div v-show="showProfileDropdown"
-                    class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-50">
+                    class="absolute right-0 top-[calc(100%+0.5rem)] w-48 py-2 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/10 z-50">
                     <!-- Connecting triangle -->
                     <div
-                      class="absolute -top-2 right-2 w-3 h-3 bg-black/70 backdrop-blur-2xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
+                      class="absolute -top-2 right-2 w-3 h-3 bg-gradient-to-b from-[rgba(18,24,38,0.95)] to-[rgba(8,11,22,0.98)] backdrop-blur-xl backdrop-saturate-150 border-t border-l border-white/10 transform rotate-45">
                     </div>
 
                     <router-link to="/profile"
@@ -590,6 +567,17 @@ const handleMouseMove = (event: MouseEvent) => {
                       {{ t('navigation.signOut') }}
                     </button>
                   </div>
+                </div>
+                
+                <!-- Username visible on all screen sizes, but more constrained on smaller screens -->
+                <div class="flex items-center ml-1">
+                  <span :class="[
+                    'transition-colors whitespace-nowrap font-medium text-base overflow-hidden text-ellipsis inline-block',
+                    'max-w-[80px] xs:max-w-[120px] sm:max-w-[150px]',
+                    $route.path === '/profile' ? 'text-green-400' : 'text-gray-300',
+                  ]" :title="userStore.user?.username">
+                    {{ userStore.user?.username }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -683,6 +671,17 @@ const handleMouseMove = (event: MouseEvent) => {
 
               <!-- Enhanced mobile navigation -->
               <nav class="space-y-1 max-h-[calc(100vh-12rem)] overflow-y-auto">
+                <!-- Balance display in mobile menu - only shown when not visible in header -->
+                <div v-if="userStore.isAuthenticated" class="px-3 py-2 mb-2 bg-white/5 rounded-lg lg:hidden">
+                  <div class="flex items-center justify-between gap-2 text-gray-300">
+                    <span class="text-sm">Balance:</span>
+                    <div class="px-3 py-1.5 rounded-lg bg-green-500/10 flex items-center gap-2">
+                      <font-awesome-icon icon="wallet" class="text-green-400" />
+                      <span class="text-green-400 font-medium">{{ formatBalance(userBalance) }}</span>
+                    </div>
+                  </div>
+                </div>
+
                 <HeaderLink @click="closeMenu">
                   <template #icon>
                     <router-link to="/"
@@ -1442,15 +1441,7 @@ header>.content-container>div {
 @media (max-width: 640px) {
   .page-header {
     width: calc(100vw - 2rem) !important;
-    max-width: calc(100vw - 2rem) !important;
-  }
-
-  .component-global-wrapper {
-    margin-bottom: 0.5rem !important;
-  }
-
-  .page-header-wrapper {
-    padding-top: 0.5rem !important;
+    height: 3.5rem;
   }
 }
 
@@ -1555,98 +1546,6 @@ button:hover {
   background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
 }
 
-.page-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
-}
-
-/* Corner decoration styling from HomeView */
-.corner-decor {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-color: rgba(74, 222, 128, 0.3);
-  z-index: 1;
-}
-
-.corner-decor.top-left {
-  top: 8px;
-  left: 8px;
-  border-top: 1px solid;
-  border-left: 1px solid;
-}
-
-.corner-decor.top-right {
-  top: 8px;
-  right: 8px;
-  border-top: 1px solid;
-  border-right: 1px solid;
-}
-
-.corner-decor.bottom-left {
-  bottom: 8px;
-  left: 8px;
-  border-bottom: 1px solid;
-  border-left: 1px solid;
-}
-
-.corner-decor.bottom-right {
-  bottom: 8px;
-  right: 8px;
-  border-bottom: 1px solid;
-  border-right: 1px solid;
-}
-
-/* Consistent scrollbar styling across components */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, rgba(74, 222, 128, 0.4), rgba(34, 211, 238, 0.4));
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, rgba(74, 222, 128, 0.6), rgba(34, 211, 238, 0.6));
-}
-
-/* Add consistent hover effects */
-.panel-inner:hover,
-button:hover,
-a:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
-}
-
-/* Base header styling */
-.page-header {
-  width: 100% !important;
-  max-width: 1280px !important;
-  margin: 0 auto !important;
-  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(74, 222, 128, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
-  border-radius: 0.75rem;
-  overflow: visible !important;
-  position: relative;
-  z-index: 50;
-}
-
-/* Interactive gradient effect */
 .page-header::after {
   content: '';
   position: absolute;

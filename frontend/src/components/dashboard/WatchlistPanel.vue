@@ -38,6 +38,11 @@ const watchlist = ref({
 // Watchlist sorting
 const watchlistSortBy = ref('recent');
 
+// Check if there's content to sort
+const hasWatchlistItemsToSort = computed(() => {
+  return watchlist.value.data.length > 0;
+});
+
 // Fetch watchlist data
 const fetchWatchlist = async () => {
   try {
@@ -138,8 +143,8 @@ onMounted(() => {
     </button>
   </div>
   <div v-else class="h-full flex flex-col overflow-hidden">
-    <!-- Sort options -->
-    <div class="flex gap-2 mb-3 px-2">
+    <!-- Sort options - only show when there are watchlist items to sort -->
+    <div v-if="hasWatchlistItemsToSort" class="flex gap-2 mb-3 px-2">
       <button 
         @click="changeWatchlistSort('recent')" 
         class="text-xs px-2 py-1 rounded"
