@@ -270,11 +270,6 @@ const toggleExplanation = () => {
   showTotalExplanation.value = !showTotalExplanation.value;
 };
 
-// Add a function to navigate to asset detail page
-const goToAssetDetail = (assetId: number) => {
-  router.push(`/asset/${assetId}`);
-};
-
 </script>
 
 <template>
@@ -472,13 +467,8 @@ const goToAssetDetail = (assetId: number) => {
                             <router-link :to="`/trade/${asset.assetId}`" 
                               class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors text-sm flex items-center">
                               <font-awesome-icon icon="exchange-alt" class="mr-1" />
-                              Trade
+                              {{ t('portfolio.table.trade') }}
                             </router-link>
-                            <button @click="goToAssetDetail(asset.assetId)"
-                              class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors text-sm flex items-center">
-                              <font-awesome-icon icon="chart-line" class="mr-1" />
-                              Details
-                            </button>
                           </div>
                         </td>
                       </tr>
