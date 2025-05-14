@@ -92,6 +92,7 @@
     "totalPositions": "Total Positions",
     "holdings": "Holdings",
     "table": {
+      "trade": "Trade",
       "symbol": "Symbol",
       "shares": "Shares",
       "avgPrice": "Avg Price",

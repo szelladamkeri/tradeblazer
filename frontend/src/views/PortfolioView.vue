@@ -773,13 +773,8 @@ const getWorstPerformingAsset = () => {
                             <router-link :to="`/trade/${asset.assetId}`" 
                               class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors text-sm flex items-center">
                               <font-awesome-icon icon="exchange-alt" class="mr-1" />
-                              Trade
+                              {{ t('portfolio.table.trade') }}
                             </router-link>
-                            <button @click="goToAssetDetail(asset.assetId)"
-                              class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors text-sm flex items-center">
-                              <font-awesome-icon icon="chart-line" class="mr-1" />
-                              Details
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -858,20 +853,6 @@ const getWorstPerformingAsset = () => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Add smooth scrolling */
-.overflow-y-auto {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Remove any conflicting page-header styles */
-
-/* Table styles */
-.overflow-x-auto {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
 .overflow-x-auto::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -919,6 +900,16 @@ tbody tr:hover {
 /* Add pagination specific styles */
 tr {
   height: 72px;
+}
+
+.overflow-y-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .overflow-y-auto {

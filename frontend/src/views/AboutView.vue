@@ -82,12 +82,12 @@ const handleMouseMove = (event: MouseEvent) => {
             <div class="grid md:grid-cols-4 gap-6">
               <div class="text-center">
                 <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4"></div>
-                <h3 class="text-lg font-semibold text-white">John Doe</h3>
+                <h3 class="text-lg font-semibold text-white">Aranyosi Dániel</h3>
                 <p class="text-gray-400">CEO & Founder</p>
               </div>
               <div class="text-center">
                 <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4"></div>
-                <h3 class="text-lg font-semibold text-white">Jane Smith</h3>
+                <h3 class="text-lg font-semibold text-white">Széll Ádám</h3>
                 <p class="text-gray-400">CEO & Founder</p>
               </div>
             </div>
