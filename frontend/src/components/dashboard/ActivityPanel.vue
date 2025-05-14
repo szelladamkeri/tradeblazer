@@ -104,7 +104,9 @@ const fetchActivities = async () => {
       console.error('Error fetching orders:', orderErr);
     }
     
-    // Fetch login logs
+    // Note: The logs endpoint is currently not available
+    // Keeping this commented out until the endpoint is implemented
+    /*
     try {
       const logsResponse = await fetch(
         `http://localhost:3000/api/users/${userStore.user.id}/logs?limit=50`, 
@@ -157,8 +159,11 @@ const fetchActivities = async () => {
     } catch (logErr) {
       console.error('Error fetching logs:', logErr);
     }
+    */
     
-    // Fetch watchlist changes
+    // Note: The watchlist history endpoint is currently not available
+    // Keeping this commented out until the endpoint is implemented
+    /*
     try {
       const watchlistResponse = await fetch(
         `http://localhost:3000/api/watchlist/history/${userStore.user.id}?limit=50`, 
@@ -188,6 +193,7 @@ const fetchActivities = async () => {
     } catch (watchlistErr) {
       console.error('Error fetching watchlist history:', watchlistErr);
     }
+    */
     
     // If we have activities, sort and limit them
     if (allActivities.length > 0) {

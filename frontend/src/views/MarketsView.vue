@@ -465,10 +465,6 @@ watch(() => userStore.isAuthenticated, (newValue) => {
                   <p class="text-gray-400">{{ t('markets.noAssetsFound') }}</p>
                 </div>
               </div>
-              <div class="corner-decor top-left"></div>
-              <div class="corner-decor top-right"></div>
-              <div class="corner-decor bottom-left"></div>
-              <div class="corner-decor bottom-right"></div>
             </div>
           </div>
 
@@ -651,10 +647,6 @@ watch(() => userStore.isAuthenticated, (newValue) => {
                   </div>
                 </div>
               </div>
-              <div class="corner-decor top-left"></div>
-              <div class="corner-decor top-right"></div>
-              <div class="corner-decor bottom-left"></div>
-              <div class="corner-decor bottom-right"></div>
             </div>
           </div>
         </div>
@@ -797,7 +789,7 @@ watch(() => userStore.isAuthenticated, (newValue) => {
   }
 }
 
-/* Update panel styling to match TutorialView */
+/* Update panel styling to remove corners */
 .dashboard-panel {
   @apply relative overflow-hidden;
   border-radius: 0.75rem;
@@ -805,118 +797,23 @@ watch(() => userStore.isAuthenticated, (newValue) => {
   min-height: 200px;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(10px);
 }
 
 .panel-inner {
   @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
-  background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
-  transition: all 0.4s ease;
+  background: linear-gradient(135deg, rgba(25, 33, 52, 0.6) 0%, rgba(8, 11, 22, 0.7) 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100%;
 }
 
-/* Futuristic border/line effects just like in TutorialView */
-.panel-inner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
-}
-
-.panel-inner::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
-}
-
-/* Update corner decorations z-index */
+/* Remove corner elements */
 .corner-decor {
-  z-index: 31;
-}
-
-/* Decorative corner elements */
-.corner-decor {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 1px solid rgba(74, 222, 128, 0.3);
-  z-index: 20;
-}
-
-.corner-decor.top-left {
-  top: 8px;
-  left: 8px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.corner-decor.top-right {
-  top: 8px;
-  right: 8px;
-  border-left: none;
-  border-bottom: none;
-}
-
-.corner-decor.bottom-left {
-  bottom: 8px;
-  left: 8px;
-  border-right: none;
-  border-top: none;
-}
-
-.corner-decor.bottom-right {
-  bottom: 8px;
-  right: 8px;
-  border-left: none;
-  border-top: none;
-}
-
-/* Fix layout issues */
-.markets-view {
-  padding-top: 0 !important;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Override height constraints */
-.dashboard-panel {
-  height: auto !important;
-  /* Let content determine height */
-  min-height: 200px;
-  /* Provide a sensible minimum */
-}
-
-/* Ensure padding is consistent */
-.markets-view>.w-full {
-  padding-top: 1rem !important;
-}
-
-/* Ensure content overflow is handled properly */
-.view-content {
-  flex: 1;
-  overflow: visible;
-}
-
-/* Remove any conflicting style overrides */
-.markets-view {
-  padding-top: 0 !important;
-}
-
-/* Ensure padding is consistent */
-.markets-view>.w-full {
-  padding-top: 1rem !important;
+  display: none !important;
 }
 
 /* Custom select styling */

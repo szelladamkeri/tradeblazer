@@ -278,70 +278,56 @@ const goToMarkets = () => {
             <!-- Watchlist Summary -->
             <FadeIn>
               <div class="w-full">
-                <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
-                  <font-awesome-icon icon="star" class="text-yellow-400 mr-2" />
-                  {{ t('watchlist.title') || 'Watchlist' }}
-                  <button @click="fetchWatchlistData" class="ml-2 text-sm text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
-                    <font-awesome-icon icon="sync" :class="{ 'animate-spin': loading }" />
-                  </button>
-                </h2>
-                <div class="mb-4">
-                  <div class="flex justify-between items-center">
-                    <p class="text-gray-400">Track and monitor your favorite assets</p>
-                    <button @click="goToMarkets" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors flex items-center space-x-1">
-                      <font-awesome-icon icon="search" class="mr-1" />
-                      <span>Find Assets</span>
-                    </button>
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+                  <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                      <font-awesome-icon icon="star" class="text-2xl text-green-400" />
+                    </div>
+                    <div class="flex-1">
+                      <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ t('watchlist.title') }}</h1>
+                      <p class="text-gray-400 mt-1">{{ t('watchlist.subtitle') }}</p>
+                    </div>
                   </div>
-                </div>
-                <!-- Search input -->
-                <div class="flex flex-col sm:flex-row gap-2 mb-4">
-                  <div class="relative flex-grow">
-                    <input 
-                      v-model="searchQuery"
-                      type="text" 
-                      placeholder="Search watchlist..." 
-                      class="w-full bg-black/40 border border-white/10 rounded-lg py-2.5 px-4 pr-10 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-all"
-                    >
-                    <font-awesome-icon icon="search" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  </div>
-                  <div class="flex space-x-1 bg-black/40 p-1 rounded-lg border border-white/10">
-                    <button 
-                      @click="currentSort = 'recent'" 
-                      class="px-3 py-1.5 rounded transition-colors text-sm font-medium"
-                      :class="currentSort === 'recent' 
-                        ? 'bg-green-600 text-white' 
-                        : 'text-gray-300 hover:bg-white/10'"
-                    >
-                      Recent
-                    </button>
-                    <button 
-                      @click="currentSort = 'price'" 
-                      class="px-3 py-1.5 rounded transition-colors text-sm font-medium"
-                      :class="currentSort === 'price' 
-                        ? 'bg-green-600 text-white' 
-                        : 'text-gray-300 hover:bg-white/10'"
-                    >
-                      Price
-                    </button>
-                    <button 
-                      @click="currentSort = 'change'" 
-                      class="px-3 py-1.5 rounded transition-colors text-sm font-medium"
-                      :class="currentSort === 'change' 
-                        ? 'bg-green-600 text-white' 
-                        : 'text-gray-300 hover:bg-white/10'"
-                    >
-                      Change
-                    </button>
-                    <button 
-                      @click="currentSort = 'name'" 
-                      class="px-3 py-1.5 rounded transition-colors text-sm font-medium"
-                      :class="currentSort === 'name' 
-                        ? 'bg-green-600 text-white' 
-                        : 'text-gray-300 hover:bg-white/10'"
-                    >
-                      Name
-                    </button>
+                  
+                  <!-- Controls - improved responsive layout -->
+                  <div class="flex flex-col w-full md:w-auto gap-3">
+                    <!-- Search and filter row -->
+                    <div class="flex flex-col sm:flex-row gap-3 w-full">
+                      <div class="relative flex-grow">
+                        <input type="text" v-model="searchQuery" placeholder="Search by name or symbol"
+                          class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200" />
+                        <font-awesome-icon icon="search"
+                          class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      </div>
+                    </div>
+
+                    <!-- Sort buttons in container - improved for responsiveness -->
+                    <div class="flex flex-wrap bg-black/40 backdrop-blur-xl p-1.5 rounded-lg border border-white/10">
+                      <button 
+                        @click="currentSort = 'name'" 
+                        class="sort-btn"
+                        :class="currentSort === 'name' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="font" class="mr-1 text-xs" />
+                        Name
+                      </button>
+                      <button 
+                        @click="currentSort = 'price'" 
+                        class="sort-btn"
+                        :class="currentSort === 'price' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="dollar-sign" class="mr-1 text-xs" />
+                        Price
+                      </button>
+                      <button 
+                        @click="currentSort = 'recent'" 
+                        class="sort-btn"
+                        :class="currentSort === 'recent' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="clock" class="mr-1 text-xs" />
+                        Recent
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -554,5 +540,55 @@ tr {
   min-height: 200px;
   overflow: auto !important;
   flex: 1;
+}
+
+/* Add sort buttons styling */
+.sort-btn {
+  @apply flex items-center justify-center px-2 sm:px-3 py-1.5 mx-0.5 my-0.5 rounded transition-colors text-sm;
+  flex: 1 1 auto;
+  min-width: 60px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+}
+
+.sort-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.active-sort {
+  background-color: rgba(34, 197, 94, 0.6);
+  color: white;
+  border-color: rgba(74, 222, 128, 0.6);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+/* Add enhanced blur effects */
+.bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(8px);
+}
+
+.bg-black\/40 {
+  backdrop-filter: blur(8px);
+}
+
+/* Responsive styles for sort buttons */
+@media (max-width: 640px) {
+  .sort-btn {
+    min-width: calc(33% - 8px);
+    margin: 2px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .sort-btn {
+    min-width: calc(50% - 6px);
+    padding: 5px 6px;
+  }
 }
 </style> 

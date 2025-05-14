@@ -45,6 +45,48 @@ const portfolioData = ref<PortfolioData>({
 })
 const error = ref<{ message: string; type: string } | null>(null)
 
+// Add search and sort functionality
+const searchTerm = ref('')
+const currentSort = ref('symbol')
+
+// Add filtered assets computed property
+const filteredAssets = computed(() => {
+  if (!portfolioData.value?.assets || !Array.isArray(portfolioData.value.assets)) return []
+  
+  let filtered = [...portfolioData.value.assets]
+  
+  // Apply search filter
+  if (searchTerm.value.trim()) {
+    const term = searchTerm.value.toLowerCase()
+    filtered = filtered.filter(asset => 
+      asset.name.toLowerCase().includes(term) || 
+      asset.symbol.toLowerCase().includes(term)
+    )
+  }
+  
+  // Apply sorting
+  switch (currentSort.value) {
+    case 'value':
+      return filtered.sort((a, b) => 
+        (b.quantity * b.currentPrice) - (a.quantity * a.currentPrice)
+      )
+    case 'price':
+      return filtered.sort((a, b) => b.currentPrice - a.currentPrice)
+    case 'symbol':
+      return filtered.sort((a, b) => a.symbol.localeCompare(b.symbol))
+    case 'name':
+      return filtered.sort((a, b) => a.name.localeCompare(b.name))
+    case 'profit':
+      return filtered.sort((a, b) => {
+        const profitA = a.averagePrice ? (a.currentPrice - a.averagePrice) * a.quantity : 0
+        const profitB = b.averagePrice ? (b.currentPrice - b.averagePrice) * b.quantity : 0
+        return profitB - profitA
+      })
+    default:
+      return filtered
+  }
+})
+
 const calculateReturn = (current: number, avg: number) => {
   const returnPct = ((current - avg) / avg) * 100
   return {
@@ -273,7 +315,7 @@ const {
   nextPage,
   prevPage,
   visibleItems
-} = usePagination(computed(() => portfolioData.value?.assets || []))
+} = usePagination(filteredAssets)
 
 // Add API heartbeat check
 const { isApiAvailable, apiError, checkApiHeartbeat } = useApiHeartbeat()
@@ -585,6 +627,75 @@ const getWorstPerformingAsset = () => {
               </div>
             </FadeIn>
 
+            <!-- Search and Sort Section -->
+            <FadeIn>
+              <div class="w-full mb-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                      <font-awesome-icon icon="filter" class="text-green-400" />
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Filter Holdings</h2>
+                  </div>
+                  
+                  <!-- Controls -->
+                  <div class="flex flex-col w-full md:w-auto gap-3">
+                    <!-- Search input with backdrop blur -->
+                    <div class="relative flex-grow">
+                      <input type="text" v-model="searchTerm" placeholder="Search by name or symbol"
+                        class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200" />
+                      <font-awesome-icon icon="search"
+                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    </div>
+                    
+                    <!-- Sort buttons with backdrop blur -->
+                    <div class="flex flex-wrap bg-black/40 backdrop-blur-xl p-1.5 rounded-lg border border-white/10">
+                      <button 
+                        @click="currentSort = 'symbol'" 
+                        class="sort-btn"
+                        :class="currentSort === 'symbol' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="sort-alpha-down" class="mr-1 text-xs" />
+                        Symbol
+                      </button>
+                      <button 
+                        @click="currentSort = 'name'" 
+                        class="sort-btn"
+                        :class="currentSort === 'name' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="font" class="mr-1 text-xs" />
+                        Name
+                      </button>
+                      <button 
+                        @click="currentSort = 'price'" 
+                        class="sort-btn"
+                        :class="currentSort === 'price' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="dollar-sign" class="mr-1 text-xs" />
+                        Price
+                      </button>
+                      <button 
+                        @click="currentSort = 'value'" 
+                        class="sort-btn"
+                        :class="currentSort === 'value' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="coins" class="mr-1 text-xs" />
+                        Value
+                      </button>
+                      <button 
+                        @click="currentSort = 'profit'" 
+                        class="sort-btn"
+                        :class="currentSort === 'profit' ? 'active-sort' : ''"
+                      >
+                        <font-awesome-icon icon="chart-line" class="mr-1 text-xs" />
+                        P/L
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+
             <!-- Holdings List -->
             <FadeIn>
               <div class="w-full">
@@ -849,4 +960,67 @@ tr {
   overflow: auto !important;
   flex: 1;
 }
+
+/* Add XS breakpoint class */
+.xs\:inline {
+  display: none;
+}
+
+@media (min-width: 400px) {
+  .xs\:inline {
+    display: inline;
+  }
+}
+
+/* Sort buttons styling */
+.sort-btn {
+  @apply flex items-center justify-center px-2 sm:px-3 py-1.5 mx-0.5 my-0.5 rounded transition-colors text-sm;
+  flex: 1 1 auto;
+  min-width: 60px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+}
+
+.sort-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.active-sort {
+  background-color: rgba(34, 197, 94, 0.6);
+  color: white;
+  border-color: rgba(74, 222, 128, 0.6);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+@media (max-width: 640px) {
+  .sort-btn {
+    min-width: calc(33% - 8px);
+    margin: 2px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .sort-btn {
+    min-width: calc(50% - 6px);
+    padding: 5px 6px;
+  }
+}
+
+/* Add enhanced blur effects to elements */
+.bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-panel .panel-inner,
+.overflow-x-auto {
+  backdrop-filter: blur(8px);
+}
+
+/* Remove any conflicting page-header styles */
 </style>

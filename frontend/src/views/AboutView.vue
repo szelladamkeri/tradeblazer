@@ -28,7 +28,7 @@ const handleMouseMove = (event: MouseEvent) => {
           <div class="text-center mb-12">
             <h1 class="text-4xl font-bold text-white mb-4">About TradeBlazer</h1>
             <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-              Your trusted partner in the world of trading, providing cutting-edge tools and education since 2023.
+              Your trusted partner in the world of trading, providing cutting-edge tools and education since 2025.
             </p>
           </div>
 
@@ -106,7 +106,7 @@ const handleMouseMove = (event: MouseEvent) => {
                 </div>
                 <h1 class="text-2xl font-bold text-white">TradeBlazer</h1>
               </div>
-              <p class="text-gray-300">Empowering traders with cutting-edge tools and education since 2023.</p>
+              <p class="text-gray-300">Empowering traders with cutting-edge tools and education since 2025.</p>
               <div class="flex items-center gap-2 text-gray-400">
                 <font-awesome-icon icon="location-dot" />
                 <span>Budapest, Hungary</span>
@@ -138,13 +138,13 @@ const handleMouseMove = (event: MouseEvent) => {
                 </div>
                 <div class="flex gap-4 mt-4">
                   <a href="#" class="text-gray-400 hover:text-green-400">
-                    <font-awesome-icon icon="facebook" size="lg" />
+                    <font-awesome-icon :icon="['fab', 'facebook']" size="lg" />
                   </a>
                   <a href="#" class="text-gray-400 hover:text-green-400">
-                    <font-awesome-icon icon="twitter" size="lg" />
+                    <font-awesome-icon :icon="['fab', 'twitter']" size="lg" />
                   </a>
                   <a href="#" class="text-gray-400 hover:text-green-400">
-                    <font-awesome-icon icon="linkedin" size="lg" />
+                    <font-awesome-icon :icon="['fab', 'linkedin']" size="lg" />
                   </a>
                 </div>
               </div>
@@ -153,7 +153,7 @@ const handleMouseMove = (event: MouseEvent) => {
 
           <!-- Copyright -->
           <div class="border-t border-white/10 pt-8 text-center">
-            <p class="text-gray-400">&copy; 2023 TradeBlazer. All rights reserved.</p>
+            <p class="text-gray-400">&copy; 2025 TradeBlazer. All rights reserved.</p>
           </div>
         </div>
       </div>
