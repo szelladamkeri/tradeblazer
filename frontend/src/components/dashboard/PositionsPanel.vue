@@ -38,6 +38,11 @@ const positions = ref({
 // Positions sorting
 const positionsSortBy = ref('recent');
 
+// Check if there's content to sort
+const hasPositionsToSort = computed(() => {
+  return positions.value.data.length > 0;
+});
+
 // Functions for sorting positions
 const getSortedPositions = computed(() => {
   if (!positions.value.data?.length) return [];
@@ -246,8 +251,8 @@ onMounted(() => {
     </button>
   </div>
   <div v-else class="h-full flex flex-col overflow-hidden">
-    <!-- Sort options -->
-    <div class="flex gap-2 mb-3 px-2">
+    <!-- Sort options - only show when there are positions to sort -->
+    <div v-if="hasPositionsToSort" class="flex gap-2 mb-3 px-2">
       <button 
         @click="changePositionsSort('recent')" 
         class="text-xs px-2 py-1 rounded"
