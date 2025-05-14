@@ -13,6 +13,7 @@ import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
 import { useI18n } from 'vue-i18n'
+import ActivityPanel from '@/components/dashboard/ActivityPanel.vue'
 
 interface PortfolioData {
   assets: Array<{
@@ -23,6 +24,7 @@ interface PortfolioData {
     currentPrice: number
     quantity: number
     averagePrice: number
+    previousDayPrice?: number
   }>
   balance: number
   totalValue: number
@@ -184,6 +186,15 @@ const fetchPortfolioData = async () => {
     };
     console.log('Final portfolioData.value:', portfolioData.value);
     
+    // Log asset price details for debugging P/L issues
+    if (portfolioData.value.assets && portfolioData.value.assets.length > 0) {
+      console.log('Asset price details:');
+      portfolioData.value.assets.forEach(asset => {
+        console.log(`${asset.symbol}: Current=${asset.currentPrice}, Average=${asset.averagePrice}, Diff=${asset.currentPrice - asset.averagePrice}`);
+        console.log(`Exact same? ${asset.currentPrice === asset.averagePrice}, Difference: ${Math.abs(asset.currentPrice - asset.averagePrice)}`);
+      });
+    }
+    
     // Update userStore balance to ensure consistency across components
     if (userStore.user) {
       userStore.user.balance = data.balance
@@ -212,16 +223,45 @@ onMounted(async () => {
   await fetchPortfolioData()
 })
 
+// Add asset type detection function
+const isForexPair = (symbol: string): boolean => {
+  // Check if symbol contains a currency pair pattern (XXX/YYY)
+  return symbol?.includes('/') || false;
+}
+
+// Add crypto detection
+const isCrypto = (symbol: string): boolean => {
+  // Most crypto symbols end with USD
+  return symbol?.endsWith('USD') || false;
+}
+
+// Get appropriate decimal places based on asset type
+const getDecimalPlaces = (symbol: string): number => {
+  if (isForexPair(symbol)) {
+    return 5; // Forex pairs typically need 5 decimal places
+  } else if (isCrypto(symbol)) {
+    // Smaller value cryptos need more decimals
+    if (symbol === 'BTCUSD' || symbol === 'ETHUSD') {
+      return 2;
+    }
+    return 4;
+  }
+  return 2; // Default for stocks and most assets
+}
+
 // Price formatting to match HomeView
-const formatPrice = (price: number | string): string => {
+const formatPrice = (price: number | string, symbol?: string): string => {
   // Ensure price is a valid number before formatting
   if (price === null || price === undefined || isNaN(Number(price))) {
     return '0.00';
   }
   
+  // Determine decimal places based on asset type if symbol is provided
+  const decimalPlaces = symbol ? getDecimalPlaces(symbol) : 2;
+  
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces
   }).format(Number(price));
 }
 
@@ -273,6 +313,101 @@ const toggleExplanation = () => {
 // Add a function to navigate to asset detail page
 const goToAssetDetail = (assetId: number) => {
   router.push(`/asset/${assetId}`);
+};
+
+// Calculate P/L in dollars with improved precision
+const calculateTotalPL = (currentPrice: number, avgPrice: number, quantity: number, symbol?: string) => {
+  // Get appropriate precision threshold based on asset type
+  const precisionThreshold = isForexPair(symbol || '') ? 0.00001 : 0.0001;
+  
+  // If prices are nearly identical (using appropriate precision), return exactly zero
+  if (Math.abs(currentPrice - avgPrice) < precisionThreshold) {
+    return 0;
+  }
+  return (currentPrice - avgPrice) * quantity;
+}
+
+// Format P/L with color and sign, with optional symbol parameter
+const formatPL = (value: number | null, symbol?: string): { text: string, isPositive: boolean } => {
+  if (value === null || value === undefined) return { text: 'N/A', isPositive: true }
+  
+  // If value is extremely close to zero (accounting for floating point precision), treat as zero
+  if (Math.abs(value) < 0.001) {
+    return { text: '$0.00', isPositive: true }
+  }
+  
+  const isPositive = value > 0
+  const sign = isPositive ? '+' : ''
+  const formattedValue = formatPrice(Math.abs(value), symbol)
+  
+  return {
+    text: `${sign}$${formattedValue}`,
+    isPositive
+  }
+}
+
+// Calculate total portfolio P/L - handles zero average price cases
+const calculateTotalPortfolioPL = () => {
+  let total = 0;
+  if (portfolioData.value?.assets && Array.isArray(portfolioData.value.assets)) {
+    portfolioData.value.assets.forEach(asset => {
+      // Skip assets with zero or near-zero average price
+      if (!asset.averagePrice || asset.averagePrice < 0.0001) {
+        return;
+      }
+      
+      // Use appropriate precision for comparison based on asset type
+      const precisionThreshold = isForexPair(asset.symbol) ? 0.00001 : 0.0001;
+      
+      // If prices are nearly identical, skip (zero P/L)
+      if (Math.abs(asset.currentPrice - asset.averagePrice) < precisionThreshold) {
+        return;
+      }
+      
+      // Otherwise calculate normally
+      total += (asset.currentPrice - asset.averagePrice) * asset.quantity;
+    });
+  }
+  return total;
+};
+
+// Calculate performance percentages for each asset
+const getAssetPerformances = () => {
+  if (!portfolioData.value.assets || portfolioData.value.assets.length === 0) return [];
+  
+  return portfolioData.value.assets.map(asset => {
+    const percentChange = asset.averagePrice > 0 ? 
+      ((asset.currentPrice - asset.averagePrice) / asset.averagePrice) * 100 : 0;
+    
+    return {
+      ...asset,
+      percentChange: parseFloat(percentChange.toFixed(2))
+    };
+  });
+};
+
+// Get best performing asset
+const getBestPerformingAsset = () => {
+  const assets = getAssetPerformances();
+  if (assets.length === 0) return null;
+  
+  const filtered = assets.filter(asset => asset.percentChange !== 0);
+  if (filtered.length === 0) return null;
+  
+  return filtered.reduce((best, asset) => 
+    asset.percentChange > best.percentChange ? asset : best, filtered[0]);
+};
+
+// Get worst performing asset
+const getWorstPerformingAsset = () => {
+  const assets = getAssetPerformances();
+  if (assets.length === 0) return null;
+  
+  const filtered = assets.filter(asset => asset.percentChange !== 0);
+  if (filtered.length === 0) return null;
+  
+  return filtered.reduce((worst, asset) => 
+    asset.percentChange < worst.percentChange ? asset : worst, filtered[0]);
 };
 
 </script>
@@ -342,6 +477,52 @@ const goToAssetDetail = (assetId: number) => {
                       ${{ formatPrice(calculateAssetsValue()) }}
                     </p>
                     <p class="text-xs text-gray-400 mt-1">{{ totalPositions }} position{{ totalPositions !== 1 ? 's' : '' }}</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+            
+            <!-- P/L Statistics Summary -->
+            <FadeIn>
+              <div class="w-full">
+                <h2 class="text-white text-xl sm:text-2xl font-bold mb-4 px-1">
+                  <font-awesome-icon icon="chart-line" class="text-green-400 mr-2" />
+                  Performance Stats
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <!-- Total P/L Card -->
+                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                    <p class="text-sm text-gray-400">Total P/L</p>
+                    <p v-if="portfolioData.assets.length > 0" 
+                       :class="[calculateTotalPortfolioPL() >= 0 ? 'text-green-400' : 'text-red-400']" 
+                       class="text-2xl font-bold">
+                      {{ formatPL(calculateTotalPortfolioPL(), portfolioData.assets[0]?.symbol).text }}
+                    </p>
+                    <p v-else class="text-2xl font-bold text-gray-400">$0.00</p>
+                  </div>
+                  
+                  <!-- Best Performing Asset -->
+                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                    <p class="text-sm text-gray-400">Best Performer</p>
+                    <p v-if="getBestPerformingAsset()?.symbol" class="text-2xl font-bold text-green-400">
+                      {{ getBestPerformingAsset()?.symbol }}
+                    </p>
+                    <p v-else class="text-2xl font-bold text-gray-400">N/A</p>
+                    <p v-if="getBestPerformingAsset()?.percentChange" class="text-sm text-green-400">
+                      +{{ getBestPerformingAsset()?.percentChange }}%
+                    </p>
+                  </div>
+                  
+                  <!-- Worst Performing Asset -->
+                  <div class="bg-white/10 p-4 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/20 hover:shadow-xl">
+                    <p class="text-sm text-gray-400">Worst Performer</p>
+                    <p v-if="getWorstPerformingAsset()?.symbol" class="text-2xl font-bold text-red-400">
+                      {{ getWorstPerformingAsset()?.symbol }}
+                    </p>
+                    <p v-else class="text-2xl font-bold text-gray-400">N/A</p>
+                    <p v-if="getWorstPerformingAsset()?.percentChange" class="text-sm text-red-400">
+                      {{ getWorstPerformingAsset()?.percentChange }}%
+                    </p>
                   </div>
                 </div>
               </div>
@@ -420,13 +601,11 @@ const goToAssetDetail = (assetId: number) => {
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
                           {{ t('portfolio.table.shares') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          {{ t('portfolio.table.avgPrice') }}</th>
-                        <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
                           {{ t('portfolio.table.current') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
                           {{ t('portfolio.table.value') }}</th>
                         <th class="text-right py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
-                          {{ t('portfolio.table.return') }}</th>
+                          P/L</th>
                         <th class="text-center py-3 px-4 text-gray-400 text-sm font-medium border-b border-white/10">
                           Actions</th>
                       </tr>
@@ -451,21 +630,32 @@ const goToAssetDetail = (assetId: number) => {
                           {{ asset.quantity }}
                         </td>
                         <td class="py-4 px-4 text-right font-medium text-white">
-                          ${{ formatPrice(asset.averagePrice || 0) }}
+                          ${{ formatPrice(asset.currentPrice || 0, asset.symbol) }}
                         </td>
                         <td class="py-4 px-4 text-right font-medium text-white">
-                          ${{ formatPrice(asset.currentPrice || 0) }}
+                          ${{ formatPrice((asset.quantity || 0) * (asset.currentPrice || 0), asset.symbol) }}
                         </td>
-                        <td class="py-4 px-4 text-right font-medium text-white">
-                          ${{ formatPrice((asset.quantity || 0) * (asset.currentPrice || 0)) }}
-                        </td>
+                        <!-- P/L Column -->
                         <td class="py-4 px-4 text-right">
-                          <span :class="[
-                            calculateReturnPercentage(asset.averagePrice, asset.currentPrice) === 'N/A' ? 'text-gray-400' :
-                              calculateReturnPercentage(asset.averagePrice, asset.currentPrice).startsWith('+') ? 'text-green-400' : 'text-red-400'
-                          ]">
-                            {{ calculateReturnPercentage(asset.averagePrice, asset.currentPrice) }}
+                          <span v-if="!asset.averagePrice || asset.averagePrice < 0.0001" class="text-gray-400">
+                            $0.00
                           </span>
+                          <span v-else-if="Math.abs(asset.currentPrice - asset.averagePrice) < (isForexPair(asset.symbol) ? 0.00001 : 0.0001)" class="text-gray-400">
+                            $0.00
+                          </span>
+                          <span v-else :class="[
+                            (asset.currentPrice > asset.averagePrice) ? 'text-green-400' : 'text-red-400'
+                          ]">
+                            {{ formatPL((asset.currentPrice - asset.averagePrice) * asset.quantity, asset.symbol).text }}
+                          </span>
+                          <div class="text-xs text-gray-600 mt-1">
+                            (C: {{ isForexPair(asset.symbol) ? asset.currentPrice.toFixed(5) : 
+                                   isCrypto(asset.symbol) && asset.symbol !== 'BTCUSD' && asset.symbol !== 'ETHUSD' ? asset.currentPrice.toFixed(4) : 
+                                   asset.currentPrice.toFixed(2) }}, 
+                             A: {{ isForexPair(asset.symbol) ? (asset.averagePrice ? asset.averagePrice.toFixed(5) : '0.00000') : 
+                                   isCrypto(asset.symbol) && asset.symbol !== 'BTCUSD' && asset.symbol !== 'ETHUSD' ? (asset.averagePrice ? asset.averagePrice.toFixed(4) : '0.0000') : 
+                                   (asset.averagePrice ? asset.averagePrice.toFixed(2) : '0.00') }})
+                          </div>
                         </td>
                         <td class="py-4 px-4 text-center">
                           <div class="flex justify-center gap-2">
@@ -518,6 +708,17 @@ const goToAssetDetail = (assetId: number) => {
                     </div>
                   </div>
                 </div>
+              </div>
+            </FadeIn>
+
+            <!-- Activity Panel -->
+            <FadeIn>
+              <div class="w-full">
+                <div class="flex items-center mb-4">
+                  <font-awesome-icon icon="chart-bar" class="mr-2 text-green-400" />
+                  <h1 class="text-2xl font-bold">{{ t('portfolio.activity') }}</h1>
+                </div>
+                <ActivityPanel />
               </div>
             </FadeIn>
           </div>

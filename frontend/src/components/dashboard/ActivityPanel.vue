@@ -32,19 +32,20 @@ const fetchActivities = async () => {
         id: 'empty',
         title: 'No Recent Activity',
         description: 'Please log in to view your activities',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        type: 'system'
       }];
       activities.value.loading = false;
       return;
     }
     
     // Arrays to hold our activity data
-    let allActivities: {id: string; title: string; description: string; timestamp: string}[] = [];
+    let allActivities: {id: string; title: string; description: string; timestamp: string; type: string}[] = [];
     
     // Fetch transaction data
     try {
       const transactionsResponse = await fetch(
-        `http://localhost:3000/api/transactions/user/${userStore.user.id}/recent?limit=20`, 
+        `http://localhost:3000/api/transactions/user/${userStore.user.id}/recent?limit=50`, 
         {
           headers: {
             'Authorization': `Bearer ${userStore.token}`
@@ -61,7 +62,8 @@ const fetchActivities = async () => {
             id: `t_${transaction.id}`,
             title: transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1),
             description: `${transaction.type === 'deposit' ? 'Added' : 'Transferred'} $${formatPrice(transaction.amount)}`,
-            timestamp: transaction.created_at
+            timestamp: transaction.created_at,
+            type: 'transaction'
           }));
           
           allActivities = [...allActivities, ...transactionActivities];
@@ -74,7 +76,7 @@ const fetchActivities = async () => {
     // Fetch order data
     try {
       const ordersResponse = await fetch(
-        `http://localhost:3000/api/orders/${userStore.user.id}`, 
+        `http://localhost:3000/api/orders/${userStore.user.id}?limit=50`, 
         {
           headers: {
             'Authorization': `Bearer ${userStore.token}`
@@ -91,7 +93,8 @@ const fetchActivities = async () => {
             id: `o_${order.id}`,
             title: `${order.tradeType === 'buy' ? 'Buy' : 'Sell'} Order`,
             description: `${order.tradeType === 'buy' ? 'Bought' : 'Sold'} ${order.assetSymbol} at $${formatPrice(order.price)}`,
-            timestamp: order.createdAt
+            timestamp: order.createdAt,
+            type: 'order'
           }));
           
           allActivities = [...allActivities, ...orderActivities];
@@ -101,20 +104,106 @@ const fetchActivities = async () => {
       console.error('Error fetching orders:', orderErr);
     }
     
+    // Fetch login logs
+    try {
+      const logsResponse = await fetch(
+        `http://localhost:3000/api/users/${userStore.user.id}/logs?limit=50`, 
+        {
+          headers: {
+            'Authorization': `Bearer ${userStore.token}`
+          }
+        }
+      );
+      
+      if (logsResponse.ok) {
+        const logs = await logsResponse.json();
+        
+        if (Array.isArray(logs)) {
+          // Map logs to activities
+          const logActivities = logs.map(log => {
+            let title = 'System Log';
+            let description = 'System activity recorded';
+            
+            // Customize based on log type
+            if (log.action === 'login') {
+              title = 'Account Login';
+              description = `Login from ${log.ip || 'unknown location'}`;
+            } else if (log.action === 'logout') {
+              title = 'Account Logout';
+              description = 'Session ended';
+            } else if (log.action === 'password_change') {
+              title = 'Password Changed';
+              description = 'Account security updated';
+            } else if (log.action === 'profile_update') {
+              title = 'Profile Updated';
+              description = 'Account information changed';
+            } else if (log.action) {
+              title = log.action.charAt(0).toUpperCase() + log.action.slice(1).replace('_', ' ');
+              description = log.details || 'System action performed';
+            }
+            
+            return {
+              id: `l_${log.id}`,
+              title,
+              description,
+              timestamp: log.created_at,
+              type: 'log'
+            };
+          });
+          
+          allActivities = [...allActivities, ...logActivities];
+        }
+      }
+    } catch (logErr) {
+      console.error('Error fetching logs:', logErr);
+    }
+    
+    // Fetch watchlist changes
+    try {
+      const watchlistResponse = await fetch(
+        `http://localhost:3000/api/watchlist/history/${userStore.user.id}?limit=50`, 
+        {
+          headers: {
+            'Authorization': `Bearer ${userStore.token}`
+          }
+        }
+      );
+      
+      if (watchlistResponse.ok) {
+        const watchlistChanges = await watchlistResponse.json();
+        
+        if (Array.isArray(watchlistChanges)) {
+          // Map watchlist changes to activities
+          const watchlistActivities = watchlistChanges.map(change => ({
+            id: `w_${change.id}`,
+            title: change.action === 'add' ? 'Added to Watchlist' : 'Removed from Watchlist',
+            description: `${change.action === 'add' ? 'Started tracking' : 'Stopped tracking'} ${change.symbol}`,
+            timestamp: change.created_at,
+            type: 'watchlist'
+          }));
+          
+          allActivities = [...allActivities, ...watchlistActivities];
+        }
+      }
+    } catch (watchlistErr) {
+      console.error('Error fetching watchlist history:', watchlistErr);
+    }
+    
     // If we have activities, sort and limit them
     if (allActivities.length > 0) {
       // Sort by timestamp (newest first)
       allActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
-      // Limit to 5 most recent
-      activities.value.data = allActivities.slice(0, 5);
+      // Limit to 20 most recent
+      activities.value.data = allActivities.slice(0, 20);
     } else {
       // No activities found
       activities.value.data = [{
         id: 'empty',
         title: 'No Recent Activity',
         description: 'No activity found in your account',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        type: 'system'
       }];
     }
   } catch (err) {
@@ -152,13 +241,39 @@ onMounted(() => {
     </div>
     <div v-else class="activity-items-container">
       <div v-for="activity in activities.data" :key="activity.id" 
-           class="activity-item">
+           class="activity-item"
+           :class="{ 
+             'border-l-green-500': activity.type === 'order',
+             'border-l-purple-500': activity.type === 'transaction',
+             'border-l-blue-500': activity.type === 'log',
+             'border-l-yellow-500': activity.type === 'watchlist',
+             'border-l-gray-500': activity.type === 'system'
+           }">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <div class="mb-1 sm:mb-0">
-            <div class="font-medium text-white">{{ activity.title }}</div>
+            <div class="font-medium text-white flex items-center">
+              <!-- Show different icons based on activity type -->
+              <font-awesome-icon 
+                :icon="
+                  activity.type === 'order' ? 'exchange-alt' : 
+                  activity.type === 'transaction' ? 'money-bill-wave' :
+                  activity.type === 'log' ? 'history' :
+                  activity.type === 'watchlist' ? 'star' : 'info-circle'
+                " 
+                class="mr-2"
+                :class="{ 
+                  'text-green-400': activity.type === 'order',
+                  'text-purple-400': activity.type === 'transaction',
+                  'text-blue-400': activity.type === 'log',
+                  'text-yellow-400': activity.type === 'watchlist',
+                  'text-gray-400': activity.type === 'system'
+                }"
+              />
+              {{ activity.title }}
+            </div>
             <div class="text-xs text-gray-400">{{ new Date(activity.timestamp).toLocaleString() }}</div>
           </div>
-          <div class="text-sm text-gray-400">
+          <div class="text-sm text-gray-300">
             {{ activity.description }}
           </div>
         </div>
@@ -170,7 +285,7 @@ onMounted(() => {
 <style scoped>
 .activity-list {
   height: 100%;
-  max-height: 225px;
+  max-height: 400px; /* Increased height to show more activities */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -187,10 +302,19 @@ onMounted(() => {
 }
 
 .activity-item {
-  padding: 8px;
-  margin-bottom: 6px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
+  border-left-width: 3px;
+  border-left-style: solid;
+  transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .activity-item:last-child {
@@ -213,24 +337,24 @@ onMounted(() => {
 /* Extra small screens (phones) */
 @media (max-width: 479px) {
   .activity-list {
-    max-height: 175px;
+    max-height: 350px;
   }
   
   .activity-item {
-    padding: 6px;
-    margin-bottom: 4px;
+    padding: 10px;
+    margin-bottom: 6px;
   }
 }
 
 /* Small screens (large phones) */
 @media (min-width: 480px) and (max-width: 639px) {
   .activity-list {
-    max-height: 195px;
+    max-height: 350px;
   }
   
   .activity-item {
-    padding: 6px;
-    margin-bottom: 4px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
   }
 }
 
