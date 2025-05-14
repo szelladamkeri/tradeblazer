@@ -12,6 +12,7 @@ import TutorialView from '../views/TutorialView.vue'
 import DepositView from '@/views/DepositView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import WithdrawView from '@/views/WithdrawView.vue'
+import WatchlistView from '@/views/WatchlistView.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
@@ -114,6 +115,12 @@ const router = createRouter({
       path: '/withdraw',
       name: 'withdraw',
       component: WithdrawView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/watchlist',
+      name: 'watchlist',
+      component: WatchlistView,
       meta: { requiresAuth: true }
     },
   ]

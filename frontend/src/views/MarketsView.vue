@@ -34,6 +34,7 @@ const loading = ref(true)
 const error = ref<{ message: string; type: string } | null>(null)
 const searchTerm = ref('')
 const selectedType = ref('all')
+const currentSort = ref('symbol') // Changed default sort to symbol
 
 const { t } = useI18n()
 
@@ -55,7 +56,25 @@ const filteredAssets = computed(() => {
     filtered = filtered.filter(asset => asset.type.toLowerCase() === selectedType.value)
   }
 
-  return filtered
+  // Apply sorting
+  switch (currentSort.value) {
+    case 'price':
+      return [...filtered].sort((a, b) => b.price - a.price)
+    case 'symbol':
+      return [...filtered].sort((a, b) => a.symbol.localeCompare(b.symbol))
+    case 'name':
+      return [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    case 'change':
+      return [...filtered].sort((a, b) => b.change_24h - a.change_24h)
+    case 'market':
+      return [...filtered].sort((a, b) => {
+        const marketCapA = a.market_cap || 0
+        const marketCapB = b.market_cap || 0
+        return marketCapB - marketCapA
+      })
+    default:
+      return filtered
+  }
 })
 
 // Add needsScrolling computed property
@@ -293,7 +312,7 @@ const {
 })
 
 // Keep the filter reset
-watch([searchTerm, selectedType], () => {
+watch([searchTerm, selectedType, currentSort], () => {
   currentPage.value = 1
 })
 
@@ -358,29 +377,76 @@ watch(() => userStore.isAuthenticated, (newValue) => {
               </div>
             </div>
 
-            <!-- Controls -->
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <div class="relative w-full sm:w-64">
-                <input type="text" v-model="searchTerm" :placeholder="t('markets.search')"
-                  class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200" />
-                <font-awesome-icon icon="search"
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
+            <!-- Controls - improved responsive layout -->
+            <div class="flex flex-col w-full md:w-auto gap-3">
+              <!-- Search and filter row -->
+              <div class="flex flex-col sm:flex-row gap-3 w-full">
+                <div class="relative flex-grow">
+                  <input type="text" v-model="searchTerm" :placeholder="t('markets.search')"
+                    class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 px-4 pl-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 transition-all duration-200" />
+                  <font-awesome-icon icon="search"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                </div>
 
-              <!-- Improved custom dropdown -->
-              <div class="relative w-full sm:w-44">
-                <div class="custom-select-wrapper">
-                  <select v-model="selectedType"
-                    class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200">
-                    <option value="all">{{ t('common.all') }}</option>
-                    <option value="stock">{{ t('markets.stocks') }}</option> <!-- Changed key from markets.stock to markets.stocks -->
-                    <option value="crypto">{{ t('markets.crypto') }}</option>
-                    <option value="forex">{{ t('markets.forex') }}</option>
-                  </select>
-                  <div class="custom-select-icon">
-                    <font-awesome-icon icon="chevron-down" class="text-gray-400" />
+                <!-- Improved custom dropdown -->
+                <div class="relative w-full sm:w-44">
+                  <div class="custom-select-wrapper">
+                    <select v-model="selectedType"
+                      class="w-full bg-black/40 backdrop-blur-xl text-white border border-white/10 rounded-lg py-3 px-4 pr-10 focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none focus:bg-black/60 appearance-none transition-all duration-200">
+                      <option value="all">{{ t('common.all') }}</option>
+                      <option value="stock">{{ t('markets.stocks') }}</option> <!-- Changed key from markets.stock to markets.stocks -->
+                      <option value="crypto">{{ t('markets.crypto') }}</option>
+                      <option value="forex">{{ t('markets.forex') }}</option>
+                    </select>
+                    <div class="custom-select-icon">
+                      <font-awesome-icon icon="chevron-down" class="text-gray-400" />
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- Sort buttons in container - improved for responsiveness -->
+              <div class="flex flex-wrap bg-black/40 backdrop-blur-xl p-1.5 rounded-lg border border-white/10">
+                <button 
+                  @click="currentSort = 'symbol'" 
+                  class="sort-btn"
+                  :class="currentSort === 'symbol' ? 'active-sort' : ''"
+                >
+                  <font-awesome-icon icon="sort-alpha-down" class="mr-1 text-xs" />
+                  Sym<span class="hidden sm:inline">bol</span>
+                </button>
+                <button 
+                  @click="currentSort = 'name'" 
+                  class="sort-btn"
+                  :class="currentSort === 'name' ? 'active-sort' : ''"
+                >
+                  <font-awesome-icon icon="font" class="mr-1 text-xs" />
+                  Name
+                </button>
+                <button 
+                  @click="currentSort = 'price'" 
+                  class="sort-btn"
+                  :class="currentSort === 'price' ? 'active-sort' : ''"
+                >
+                  <font-awesome-icon icon="dollar-sign" class="mr-1 text-xs" />
+                  Price
+                </button>
+                <button 
+                  @click="currentSort = 'change'" 
+                  class="sort-btn"
+                  :class="currentSort === 'change' ? 'active-sort' : ''"
+                >
+                  <font-awesome-icon icon="percent" class="mr-1 text-xs" />
+                  <span class="hidden sm:inline">% </span>Chg
+                </button>
+                <button 
+                  @click="currentSort = 'market'" 
+                  class="sort-btn"
+                  :class="currentSort === 'market' ? 'active-sort' : ''"
+                >
+                  <font-awesome-icon icon="chart-pie" class="mr-1 text-xs" />
+                  <span class="hidden sm:inline">Market </span>Cap
+                </button>
               </div>
             </div>
           </div>
@@ -501,44 +567,44 @@ watch(() => userStore.isAuthenticated, (newValue) => {
                     <div v-for="asset in paginatedAssets" :key="asset.id" 
                          class="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-colors shadow-md border border-white/5">
                       <!-- Asset Header -->
-                      <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                          <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                            <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400 text-xl" />
+                      <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                          <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                            <font-awesome-icon :icon="getAssetTypeIcon(asset.type)" class="text-green-400 text-lg" />
                           </div>
                           <div>
-                            <div class="font-medium text-white text-base">{{ asset.name }}</div>
-                            <div class="text-sm text-gray-400">{{ asset.symbol }}</div>
+                            <div class="font-medium text-white text-sm">{{ asset.name }}</div>
+                            <div class="text-xs text-gray-400">{{ asset.symbol }}</div>
                           </div>
                         </div>
-                        <span :class="getChangeClass(asset.change_24h)" class="flex items-center gap-1 text-base font-medium">
+                        <span :class="getChangeClass(asset.change_24h)" class="flex items-center gap-1 text-sm font-medium">
                           <font-awesome-icon :icon="asset.change_24h >= 0 ? 'caret-up' : 'caret-down'" />
                           {{ formatChange(asset.change_24h) }}
                         </span>
                       </div>
                       
                       <!-- Asset Details -->
-                      <div class="grid grid-cols-2 gap-3 mb-5">
-                        <div class="bg-black/20 p-4 rounded-lg">
-                          <div class="text-sm text-gray-400 mb-1">{{ t('markets.price') }}</div>
-                          <div class="font-medium text-white text-lg">{{ formatPrice(getLatestPrice(asset)) }}</div>
+                      <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="bg-black/20 p-2 rounded-lg">
+                          <div class="text-xs text-gray-400 mb-1">{{ t('markets.price') }}</div>
+                          <div class="font-medium text-white text-sm">{{ formatPrice(getLatestPrice(asset)) }}</div>
                         </div>
-                        <div class="bg-black/20 p-4 rounded-lg">
-                          <div class="text-sm text-gray-400 mb-1">{{ t('markets.marketCap') }}</div>
-                          <div class="font-medium text-white text-lg">{{ formatMarketCap(asset.market_cap) }}</div>
+                        <div class="bg-black/20 p-2 rounded-lg">
+                          <div class="text-xs text-gray-400 mb-1">{{ t('markets.marketCap') }}</div>
+                          <div class="font-medium text-white text-sm">{{ formatMarketCap(asset.market_cap) }}</div>
                         </div>
                       </div>
                       
                       <!-- Asset Actions -->
-                      <div class="flex gap-3">
+                      <div class="flex gap-2">
                         <button @click="goToTrade(asset.id)"
-                          class="flex-1 py-4 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium">
+                          class="flex-1 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors flex items-center justify-center gap-1 font-medium text-sm">
                           <font-awesome-icon icon="exchange-alt" />
                           {{ t('markets.trade') }}
                         </button>
                         <button v-if="isLoggedIn" 
                                 @click="toggleWatchlist(asset.id)"
-                                class="w-14 py-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center"
+                                class="w-12 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center"
                                 :class="{ 'text-green-400': watchlistStatuses[asset.id] }">
                           <font-awesome-icon icon="star" :class="{ 'animate-pulse': watchlistLoadingStates[asset.id] }" />
                         </button>
@@ -547,18 +613,20 @@ watch(() => userStore.isAuthenticated, (newValue) => {
                   </div>
                 </div>
                 
-                <!-- Pagination controls moved INSIDE panel-inner to match PortfolioView -->
-                <div class="mt-4 flex flex-col sm:flex-row items-center justify-between px-4 border-t border-white/10 pt-4 gap-4">
-                  <div class="text-sm text-gray-400 text-center sm:text-left">
-                    {{ t('markets.pagination.showing') }} {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }}
-                    <!-- {{ t('markets.pagination.to') }} -->
+                <!-- Pagination controls - improved for mobile -->
+                <div class="mt-4 flex flex-col sm:flex-row items-center justify-between px-2 sm:px-4 border-t border-white/10 pt-4 gap-3">
+                  <div class="text-xs sm:text-sm text-gray-400 text-center sm:text-left">
+                    <span class="hidden xs:inline">{{ t('markets.pagination.showing') }}</span>
+                    {{ filteredAssets.length ? ((currentPage - 1) * visibleItems) + 1 : 0 }}
                     -
-                    {{ Math.min(currentPage * visibleItems, filteredAssets.length) }} {{ t('markets.pagination.of') }}
-                    {{ filteredAssets.length }} {{ t('markets.pagination.assets') }}
+                    {{ Math.min(currentPage * visibleItems, filteredAssets.length) }}
+                    <span class="hidden xs:inline">{{ t('markets.pagination.of') }}</span>
+                    / {{ filteredAssets.length }}
+                    <span class="hidden sm:inline">{{ t('markets.pagination.assets') }}</span>
                   </div>
                   <div class="flex items-center gap-2">
                     <button @click="prevPage" :disabled="currentPage === 1" 
-                      class="w-10 h-10 rounded-lg transition-colors flex items-center justify-center"
+                      class="w-8 sm:w-10 h-8 sm:h-10 rounded-lg transition-colors flex items-center justify-center"
                       :class="[
                         currentPage === 1
                           ? 'bg-white/5 text-gray-500 cursor-not-allowed'
@@ -567,12 +635,12 @@ watch(() => userStore.isAuthenticated, (newValue) => {
                       <font-awesome-icon icon="chevron-left" />
                     </button>
 
-                    <span class="text-gray-400">
-                      {{ t('markets.pagination.page') }} {{ currentPage }} {{ t('markets.pagination.of') }} {{ totalPages }}
+                    <span class="text-xs sm:text-sm text-gray-400 whitespace-nowrap">
+                      {{ currentPage }} / {{ totalPages }}
                     </span>
 
                     <button @click="nextPage" :disabled="currentPage === totalPages"
-                      class="w-10 h-10 rounded-lg transition-colors flex items-center justify-center" 
+                      class="w-8 sm:w-10 h-8 sm:h-10 rounded-lg transition-colors flex items-center justify-center" 
                       :class="[
                         currentPage === totalPages
                           ? 'bg-white/5 text-gray-500 cursor-not-allowed'
@@ -657,19 +725,48 @@ watch(() => userStore.isAuthenticated, (newValue) => {
     background-color: rgba(255, 255, 255, 0.08);
   }
   
+  /* Sort buttons container styling handled by dedicated classes */
+
+  /* Better spacing for stacked controls */
+  .flex.flex-col.w-full.md\:w-auto.gap-3 {
+    margin-bottom: 0.75rem;
+  }
+  
   /* Make touch targets bigger */
-  .flex-1.py-4, .w-14.py-4 {
-    min-height: 52px;
+  .py-2 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+  
+  /* Smaller symbols on cards for better space efficiency */
+  .text-lg {
+    font-size: 1rem;
+  }
+  
+  /* Tighter asset cards */
+  .md\:hidden.space-y-4 {
+    margin-top: 0.5rem;
+  }
+  
+  .md\:hidden.space-y-4 > div {
+    margin-bottom: 0.75rem;
   }
   
   /* Ensure pagination is easy to tap */
-  .px-3.py-1 {
-    padding: 0.625rem 0.75rem;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .w-8 {
+    width: 2.25rem;
+  }
+  
+  .h-8 {
+    height: 2.25rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 350px) {  
+  /* Simplify pagination for tiny screens */
+  .whitespace-nowrap {
+    font-size: 0.7rem;
   }
 }
 
@@ -681,27 +778,22 @@ watch(() => userStore.isAuthenticated, (newValue) => {
     padding-right: 1rem;
   }
   
-  /* Ensure action buttons are properly sized */
-  .px-4.py-2 {
-    padding: 0.5rem 1rem;
+  /* Add padding to headers */
+  .flex.flex-col.md\:flex-row.items-start.md\:items-center {
+    padding: 0 0.5rem;
   }
   
-  /* Ensure pagination controls are easy to tap */
-  .px-3.py-1 {
-    padding: 0.5rem 0.75rem;
-    min-width: 40px;
-  }
+  /* Tablet sort button styles handled by dedicated classes */
 }
 
-/* Controls optimization for tablet */
-@media (max-width: 768px) {
-  /* Improved controls layout for small devices */
-  .flex-col.sm\:flex-row.gap-3.w-full.md\:w-auto {
-    width: 100%;
-  }
-  
-  .sm\:w-64, .sm\:w-44 {
-    width: 100%;
+/* Add XS breakpoint class */
+.xs\:inline {
+  display: none;
+}
+
+@media (min-width: 400px) {
+  .xs\:inline {
+    display: inline;
   }
 }
 
@@ -847,6 +939,45 @@ select {
   input,
   select {
     height: 48px;
+  }
+}
+
+/* Sort buttons styling */
+.sort-btn {
+  @apply flex items-center justify-center px-2 sm:px-3 py-1.5 mx-0.5 my-0.5 rounded transition-colors text-sm;
+  flex: 1 1 auto;
+  min-width: 60px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+}
+
+.sort-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.active-sort {
+  background-color: rgba(34, 197, 94, 0.6);
+  color: white;
+  border-color: rgba(74, 222, 128, 0.6);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+@media (max-width: 640px) {
+  .sort-btn {
+    min-width: calc(33% - 8px);
+    margin: 2px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .sort-btn {
+    min-width: calc(50% - 6px);
+    padding: 5px 6px;
   }
 }
 </style>
