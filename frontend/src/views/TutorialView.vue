@@ -344,19 +344,11 @@ const setActiveSection = (section: string) => {
                       <p class="text-gray-300 mb-3">
                         {{ t('tutorial.websiteTutorial.gettingHelp.description') }}
                       </p>
-                      <div class="grid md:grid-cols-3 gap-3">
-                        <button class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
-                          <font-awesome-icon icon="circle-question" class="text-green-400 mb-1" />
-                          <p class="text-white text-sm">{{ t('tutorial.websiteTutorial.gettingHelp.helpCenter') }}</p>
-                        </button>
-                        <button class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
-                          <font-awesome-icon icon="comments" class="text-green-400 mb-1" />
-                          <p class="text-white text-sm">{{ t('tutorial.websiteTutorial.gettingHelp.liveChat') }}</p>
-                        </button>
-                        <button class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
+                      <div class="grid md:grid-cols-1 gap-3">
+                        <a href="mailto:support@tradeblazer.com" class="bg-white/10 p-3 rounded-lg hover:bg-white/20 transition-colors text-center">
                           <font-awesome-icon icon="envelope" class="text-green-400 mb-1" />
                           <p class="text-white text-sm">{{ t('tutorial.websiteTutorial.gettingHelp.emailSupport') }}</p>
-                        </button>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -888,26 +880,27 @@ const setActiveSection = (section: string) => {
 
 /* Dashboard panel styling to match other views */
 .dashboard-panel {
-  @apply relative overflow-hidden;
+  position: relative;
+  overflow: hidden;
   border-radius: 0.75rem;
   height: auto !important;
   min-height: 200px;
 }
 
 .panel-inner {
-  @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
+  padding: 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  position: relative;
+  z-index: 10;
   background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
   backdrop-filter: blur(15px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.1) inset;
   transition: all 0.4s ease;
-  border-radius: 0.75rem;
-  position: relative;
   overflow: hidden;
-}
-
-.panel-inner:hover {
-  box-shadow: 0 12px 36px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(74, 222, 128, 0.2) inset;
-  transform: translateY(-2px);
 }
 
 /* Futuristic border/line effects */

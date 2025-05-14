@@ -57,10 +57,10 @@
 
           <!-- Trading Panel -->
           <div class="bg-white/10 p-6 rounded-xl border border-white/10" v-if="isLoggedIn">
-            <h3 class="text-xl font-bold text-white mb-4">Trade Asset</h3>
+            <h3 class="text-xl font-bold text-white mb-4">{{ t('tradeView.tradeAsset') }}</h3>
             <div class="space-y-4">
               <div>
-                <label class="block text-gray-200 text-sm font-medium mb-2">Quick Trade</label>
+                <label class="block text-gray-200 text-sm font-medium mb-2">{{ t('tradeView.quickTrade') }}</label>
                 <div class="flex gap-2">
                   <button v-for="preset in tradePresets" :key="preset.name" @click="applyPreset(preset.value)"
                     class="flex-1 py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors">
@@ -70,12 +70,12 @@
               </div>
 
               <div>
-                <label class="block text-gray-200 text-sm font-medium mb-2">Trade Type</label>
+                <label class="block text-gray-200 text-sm font-medium mb-2">{{ t('tradeView.tradeType') }}</label>
                 <div class="relative">
                   <select v-model="tradeType"
                     class="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-white appearance-none pr-10 focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/20">
-                    <option value="buy">Buy</option>
-                    <option value="sell">Sell</option>
+                    <option value="buy">{{ t('trade.buy') }}</option>
+                    <option value="sell">{{ t('trade.sell') }}</option>
                   </select>
                   <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                     <font-awesome-icon icon="chevron-down" class="text-gray-400" />
@@ -84,17 +84,17 @@
               </div>
 
               <div>
-                <label class="block text-gray-200 text-sm font-medium mb-2">Quantity</label>
+                <label class="block text-gray-200 text-sm font-medium mb-2">{{ t('tradeView.quantity') }}</label>
                 <input type="number" v-model="quantity" min="0.00000001" step="0.00000001"
                   class="w-full p-3 rounded-lg bg-white/10 border border-white/10 text-white">
                 <div v-if="tradeType === 'sell'" class="text-xs text-gray-400 mt-1">
-                  You own: {{ ownedQuantity }} {{ asset.symbol }}
+                  {{ t('tradeView.youOwn') }}: {{ ownedQuantity }} {{ asset.symbol }}
                 </div>
               </div>
 
               <div class="p-4 bg-black/30 rounded-lg mt-6">
                 <div class="flex justify-between items-center">
-                  <span class="text-gray-300">Total Value:</span>
+                  <span class="text-gray-300">{{ t('tradeView.totalValue') }}:</span>
                   <span class="text-green-400 text-xl font-bold">
                     ${{ formatPrice(quantity * asset.price) }}
                   </span>
@@ -108,26 +108,26 @@
 
               <!-- Display order success message -->
               <div v-if="orderSuccess" class="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
-                <div class="text-green-400 text-sm">Trade executed successfully!</div>
+                <div class="text-green-400 text-sm">{{ t('tradeView.tradeSuccess') }}</div>
               </div>
 
               <div class="pt-4 border-t border-white/10">
                 <button @click="showAlertForm = !showAlertForm"
                   class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
                   <font-awesome-icon icon="bell" />
-                  Set Price Alert
+                  {{ t('tradeView.setPriceAlert') }}
                 </button>
               </div>
 
               <div v-if="showAlertForm" class="space-y-4 p-4 bg-black/20 rounded-lg">
                 <div class="flex gap-4">
                   <div class="flex-1">
-                    <label class="block text-gray-200 text-sm font-medium mb-2">Alert Type</label>
+                    <label class="block text-gray-200 text-sm font-medium mb-2">{{ t('tradeView.alertType') }}</label>
                     <div class="relative">
                       <select v-model="alertType"
                         class="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-white appearance-none pr-10">
-                        <option value="above">Price Above</option>
-                        <option value="below">Price Below</option>
+                        <option value="above">{{ t('tradeView.priceAbove') }}</option>
+                        <option value="below">{{ t('tradeView.priceBelow') }}</option>
                       </select>
                       <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                         <font-awesome-icon icon="chevron-down" class="text-gray-400" />
@@ -135,7 +135,7 @@
                     </div>
                   </div>
                   <div class="flex-1">
-                    <label class="block text-gray-200 text-sm font-medium mb-2">Price</label>
+                    <label class="block text-gray-200 text-sm font-medium mb-2">{{ t('tradeView.price') }}</label>
                     <input v-model.number="alertPrice" type="number" min="0" step="0.01"
                       class="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-white" />
                   </div>
@@ -148,26 +148,26 @@
 
                 <div v-if="alertSuccess" 
                      class="mt-2 p-2 bg-green-500/20 text-green-400 rounded-lg text-center">
-                  Price alert set successfully!
+                  {{ t('tradeView.alertSuccess') }}
                 </div>
 
                 <button @click="handleSetAlert"
                   class="w-full py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors">
-                  Set Alert
+                  {{ t('tradeView.setAlert') }}
                 </button>
               </div>
 
               <button @click="handleTrade" :disabled="!canTrade"
                 class="w-full mt-4 py-3 px-5 bg-green-600 disabled:bg-green-600/50 text-white rounded-lg">
-                Execute Trade
+                {{ t('tradeView.executeTrade') }}
               </button>
             </div>
           </div>
 
           <div v-else class="bg-white/10 p-6 rounded-xl border border-white/10 text-center">
-            <p class="text-gray-300 mb-4">Please log in to trade this asset</p>
-            <button @click="$router.push('/login')" class="py-3 px-6 bg-green-600 text-white rounded-lg">
-              Go to Login
+            <p class="text-gray-300 mb-4">{{ t('tradeView.pleaseLogin') }}</p>
+            <button @click="router.push('/login')" class="py-3 px-6 bg-green-600 text-white rounded-lg">
+              {{ t('tradeView.goToLogin') }}
             </button>
           </div>
         </div>
@@ -180,6 +180,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/PageHeader.vue'
 import PageMain from '@/components/PageMain.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -188,6 +189,20 @@ import { handleApiError } from '@/utils/errorHandler'
 import { useApiHeartbeat } from '@/composables/useApiHeartbeat'
 import FullPageError from '@/components/FullPageError.vue'
 import PriceChart from '@/components/PriceChart.vue'
+
+const { t } = useI18n()
+
+// Add User interface
+interface User {
+  id: number
+  username: string
+  email: string
+  displayName?: string
+  type: 'A' | 'U'
+  role?: 'A' | 'U'
+  created_at?: string
+  balance: number
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -258,19 +273,18 @@ const transactionFee = computed(() => {
   return quantity.value * asset.value.price * 0.001 // 0.1% fee
 })
 
-// Update canTrade computed to include fees
+// Update canTrade computed with proper type checking
 const canTrade = computed(() => {
-  if (!isLoggedIn.value || !asset.value || !quantity.value) return false
+  const user = userStore.user as User | null
+  if (!isLoggedIn.value || !asset.value || !quantity.value || !user) return false
 
   const totalCost = quantity.value * asset.value.price + transactionFee.value
-  const userBalance = userStore.user?.balance || 0
 
   if (tradeType.value === 'sell') {
-    // Check if the user has enough of the asset to sell
     return quantity.value <= ownedQuantity.value
   }
 
-  return userBalance >= totalCost
+  return user.balance >= totalCost
 })
 
 // Price formatting
@@ -370,8 +384,10 @@ const fetchOwnedQuantity = async (assetId: number) => {
   }
 }
 
-// Add a new function to check watchlist status
-const checkWatchlistStatus = async (assetId) => {
+// Update checkWatchlistStatus with proper type
+const checkWatchlistStatus = async (assetId: number) => {
+  if (!userStore.user) return
+  
   try {
     console.log('Checking watchlist status for asset:', assetId)
     const response = await fetch(
@@ -583,10 +599,11 @@ const toggleWatchlist = async () => {
   }
 }
 
-// Handle preset selection
+// Update applyPreset with proper type checking
 const applyPreset = (value: number) => {
-  if (!asset.value || !userStore.user?.balance) return
-  const maxQuantity = userStore.user.balance / asset.value.price
+  const user = userStore.user as User | null
+  if (!asset.value || !user?.balance) return
+  const maxQuantity = user.balance / asset.value.price
   quantity.value = Number((maxQuantity * value).toFixed(8))
 }
 

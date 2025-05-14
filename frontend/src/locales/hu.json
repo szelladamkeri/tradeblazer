@@ -8,6 +8,7 @@
     "register": "Regisztráció",
     "profile": "Profil",
     "deposit": "Befizetés",
+    "withdraw": "Kifizetés",
     "signOut": "Kijelentkezés",
     "admin": "Admin"
   },
@@ -146,6 +147,29 @@
     "buyingPower": "Vásárlóerő",
     "assetPrice": "Eszköz ára",
     "currentPrice": "Jelenlegi ár"
+  },
+  "tradeView": {
+    "quickTrade": "Gyors kereskedés",
+    "tradeAsset": "Eszköz kereskedése",
+    "tradeType": "Kereskedés típusa",
+    "quantity": "Mennyiség",
+    "totalValue": "Teljes érték",
+    "youOwn": "Birtokodban van",
+    "setPriceAlert": "Árriasztás beállítása",
+    "alertType": "Riasztás típusa",
+    "price": "Ár",
+    "setAlert": "Riasztás beállítása",
+    "priceAbove": "Ár felett",
+    "priceBelow": "Ár alatt",
+    "executeTrade": "Kereskedés végrehajtása",
+    "pleaseLogin": "Kérjük, jelentkezz be az eszközzel való kereskedéshez",
+    "goToLogin": "Irány a bejelentkezés",
+    "alertSuccess": "Árriasztás sikeresen beállítva!",
+    "tradeSuccess": "Kereskedés sikeresen végrehajtva!",
+    "invalidPrice": "Kérjük, adj meg egy érvényes árat",
+    "priceToHigh": "A riasztási ár nem lehet több mint az aktuális ár 1000%-a",
+    "alertSetupFailed": "Riasztás beállítása sikertelen",
+    "insufficientQuantity": "Csak {quantity} egységgel rendelkezel ebből az eszközből. Nem adhatsz el többet, mint amennyid van."
   },
   "profile": {
     "title": "Profil",

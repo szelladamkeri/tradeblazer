@@ -8,6 +8,7 @@
     "register": "Register",
     "profile": "Profile",
     "deposit": "Deposit",
+    "withdraw": "Withdraw",
     "signOut": "Sign out",
     "admin": "Admin"
   },
@@ -30,7 +31,8 @@
     "title": "Dashboard",
     "welcome": "Welcome to TradeBlazer",
     "welcomeMessage": "Your all-in-one trading platform for stocks, cryptocurrencies, and forex. Start trading with confidence.",
-    "marketOverview": "Market Overview",    "trending": "Trending",
+    "marketOverview": "Market Overview",
+    "trending": "Trending",
     "recentActivity": "Recent Activity",
     "recent-activity": "Recent Activity",
     "portfolioSummary": "Portfolio Summary",
@@ -127,6 +129,29 @@
     "assetPrice": "Asset Price",
     "currentPrice": "Current Price"
   },
+  "tradeView": {
+    "quickTrade": "Quick Trade",
+    "tradeAsset": "Trade Asset",
+    "tradeType": "Trade Type",
+    "quantity": "Quantity",
+    "totalValue": "Total Value",
+    "youOwn": "You own",
+    "setPriceAlert": "Set Price Alert",
+    "alertType": "Alert Type",
+    "price": "Price",
+    "setAlert": "Set Alert",
+    "priceAbove": "Price Above",
+    "priceBelow": "Price Below",
+    "executeTrade": "Execute Trade",
+    "pleaseLogin": "Please log in to trade this asset",
+    "goToLogin": "Go to Login",
+    "alertSuccess": "Price alert set successfully!",
+    "tradeSuccess": "Trade executed successfully!",
+    "invalidPrice": "Please enter a valid price",
+    "priceToHigh": "Alert price cannot be more than 1000% of current price",
+    "alertSetupFailed": "Failed to set alert",
+    "insufficientQuantity": "You only own {quantity} units of this asset. You cannot sell more than you own."
+  },
   "profile": {
     "title": "Profile",
     "personalInfo": "Personal Information",
@@ -190,7 +215,8 @@
       "users": "users",
       "page": "Page"
     }
-  },  "tutorial": {
+  },
+  "tutorial": {
     "title": "Tutorial Guide",
     "subtitle": "Guide to using TradeBlazer",
     "basicConcepts": "Basic Concepts",
