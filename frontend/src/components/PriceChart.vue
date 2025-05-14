@@ -18,13 +18,7 @@
         <!-- Move controls to top container with proper spacing -->
         <div class="absolute top-0 left-0 right-0 p-4 z-10 flex justify-between">
             <div class="flex gap-2">
-                <!-- Debug Email Button -->
-                <button @click="sendDebugEmail"
-                    class="px-3 py-1 rounded text-xs font-medium transition-colors bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
-                    Debug Email
-                </button>
-            </div>
-            <div class="flex gap-2">
+                <!-- TimeFrames -->
                 <button v-for="period in timeframes" :key="period.value" @click="updateTimeframe(period.value)" :class="[
                     'px-3 py-1 rounded text-xs font-medium transition-colors',
                     selectedTimeframe === period.value
@@ -57,6 +51,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import Chart from 'chart.js/auto'
+import type { ChartConfiguration, TooltipItem } from 'chart.js'
 import 'chartjs-adapter-date-fns'
 
 const props = defineProps({
@@ -85,10 +80,19 @@ const timeframes = [
     { label: '1W', value: '1W' },
     { label: '1M', value: '1M' },
     { label: '1Y', value: '1Y' }
-]
+] as const
+
+type TimeFrame = typeof timeframes[number]['value']
+type TemplateDataType = {
+    [K in TimeFrame]: {
+        timestamps: string[];
+        prices: number[];
+        volumes: number[];
+    }
+}
 
 // Template data for price history - this way we don't need complex adapters
-const templateData = {
+const templateData: TemplateDataType = {
     '1D': {
         timestamps: Array.from({ length: 24 }, (_, i) => {
             const date = new Date()
@@ -153,9 +157,9 @@ const fetchPriceHistory = async () => {
         const asset = await assetResponse.json()
 
         // Get the template data and convert timestamps to Date objects
-        const data = templateData[selectedTimeframe.value]
+        const data = templateData[selectedTimeframe.value as TimeFrame]
         const processedData = {
-            timestamps: data.timestamps.map(ts => new Date(ts)),
+            timestamps: data.timestamps.map((ts: string) => new Date(ts)),
             prices: data.prices,
             volumes: data.volumes
         }
@@ -196,7 +200,7 @@ const handleTimeRangeChange = () => {
 }
 
 // Modify updateTimeframe to reset timeRange
-const updateTimeframe = (timeframe: string) => {
+const updateTimeframe = (timeframe: TimeFrame) => {
     selectedTimeframe.value = timeframe
     if (timeframe === '1Y') {
         timeRange.value = 365
@@ -214,7 +218,7 @@ const createChart = (data: { timestamps: Date[], prices: number[], volumes: numb
 
     const timeUnit = selectedTimeframe.value === '1D' ? 'hour' : 'day'
 
-    const chartConfig = {
+    const chartConfig: ChartConfiguration = {
         type: 'line',
         data: {
             labels: data.timestamps,
@@ -246,14 +250,14 @@ const createChart = (data: { timestamps: Date[], prices: number[], volumes: numb
                         unit: timeUnit,
                         displayFormats: {
                             hour: 'HH:mm',
-                            day: 'MMM d', // Changed from 'MMM D' to 'MMM d'
+                            day: 'MMM d',
                             week: 'MMM d',
                             month: 'MMM yyyy'
                         }
                     },
                     grid: {
                         display: false,
-                        drawBorder: false
+                        color: 'transparent'
                     },
                     ticks: {
                         source: 'auto',
@@ -263,12 +267,16 @@ const createChart = (data: { timestamps: Date[], prices: number[], volumes: numb
                 },
                 y: {
                     grid: {
-                        color: 'rgba(255,255,255,0.1)',
-                        drawBorder: false
+                        color: 'rgba(255,255,255,0.1)'
                     },
                     ticks: {
                         color: 'rgba(255,255,255,0.5)',
-                        callback: (value) => `$${value.toLocaleString()}`
+                        callback: function(value: string | number) {
+                            if (typeof value === 'number') {
+                                return `$${value.toLocaleString()}`
+                            }
+                            return value
+                        }
                     }
                 }
             },
@@ -284,8 +292,8 @@ const createChart = (data: { timestamps: Date[], prices: number[], volumes: numb
                     bodyColor: 'rgba(255,255,255,0.8)',
                     displayColors: false,
                     callbacks: {
-                        label: (context) => `$${context.parsed.y.toLocaleString()}`,
-                        title: (tooltipItems) => {
+                        label: (context: TooltipItem<'line'>) => `$${context.parsed.y.toLocaleString()}`,
+                        title: (tooltipItems: TooltipItem<'line'>[]) => {
                             const date = tooltipItems[0].parsed.x
                             return new Date(date).toLocaleString()
                         }
@@ -297,30 +305,6 @@ const createChart = (data: { timestamps: Date[], prices: number[], volumes: numb
 
     chart.value = new Chart(ctx, chartConfig)
 }
-
-// Add debug email function
-const sendDebugEmail = async (recipient = '') => {
-    try {
-        const response = await fetch('http://localhost:3000/api/debug/email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                recipient: recipient
-            })
-        })
-        const data = await response.text()
-        if (!response.ok) {
-            throw new Error(`Failed to send debug email: ${response.status} ${response.statusText}\n${data}`)
-        }
-        alert('Debug email sent successfully!')
-    } catch (err) {
-        console.error('Debug email error:', err)
-        alert(`Debug email error: ${err instanceof Error ? err.message : String(err)}`)
-    }
-}
-//sendDebugEmail("aranyosi.daniel-2020@keri.mako.hu");
 
 const destroyChart = () => {
     if (chart.value) {
@@ -348,11 +332,13 @@ onUnmounted(() => {
 /* Add custom slider styling */
 input[type="range"] {
     -webkit-appearance: none;
+    appearance: none;
     background: transparent;
 }
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     height: 16px;
     width: 16px;
     border-radius: 50%;
