@@ -748,11 +748,6 @@ watch(() => userStore.isAuthenticated, (newValue) => {
   background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
 }
 
-/* Update corner decorations z-index */
-.corner-decor {
-  z-index: 31;
-}
-
 /* Decorative corner elements */
 .corner-decor {
   position: absolute;

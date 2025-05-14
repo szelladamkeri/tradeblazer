@@ -555,14 +555,9 @@ input {
   flex: 1 !important;
 }
 
-/* Remove height property that causes jumping */
-.edit-profile-view {
-  height: auto !important;
-  min-height: 100vh !important;
-}
-
 /* Make this view take up all available space */
 .edit-profile-view {
   height: 100%;
+  min-height: 100vh !important;
 }
 </style>

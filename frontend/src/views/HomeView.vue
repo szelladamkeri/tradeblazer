@@ -156,7 +156,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 <template>
   <div class="home-view view-container">
     <PageHeader @mousemove="handleHeaderMouseMove" class="custom-header" />
-    <PageMain>
+    <PageMain class="flex-1 overflow-hidden">
       <template v-if="!userStore.isAuthenticated">
         <div class="w-full h-full overflow-auto">
           <div class="landing-page">
@@ -345,7 +345,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
       <!-- Rest of the existing authenticated user template -->
       <template v-else>
-        <div class="w-full px-2 sm:px-4 py-4">
+        <div class="w-full h-full px-2 sm:px-4 py-4 overflow-auto">
           <div class="max-w-7xl mx-auto w-full">
             <!-- Panels Grid -->
             <div class="dashboard-grid">
@@ -447,7 +447,7 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 /* Landing page */
 .landing-page {
-  @apply w-full;
+  width: 100%;
   min-height: 100%;
 }
 
@@ -467,11 +467,12 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
 
 /* Layout fixes */
 :deep(.page-main) {
-  min-height: 0 !important;
   display: flex !important;
   flex-direction: column !important;
-  flex: 1 !important;
-  overflow: visible !important;
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
 .hero-section {
@@ -487,23 +488,32 @@ const handleHeaderMouseMove = (event: MouseEvent) => {
   z-index: 2;
 }
 
+.home-view {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 /* Dashboard grid layout */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
   width: 100%;
+  min-height: 0;
+  padding-bottom: 1rem;
 }
 
 .dashboard-grid-item {
   width: 100%;
   min-width: 0; /* Important for preventing grid item overflow */
+  height: fit-content;
 }
 
 /* Small screens (tablets) */
 @media (min-width: 640px) and (max-width: 1023px) {
   .dashboard-grid {
-    display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-auto-flow: row;
     grid-auto-rows: auto;

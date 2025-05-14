@@ -172,14 +172,6 @@ watch(searchQuery, () => {
   }
 })
 
-// Ensure cleanup on component unmount
-onUnmounted(() => {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout)
-    searchTimeout = null
-  }
-})
-
 const closeSearchResults = () => {
   showSearchResults.value = false
 }
@@ -244,6 +236,10 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+    searchTimeout = null
+  }
   window.removeEventListener('resize', updateMenuOnResize)
   document.removeEventListener('click', closeDropdownOnClickOutside)
   document.removeEventListener('click', closeSearchResultsOnClickOutside)
@@ -857,43 +853,10 @@ h3 {
   }
 }
 
-.router-link-active {
-  @apply text-green-400;
-}
-
-/* CRITICAL: Match exactly PageMain's styling */
-.page-header {
-  width: 100% !important;
-  max-width: 1280px !important;
-  margin: 0 auto !important;
-  box-sizing: border-box !important;
-  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(74, 222, 128, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
-  border-radius: 0.75rem;
-  overflow: visible !important;
-  /* IMPORTANT: Change this from 'hidden' to 'visible' */
-}
-
-/* Remove all conflicting background/border styles from header element */
-header {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Prevent any additional styling that would override */
-header::before,
-header::after {
-  display: none !important;
-}
-
 /* The wrapper element needs appropriate spacing */
 .component-global-wrapper {
+  position: relative !important;
+  z-index: 50 !important;
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
@@ -902,31 +865,7 @@ header::after {
   box-sizing: border-box !important;
 }
 
-.page-header-wrapper {
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* Fix media queries to match PageMain exactly */
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 95vw !important;
-  }
-}
-
-@media (max-width: 1100px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 95vw !important;
-  }
-}
-
 @media (max-width: 640px) {
-  .page-header {
-    width: calc(100vw - 2rem) !important;
-    max-width: calc(100vw - 2rem) !important;
-  }
 
   .component-global-wrapper {
     padding-top: 0.5rem !important;
@@ -935,10 +874,6 @@ header::after {
 }
 
 @media (max-width: 640px) {
-  header {
-    min-height: 4rem;
-    height: auto;
-  }
 
   .px-2.sm\:px-4.py-3 {
     padding-top: 0.875rem;
@@ -946,35 +881,12 @@ header::after {
   }
 }
 
-/* Cleanup conflicting styles */
 .futuristic-bg,
 .corner-accent,
 .corner-decor {
   display: none !important;
 }
 
-/* Add proper backdrop filter */
-header {
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
-  min-width: unset;
-  width: 100%;
-}
-
-nav {
-  flex-shrink: 0;
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* IE and Edge */
-}
-
-nav::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Opera */
-}
-
-/* Adjust breakpoint for mobile menu */
 @media (max-width: 1024px) {
   .sm\:hidden {
     display: block;
@@ -995,104 +907,40 @@ nav::-webkit-scrollbar {
   }
 }
 
-/* Keep nav items from shrinking */
-:deep(.header-link) {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-/* Match PageMain blur effect */
-header {
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-/* Ensure nav items don't shrink */
 nav {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   flex-shrink: 0;
 }
 
-/* Make nav links more compact on smaller screens */
+nav::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   nav {
     font-size: 0.875rem;
   }
 }
 
-/* Ensure HeaderLink components don't shrink */
 :deep(.header-link) {
+  flex: 0 0 auto;
   flex-shrink: 0;
   white-space: nowrap;
-}
-
-/* Add z-index documentation and standardization */
-/* Z-index hierarchy documentation
- * This component establishes the base z-index hierarchy used throughout the application.
- * The values are defined in App.vue and used consistently across all views:
- * 
- * --z-background: 1    (Background elements)
- * --z-base: 10        (Base content layer)
- * --z-content: 20     (Main content)
- * --z-header: 50      (Header container)
- * --z-dropdown: 60    (Dropdown menus)
- * --z-mobile-menu: 70 (Mobile navigation)
- * --z-modal: 100      (Modal overlays)
- * --z-dialog: 150     (Dialog boxes)
- * 
- * Usage:
- * - Header container: var(--z-header)
- * - Dropdown menus: var(--z-dropdown)
- * - Mobile menu: var(--z-mobile-menu)
- */
-
-/* Override any existing z-index values */
-.page-header {
-  z-index: var(--z-header) !important;
-  position: relative;
 }
 
 .dropdown-menu {
   z-index: var(--z-dropdown) !important;
 }
 
-.mobile-menu {
-  z-index: var(--z-mobile-menu) !important;
-}
-
-/* Ensure proper stacking context */
-.page-header {
-  isolation: isolate;
-}
-
-/* Allow dropdowns to overflow */
 .dropdown-container {
   overflow: visible !important;
 }
 
-/* Add z-index for dropdown */
-.z-50 {
-  z-index: 50;
-}
-
-/* Update z-index classes */
-.z-\[51\] {
-  z-index: 51;
-}
-
-/* Profile dropdown should be higher than header */
 .absolute.right-0 {
   z-index: 52;
 }
 
-/* Remove any lower z-index values that might conflict */
-.z-\[100\],
-.z-\[101\],
-.z-\[102\] {
-  z-index: unset;
-}
-
-/* Ensure language dropdown is visible */
 div[v-show="showLanguageDropdown"] {
   z-index: 9999 !important;
   position: absolute !important;
@@ -1105,14 +953,12 @@ div[v-show="showLanguageDropdown"] {
   overflow: visible !important;
 }
 
-/* Add background color for .bg-black */
 .bg-black {
   background-color: #000000;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-/* Remove hover backgrounds and only keep text color changes */
 router-link:hover,
 button:hover {
   @apply text-green-400;
@@ -1126,93 +972,46 @@ button:hover {
   @apply hover:text-red-300 transition-colors;
 }
 
-/* Update dropdown menu items to preserve the glow effect */
 :deep(.dropdown-item:hover) {
   @apply text-green-400 bg-white/10;
-}
-
-/* Remove any remaining hover:bg classes */
-[class*='hover:bg'] {}
-
-/* Update hover behaviors to preserve the glow */
-.router-link-active {
-  @apply text-green-400 bg-green-500/20;
-}
-
-/* Keep the glow effect - remove these overrides */
-:deep(a),
-:deep(button) {
-  @apply transition-colors;
-}
-
-/* Update dropdown menu items to only change text color on hover */
-:deep(.dropdown-item:hover) {
-  @apply text-green-400;
   background: none;
 }
 
-/* Remove any remaining hover:bg classes */
-[class*='hover:bg'] {
-  @apply hover:bg-transparent !important;
-}
-
-/* Update hover behaviors */
 .router-link-active {
-  @apply text-green-400;
+  color: #4ade80; /* text-green-400 */
+  background-color: rgba(74, 222, 128, 0.2); /* bg-green-500/20 */
 }
 
-/* Remove hover backgrounds and only keep text color changes */
 :deep(a),
 :deep(button) {
+  @apply transition-colors;
   @apply hover:bg-transparent transition-colors;
-}
-
-/* Ensure mobile menu items follow the same pattern */
-.mobile-nav-item {
-  @apply hover:bg-transparent;
-}
-
-/* Override any remaining hover:bg classes */
-.mobile-nav-item,
-:deep(a),
-:deep(button) {
-  @apply hover:bg-white/5 !important;
-}
-
-/* Update router-link-active for profile dropdown */
-.router-link.router-link-active {
-  @apply bg-green-500/10 text-green-400;
-}
-
-/* Remove the general background removal for this specific case */
-.router-link.router-link-active:hover {
-  @apply bg-green-500/10;
-}
-
-/* Update dropdown styling */
-.router-link,
-button {
-  @apply relative hover:bg-white/5 transition-all duration-200;
-}
-
-/* Remove conflicting hover styles */
-[class*='hover:bg'] {
-  @apply hover:bg-white/5 !important;
 }
 
 /* Override any remaining hover:bg-transparent rules */
 .mobile-nav-item,
 :deep(a),
 :deep(button) {
+  @apply hover:bg-white/5 !important;
   @apply hover:bg-white/5;
 }
 
-/* Allow background change on hover for active route */
+.mobile-nav-item {
+  background-color: transparent;
+}
+
+.mobile-nav-item:hover {
+  background-color: transparent;
+}
+
 .router-link.router-link-active {
   @apply bg-green-500/10 text-green-400;
 }
 
-/* Add these styles for better avatar centering */
+.router-link.router-link-active:hover {
+  @apply bg-green-500/10;
+}
+
 button img,
 button div {
   display: flex;
@@ -1226,28 +1025,35 @@ button div {
   line-height: 1;
 }
 
-/* Add these new styles */
 button {
+  position: relative !important;
+  z-index: 60 !important;
+  pointer-events: auto !important;
   cursor: pointer;
+}
+
+button:hover {
+  transform: translateY(-1px) !important;
+  color: rgb(74, 222, 128) !important;
 }
 
 .pointer-events-none {
   pointer-events: none;
 }
 
-/* Add smooth hover transitions */
 .router-link,
 button {
-  @apply transition-all duration-200 ease-out;
+  position: relative;
+  background-color: transparent;
+  transition: all 0.2s ease-out;
 }
 
-/* Add hover scale effect to active elements */
 .router-link:hover,
 button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
   transform: translateY(-1px);
 }
 
-/* Add bounce animation for notifications or updates */
 @keyframes bounce {
 
   0%,
@@ -1264,7 +1070,6 @@ button:hover {
   animation: bounce 2s infinite;
 }
 
-/* Update slide animation to be faster */
 .slide-enter-active,
 .slide-leave-active {
   transition: all 150ms ease-out;
@@ -1282,7 +1087,6 @@ button:hover {
   opacity: 1;
 }
 
-/* Add scale transition for dropdown */
 .scale-enter-active,
 .scale-leave-active {
   transition: all 150ms ease-out;
@@ -1300,31 +1104,6 @@ button:hover {
   transform: scale(1) translateY(0);
 }
 
-/* Add styling for search dropdown */
-.max-h-96 {
-  max-height: 24rem;
-}
-
-/* Ensure the search results scroll properly */
-.overflow-y-auto {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-.overflow-y-auto::-webkit-scrollbar {
-  width: 4px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-}
-
-/* Improve search dropdown styling */
 .max-h-96 {
   max-height: 24rem;
 }
@@ -1333,7 +1112,6 @@ button:hover {
   max-height: 16rem;
 }
 
-/* Enhance scrollbar styling */
 .overflow-y-auto {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -1356,38 +1134,8 @@ button:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Add subtle hover effect to search input */
 input[type="text"]:hover {
   background-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Update header container styles */
-header {
-  width: 100%;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-@media (max-width: 640px) {
-  header {
-    height: 3.5rem;
-  }
-}
-
-/* Add consistent width styling for the header wrapper that exactly matches PageMain */
-.page-header {
-  width: 1280px !important;
-  max-width: 1280px !important;
-  margin: 0 auto !important;
-  box-sizing: border-box !important;
-  padding: 0 !important;
-  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  border: 1px solid rgba(74, 222, 128, 0.08) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset !important;
-  border-radius: 0.75rem !important;
 }
 
 .component-global-wrapper,
@@ -1401,6 +1149,11 @@ header {
 }
 
 .page-header-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
   padding-top: 1rem !important;
 }
 
@@ -1411,6 +1164,8 @@ header {
 }
 
 header {
+  min-width: unset;
+  background-color: rgba(0, 0, 0, 0.4);
   width: 100% !important;
   border-radius: 0.75rem !important;
   background: transparent !important;
@@ -1424,37 +1179,18 @@ header>.content-container>div {
   padding: 0.75rem 1rem !important;
 }
 
-@media (max-width: 1400px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 95vw !important;
-  }
-}
-
-@media (max-width: 1100px) {
-  .page-header {
-    width: 95vw !important;
-    max-width: 95vw !important;
-  }
+header::before,
+header::after {
+  display: none !important;
 }
 
 @media (max-width: 640px) {
-  .page-header {
-    width: calc(100vw - 2rem) !important;
+  header {
+    min-height: 4rem;
     height: 3.5rem;
   }
 }
 
-/* IMPORTANT: Fix avatar dropdown z-index issues */
-.z-30 {
-  z-index: 30 !important;
-}
-
-.z-50 {
-  z-index: 50 !important;
-}
-
-/* Ensure dropdown appears above other elements */
 div[v-show="showProfileDropdown"] {
   z-index: 9999 !important;
   /* Force very high z-index */
@@ -1462,7 +1198,6 @@ div[v-show="showProfileDropdown"] {
   pointer-events: auto !important;
 }
 
-/* Fix profile dropdown styling */
 .absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
   position: absolute !important;
   right: 0 !important;
@@ -1470,31 +1205,25 @@ div[v-show="showProfileDropdown"] {
   z-index: 9999 !important;
 }
 
-/* Fix dropdown to be clickable */
 button,
 .router-link,
 .absolute.right-0.top-\[calc\(100\%\+0\.5rem\)\] {
   pointer-events: auto !important;
 }
 
-/* Ensure avatar and dropdown are correctly positioned */
 .relative {
   position: relative !important;
 }
 
-.page-header {
-  overflow: visible !important;
-  /* Allow dropdowns to be visible outside header */
-  z-index: 50 !important;
-  /* Ensure header is above other content */
+[class*='hover:bg'] {
+  background-color: transparent !important;
 }
 
-/* Reset any problematic hover styles */
-[class*='hover:bg'] {
+[class*='hover:bg']:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
   transition: background-color 0.2s ease !important;
 }
 
-/* Reset router link hover styles to ensure they work */
 router-link:hover,
 .router-link:hover,
 .block.px-4.py-2:hover {
@@ -1502,30 +1231,6 @@ router-link:hover,
   color: rgb(74, 222, 128) !important;
 }
 
-/* Reset button hover styles */
-button:hover {
-  transform: translateY(-1px) !important;
-  color: rgb(74, 222, 128) !important;
-}
-
-/* Ensure PageHeader matches HomeView styling */
-.page-header {
-  width: 100% !important;
-  max-width: 1280px !important;
-  margin: 0 auto !important;
-  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(74, 222, 128, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset;
-  border-radius: 0.75rem;
-  overflow: visible !important;
-  /* Allow dropdowns to be visible */
-  position: relative !important;
-  z-index: 50 !important;
-}
-
-/* Panel styling to match HomeView */
 .panel-inner {
   @apply p-4 h-full flex flex-col border border-white/10 rounded-xl relative z-10;
   background: linear-gradient(135deg, rgba(25, 33, 52, 0.8) 0%, rgba(8, 11, 22, 0.9) 100%);
@@ -1535,15 +1240,28 @@ button:hover {
   border-radius: 0.75rem;
 }
 
-/* Futuristic border effects from HomeView */
-.page-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+.page-header {
+  min-width: auto !important; /* Remove fixed min width */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  height: auto !important; /* Allow natural height */
+  min-height: 64px !important; /* Set minimum height to prevent jumping */
+  flex: 0 0 auto !important; /* Prevent flex resizing */
+  isolation: isolate;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 11, 22, 0.98) 100%) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(74, 222, 128, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(74, 222, 128, 0.05) inset !important;
+  border-radius: 0.75rem !important;
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  z-index: 50 !important;
+  overflow: visible !important;
 }
 
 .page-header::after {
@@ -1564,7 +1282,6 @@ button:hover {
   opacity: 1;
 }
 
-/* Futuristic border effects */
 .page-header::before {
   content: '';
   position: absolute;
@@ -1575,7 +1292,6 @@ button:hover {
   background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
 }
 
-/* Responsive breakpoints */
 @media (max-width: 1400px) {
   .page-header {
     width: 95vw !important;
@@ -1592,22 +1308,24 @@ button:hover {
 
 @media (max-width: 640px) {
   .page-header {
+    min-height: 56px !important;
+    max-width: calc(100vw - 2rem) !important;
     width: calc(100vw - 2rem) !important;
     height: 3.5rem;
   }
 }
 
-/* Enhanced Mobile Menu Styling */
+.page-header header {
+  z-index: 50 !important;
+}
+
 .mobile-menu {
+  z-index: var(--z-mobile-menu) !important;
   --menu-height: calc(100vh - 4.5rem);
   max-height: var(--menu-height);
   overflow-y: auto;
   overscroll-behavior: contain;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-/* Mobile menu scrollbar styling */
-.mobile-menu {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
@@ -1625,10 +1343,14 @@ button:hover {
   border-radius: 2px;
 }
 
-/* Enhanced mobile navigation items */
 .mobile-menu :deep(a),
 .mobile-menu :deep(button) {
-  @apply flex items-center w-full rounded-lg transition-all duration-200 font-medium;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
 }
 
 .mobile-menu :deep(a:active),
@@ -1636,7 +1358,6 @@ button:hover {
   transform: scale(0.98);
 }
 
-/* Mobile menu corner decorations - match desktop styling */
 .mobile-menu .corner-decor {
   position: absolute;
   width: 16px;
@@ -1673,7 +1394,6 @@ button:hover {
   border-right: 1px solid;
 }
 
-/* Hover effect improvements */
 @media (hover: hover) {
 
   .mobile-menu :deep(a:hover),
@@ -1683,39 +1403,37 @@ button:hover {
   }
 }
 
-/* iOS Safari specific fixes */
 @supports (-webkit-touch-callout: none) {
   .mobile-menu {
-    /* Fix for iOS Safari 100vh issue */
     height: -webkit-fill-available;
   }
 }
 
-/* Fix all dropdowns - ensure they're visible */
-.page-header {
-  overflow: visible !important;
-}
-
-/* Highest z-index for dropdowns - but don't force visibility */
 div[v-show="showLanguageDropdown"],
 div[v-show="showProfileDropdown"] {
   z-index: 9999 !important;
   position: absolute !important;
   pointer-events: auto !important;
-  /* Remove these lines that force visibility:
-  visibility: visible !important;
-  display: block !important;
-  */
 }
 
-/* Explicitly set position and overflow for dropdown containers */
 [ref="languageDropdownRef"],
 [ref="dropdownRef"] {
   position: relative !important;
   overflow: visible !important;
 }
 
-/* Fix z-index classes with !important to prevent overrides */
+.z-30 {
+  z-index: 30 !important;
+}
+
+.z-50 {
+  z-index: 50 !important;
+}
+
+.z-\[51\] {
+  z-index: 51;
+}
+
 .z-\[50\] {
   z-index: 50 !important;
 }
@@ -1728,18 +1446,19 @@ div[v-show="showProfileDropdown"] {
   z-index: 70 !important;
 }
 
-/* Modify language dropdown styling - don't force display */
+.z-\[100\],
+.z-\[101\],
+.z-\[102\] {
+  z-index: unset;
+}
+
 .absolute.right-0.top-full {
   position: absolute !important;
   right: 0 !important;
   top: 100% !important;
   z-index: 9999 !important;
-  /* Remove this line:
-  display: block !important;
-  */
 }
 
-/* Remove any parent elements that might clip the dropdown */
 .page-header-wrapper,
 .component-global-wrapper,
 header,
@@ -1748,10 +1467,20 @@ nav {
   overflow: visible !important;
 }
 
-/* Make dropdown elements clickable but don't force visibility */
 div[v-show="showLanguageDropdown"] button,
 div[v-show="showProfileDropdown"] a,
 div[v-show="showProfileDropdown"] button {
   pointer-events: auto !important;
 }
+
+[v-show*="showProfileDropdown"] {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.custom-header header::before,
+.custom-header header::after {
+  display: none !important;
+}
+
 </style>

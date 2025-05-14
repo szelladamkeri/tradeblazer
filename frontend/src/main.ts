@@ -83,9 +83,23 @@ import {
   faBolt,
   faSearchDollar,
   faMoneyBillWave,
-  faCircleInfo
-} from '@fortawesome/free-solid-svg-icons'
-import { faPaypal, faBitcoin } from '@fortawesome/free-brands-svg-icons'; // Removed faSkrill/faMoneyCheckDollar
+  faCircleInfo,
+  faEllipsisH,
+  faBullseye,
+  faHandshake,
+  faLocationDot,
+  faPhone,
+  faEye,
+  faShieldHalved
+} from '@fortawesome/free-solid-svg-icons';
+
+import { 
+  faPaypal, 
+  faBitcoin,
+  faFacebook,
+  faTwitter,
+  faLinkedin 
+} from '@fortawesome/free-brands-svg-icons';
 
 /* Add icons to the library */
 library.add(
@@ -162,7 +176,17 @@ library.add(
   faBolt,
   faSearchDollar,
   faMoneyBillWave,
-  faCircleInfo
+  faCircleInfo,
+  faEllipsisH,
+  faBullseye,
+  faHandshake,
+  faLocationDot,
+  faPhone,
+  faEye,
+  faShieldHalved,
+  faFacebook,
+  faTwitter,
+  faLinkedin
 )
 
 const app = createApp(App)

@@ -82,12 +82,12 @@ const handleMouseMove = (event: MouseEvent) => {
             <div class="grid md:grid-cols-4 gap-6">
               <div class="text-center">
                 <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4"></div>
-                <h3 class="text-lg font-semibold text-white">John Doe</h3>
+                <h3 class="text-lg font-semibold text-white">Aranyosi Dániel</h3>
                 <p class="text-gray-400">CEO & Founder</p>
               </div>
               <div class="text-center">
                 <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4"></div>
-                <h3 class="text-lg font-semibold text-white">Jane Smith</h3>
+                <h3 class="text-lg font-semibold text-white">Széll Ádám</h3>
                 <p class="text-gray-400">CEO & Founder</p>
               </div>
             </div>
@@ -135,18 +135,7 @@ const handleMouseMove = (event: MouseEvent) => {
                 <div class="flex items-center gap-2 text-gray-400">
                   <font-awesome-icon icon="phone" />
                   <span>+36 1 234 5678</span>
-                </div>
-                <div class="flex gap-4 mt-4">
-                  <a href="#" class="text-gray-400 hover:text-green-400">
-                    <font-awesome-icon icon="facebook" size="lg" />
-                  </a>
-                  <a href="#" class="text-gray-400 hover:text-green-400">
-                    <font-awesome-icon icon="twitter" size="lg" />
-                  </a>
-                  <a href="#" class="text-gray-400 hover:text-green-400">
-                    <font-awesome-icon icon="linkedin" size="lg" />
-                  </a>
-                </div>
+                </div>                
               </div>
             </div>
           </div>

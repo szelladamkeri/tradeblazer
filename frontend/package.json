@@ -15,6 +15,7 @@
     "@canopassoftware/vue-file-upload": "^1.0.8",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.6.7",
     "chart.js": "^4.4.8",
